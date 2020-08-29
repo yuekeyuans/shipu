@@ -1,0 +1,13 @@
+{
+    "C_Cpp.default.configurationProvider": "go2sh.cmake-integration",
+    "editor.cursorSmoothCaretAnimation": true,
+    "workbench.settings.openDefaultSettings": true,
+    "zenMode.fullScreen": false,
+    "editor.suggest.statusBar.visible": true,
+    "problems.showCurrentInStatus": true,
+    "debug.showInStatusBar": "always",
+    "eslint.alwaysShowStatus": true,
+    "markdown.showToolbar": true,
+    "editor.cursorBlinking": "smooth",
+    "editor.multiCursorMergeOverlapping": false
+}
