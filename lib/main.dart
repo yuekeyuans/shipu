@@ -12,6 +12,7 @@ import 'package:sp_util/sp_util.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  checkPermission();
   await SpUtil.getInstance();
   await initDb();
   initVal();
@@ -23,10 +24,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    checkPermission();
-
     var homePage = MyHomePage(title: "学习");
-
     return MaterialApp(
       title: '打卡',
       theme: ThemeData(
@@ -76,6 +74,12 @@ initVal() async {
 
   DirectoryUtil.createDir(basePath + "/zhuhuifu/temp");
   SpUtil.putString("TEMP_PATH", basePath + "/zhuhuifu/temp");
+
+  DirectoryUtil.createDir("$basePath/zhuhuifu/encription");
+  SpUtil.putString("ENCRIPTION_PATH", "$basePath/zhuhuifu/encription");
+
+  DirectoryUtil.createDir("$basePath/zhuhuifu/decription");
+  SpUtil.putString("DECRIPTION_PATH", "$basePath/zhuhuifu/decription");
 
   DirectoryUtil.createDir(basePath + "/documents/iSilo/Settings");
   SpUtil.putString("ISILO_PATH", basePath + "/documents/iSilo/Settings");

@@ -1,18 +1,9 @@
 package com.example.clock_in
 
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.net.ConnectivityManager
 import android.net.Uri
-import android.net.wifi.WifiConfiguration
-import android.net.wifi.WifiManager
-import android.net.wifi.p2p.WifiP2pManager
-import android.net.wifi.p2p.WifiP2pManager.Channel
 import android.os.Build
 import android.os.Bundle
-import android.os.Looper
-import android.os.ResultReceiver
 import android.provider.Settings
 import android.widget.Toast
 import androidx.core.content.FileProvider
@@ -22,26 +13,123 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
 import java.io.FileInputStream
-import java.lang.reflect.Field
-import java.lang.reflect.InvocationTargetException
-
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity: FlutterActivity() {
   private val CHANNEL_CONVERTER = "com.example.clock_in/converter"
   private val CHANNEL_ISILO = "com.example.clock_in/isilo"
   private val CHANNEL_WIFI = "com.example.clock_in/wifi"
+  private val CHANNEL_ENCODE = "com.example.clock_in/encription"
+
   private var isConvertFinish =false;
   private var appPath:String? = "";
   private val Tag = "com.example.clock_in"
 
-
-
   override fun onCreate(savedInstanceState: Bundle?) {
-
 
     super.onCreate(savedInstanceState)
     GeneratedPluginRegistrant.registerWith(this)
-    
+
+    //加密 magic
+    val ENCODE_TEXT = "EN_TYPE1"
+
+    // 文件加密使用程序
+    MethodChannel(flutterView, CHANNEL_ENCODE).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
+      run {
+        fun checkIsEncoded(src:String):Boolean{
+          val inFile = File(src)
+          if(inFile.exists()){
+            val input = inFile.inputStream()
+            var simpleEncode = ENCODE_TEXT.toByteArray()
+            var byte = ByteArray(simpleEncode.size)
+            if(input.read(byte, 0, simpleEncode.size).toString() == simpleEncode.toString()) {
+              return true
+            }
+          }
+          return false
+        }
+
+
+        fun encodeFile(src:String?, dest:String?, magic:Int):Boolean{
+          val inFile = File(src)
+          val outFile = File(dest)
+          if(!inFile.exists()) return false
+          if(!outFile.exists()) outFile.createNewFile()
+          if(checkIsEncoded(src!!)){    //已加密，直接拷贝
+            outFile.writeBytes(inFile.readBytes())
+            return true;
+          }
+
+          // 未加密，加密拷贝
+          val input = inFile.inputStream()
+          val output = outFile.outputStream()
+          var simpleEncode = ENCODE_TEXT.toByteArray()
+          output.write(simpleEncode)
+          output.write(Int.MAX_VALUE)
+          output.write(magic)
+          output.write(Int.MAX_VALUE)
+          var data :Int = input.read()
+          while(data > -1){
+            output.write((data xor magic))
+            data = input.read()
+          }
+
+          input.close()
+          output.flush()
+          output.close()
+          return true
+        }
+        fun decodeFile(src:String?, dest:String?):Boolean{
+          val inFile = File(src)
+          val outFile = File(dest)
+          if(!inFile.exists()) return false
+          if(!outFile.exists()) outFile.createNewFile()
+          if(!checkIsEncoded(src!!)){
+            outFile.writeBytes(inFile.readBytes())
+            return true
+          }
+
+          val input = inFile.inputStream()
+          val output = outFile.outputStream()
+          var simpleEncode = ENCODE_TEXT.toByteArray()
+          var byte = ByteArray(simpleEncode.size)
+          if(input.read(byte, 0, simpleEncode.size).toString() != simpleEncode.toString()){
+            return false
+          }
+          input.read()
+          val magic = input.read()
+          input .read()
+
+          var data :Int = input.read()
+          while(data > -1){
+            output.write((data xor magic))
+            data = input.read()
+          }
+          input.close()
+          output.flush()
+          output.close()
+          return true
+        }
+
+        var name = call.method
+        if(name.equals("encode") || name.equals("decode")){
+          val src = call.argument<String>("src")
+          val dest = call.argument<String>("dest")
+          if(name.equals("encode")){
+            var magic = Random().nextInt()
+            if(call.hasArgument("magic")){
+              magic = call.argument<Int>("magic")!!
+            }
+            encodeFile(src, dest, magic)
+          }else{
+            decodeFile(src,dest)
+          }
+          result.success("success")
+        }
+      }
+    })
+
     //  程序安装获取信息的channel
     MethodChannel(flutterView, CHANNEL_ISILO).setMethodCallHandler(MethodChannel.MethodCallHandler{call, result->
       run{
@@ -66,7 +154,6 @@ class MainActivity: FlutterActivity() {
           if (!pFile.exists()) return
           val _Intent = Intent()
           _Intent.action = Intent.ACTION_VIEW
-          val _uri: Uri
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
               val hasInstallPermission = this.packageManager.canRequestPackageInstalls();

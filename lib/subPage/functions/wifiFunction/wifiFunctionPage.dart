@@ -1,8 +1,7 @@
-import 'package:da_ka/subPage/functions/qrFunction/qrCode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nav_router/nav_router.dart';
 import 'wifiEntity.dart';
+import 'package:flutter_p2p/flutter_p2p.dart';
 
 class WifiShareFunctionPage extends StatefulWidget {
   @override

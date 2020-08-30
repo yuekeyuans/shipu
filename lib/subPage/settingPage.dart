@@ -1,3 +1,4 @@
+import 'package:da_ka/subPage/functions/encriptionFunction/encriptionFunctionPage.dart';
 import 'package:da_ka/subPage/functions/isiloFunction/isiloFunction.dart';
 import 'package:da_ka/subPage/functions/splashFunction/splashFunction.dart';
 import 'package:da_ka/subPage/functions/wifiFunction/wifiFunctionPage.dart';
@@ -71,6 +72,22 @@ class _FunctionPageState extends State<FunctionPage> {
         leading: Icon(Icons.wifi),
         onTap: () => routePush(WifiShareFunctionPage()),
       ),
+      ListTile(
+          title: Text("加密文件"),
+          leading: Icon(Icons.enhanced_encryption),
+          onTap: () => routePush(EncriptionFunctionPage()),
+          enabled: true,
+          trailing: GestureDetector(
+              child: Icon(Icons.info),
+              onTap: () => showDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("说明"),
+                      content: Text("简单加密文件,方便公共网络分享"),
+                    );
+                  }))),
       ListTile(
           title: Text("听书模式"),
           leading: Icon(Icons.speaker_phone),

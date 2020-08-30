@@ -25,6 +25,7 @@ class DatabaseHelper {
     String dir =
         (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
     var path = '$dir/zhuhuifu/clock_in.db';
+    print(path);
     if (!File(path).existsSync()) {
       await copyFile();
     }
