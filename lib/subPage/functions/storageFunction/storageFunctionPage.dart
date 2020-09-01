@@ -76,8 +76,11 @@ class _StorageFunctionPageState extends State<StorageFunctionPage> {
                             child: Text("取消"),
                           ),
                           FlatButton(
-                            onPressed: () => _deleteFiles(
-                                Directory(SpUtil.getString("MAIN_PATH"))),
+                            onPressed: () {
+                              _deleteFiles(
+                                  Directory(SpUtil.getString("MAIN_PATH")));
+                              Navigator.pop(context);
+                            },
                             child: Text("确定"),
                           )
                         ],

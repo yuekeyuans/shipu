@@ -20,8 +20,8 @@ class _FunctionPageState extends State<FunctionPage> {
     return Scaffold(
         body: ListView(children: <Widget>[
       ListTile(
-          title: Text("备份文件"),
-          leading: Icon(Icons.scanner),
+          title: Text("给别人分享这个软件"),
+          leading: Icon(Icons.share),
           onTap: () => routePush(BackUpAppPage()),
           trailing: GestureDetector(
               child: Icon(Icons.info),

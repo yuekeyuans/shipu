@@ -36,3 +36,6 @@ const Color mainShadowColor = Color(0x4d3754AA);
 
 const MDX_BOTTOM_HEIGHT = 25.0;
 const MDX_ICON_COLOR = Color.fromARGB(100, 0, 0, 0);
+
+const packageName = "com.example.clock_in";
+const appName = "clock_in.apk";
