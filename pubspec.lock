@@ -422,6 +422,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.2"
+  settings_ui:
+    dependency: "direct main"
+    description:
+      name: settings_ui
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.4.0"
   share_extend:
     dependency: "direct main"
     description:

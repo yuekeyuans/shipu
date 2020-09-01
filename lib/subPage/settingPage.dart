@@ -5,7 +5,9 @@ import 'package:da_ka/subPage/functions/wifiFunction/wifiFunctionPage.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
 
+import 'functions/backupFunction/backupFunctionPage.dart';
 import 'functions/scanFileFunction/scanFile.dart';
+import 'functions/storageFunction/storageFunctionPage.dart';
 
 class FunctionPage extends StatefulWidget {
   @override
@@ -17,6 +19,19 @@ class _FunctionPageState extends State<FunctionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: ListView(children: <Widget>[
+      ListTile(
+          title: Text("备份文件"),
+          leading: Icon(Icons.scanner),
+          onTap: () => routePush(BackUpAppPage()),
+          trailing: GestureDetector(
+              child: Icon(Icons.info),
+              onTap: () => showDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                        title: Text("说明"), content: Text("备份文件"));
+                  }))),
       ListTile(
           title: Text("扫描文件夹"),
           leading: Icon(Icons.scanner),
@@ -69,6 +84,7 @@ class _FunctionPageState extends State<FunctionPage> {
                   }))),
       ListTile(
         title: Text("分享"),
+        enabled: false,
         leading: Icon(Icons.wifi),
         onTap: () => routePush(WifiShareFunctionPage()),
       ),
@@ -105,10 +121,10 @@ class _FunctionPageState extends State<FunctionPage> {
                     );
                   }))),
       ListTile(
-          enabled: false,
+          enabled: true,
           title: Text("存储管理"),
           leading: Icon(Icons.storage),
-          onTap: () => routePush(ScanFilesPage()),
+          onTap: () => routePush(StorageFunctionPage()),
           trailing: GestureDetector(
               child: Icon(Icons.info),
               onTap: () => showDialog(

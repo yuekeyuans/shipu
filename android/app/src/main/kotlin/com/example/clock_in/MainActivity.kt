@@ -4,26 +4,34 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.os.StatFs
 import android.provider.Settings
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.aspose.words.SaveFormat
+import io.flutter.Log
 import io.flutter.app.FlutterActivity
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.*
 import kotlin.collections.ArrayList
 
 class MainActivity: FlutterActivity() {
+  val ENCODE_TEXT = "encryption_type1"
+
   private val CHANNEL_CONVERTER = "com.example.clock_in/converter"
   private val CHANNEL_ISILO = "com.example.clock_in/isilo"
   private val CHANNEL_WIFI = "com.example.clock_in/wifi"
   private val CHANNEL_ENCODE = "com.example.clock_in/encription"
+  private val CHANNEL_CLEAN = "com.example.clock_in/clean"
+  private val CHANNEL_COPY_APP = "com.example.clock_in/copyApp"
 
-  private var isConvertFinish =false;
-  private var appPath:String? = "";
+  private var isConvertFinish =false
+  private var appPath:String? = ""
   private val Tag = "com.example.clock_in"
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,9 +39,75 @@ class MainActivity: FlutterActivity() {
     super.onCreate(savedInstanceState)
     GeneratedPluginRegistrant.registerWith(this)
 
-    //加密 magic
-    val ENCODE_TEXT = "EN_TYPE1"
 
+
+    //拷贝apk 文件
+    MethodChannel(flutterView, CHANNEL_COPY_APP).setMethodCallHandler{call, result->
+      run {
+        fun backupApp(path: String, outname: String, basePath:String) {
+          val `in` = File(path)
+          var mBaseFile = File(basePath)
+          if (!mBaseFile.exists()) mBaseFile.mkdir()
+          val out = File(mBaseFile, "$outname.apk")
+          if (!out.exists()) out.createNewFile()
+          val fis = FileInputStream(`in`)
+          val fos = FileOutputStream(out)
+          var count: Int = 0;
+          val buffer = ByteArray(256 * 1024)
+          while (fis.read(buffer).also { count = it } > 0) {
+            fos.write(buffer, 0, count)
+          }
+          fis.close()
+          fos.flush()
+          fos.close()
+        }
+
+        fun backupUserApp(packageName:String, basePath:String) {
+          var allPackages = packageManager.getInstalledPackages(0);
+          for (packageInfo in allPackages) {
+            if(packageInfo.packageName.equals(packageName)) {
+              var path = packageInfo.applicationInfo.sourceDir;
+              var name = packageInfo.applicationInfo.loadLabel(packageManager).toString();
+              try {
+                backupApp(path, name, basePath);
+                Log.d("backup succeed", path)
+              } catch (e: Exception) {
+                Log.e(Tag, path + "Failed backup  " + e.message)
+              }
+            }
+          }
+        }
+
+        if(call.method.equals("backupApk")){
+          var packageName = call.argument<String>("packageName")
+          var destPath = call.argument<String>("destPath")
+          backupUserApp(packageName!!, destPath!!)
+          result.success("backupSucceed")
+        }
+      }
+    }
+    //获取存储大小
+    MethodChannel(flutterView, CHANNEL_CLEAN).setMethodCallHandler{call, result->
+      run{
+        val  units = arrayOf("B", "KB", "MB", "GB", "TB")
+        fun getUnit(s:Float):String {
+          var size = s
+          var index = 0
+          while (size > 1024 && index < 4) {
+            size = size / 1024
+            index++
+          }
+          return String.format(Locale.getDefault(), " %.2f %s", size, units[index])
+        }
+
+        if(call.method.equals("avaliableSize")){
+          val statFs = StatFs(Environment.getExternalStorageDirectory().path)
+          var blockSize = statFs.blockSizeLong
+          var availableCount = statFs.availableBytes
+          result.success(getUnit((availableCount).toFloat()))
+        }
+      }
+    }
     // 文件加密使用程序
     MethodChannel(flutterView, CHANNEL_ENCODE).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
       run {
@@ -58,7 +132,7 @@ class MainActivity: FlutterActivity() {
           if(!outFile.exists()) outFile.createNewFile()
           if(checkIsEncoded(src!!)){    //已加密，直接拷贝
             outFile.writeBytes(inFile.readBytes())
-            return true;
+            return true
           }
 
           // 未加密，加密拷贝
@@ -129,14 +203,13 @@ class MainActivity: FlutterActivity() {
         }
       }
     })
-
     //  程序安装获取信息的channel
     MethodChannel(flutterView, CHANNEL_ISILO).setMethodCallHandler(MethodChannel.MethodCallHandler{call, result->
       run{
         //获取app 信息
         fun getInstalledApps(): ArrayList<String>? {
           val res = ArrayList<String>()
-          val packs = this.getPackageManager().getInstalledPackages(0)
+          val packs = this.packageManager.getInstalledPackages(0)
           for (i in packs.indices) {
             res.add(packs[i].packageName)
           }
@@ -144,7 +217,7 @@ class MainActivity: FlutterActivity() {
         }
         //启动程序
         fun startIsiloApp(){
-          val packageName = "com.dcco.app.iSilo";
+          val packageName = "com.dcco.app.iSilo"
           startActivity(this.packageManager.getLaunchIntentForPackage(packageName))
         }
 
@@ -156,13 +229,13 @@ class MainActivity: FlutterActivity() {
           _Intent.action = Intent.ACTION_VIEW
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-              val hasInstallPermission = this.packageManager.canRequestPackageInstalls();
+              val hasInstallPermission = this.packageManager.canRequestPackageInstalls()
               if(!hasInstallPermission){
                 val packageURI = Uri.parse("package:" + packageName)
                 val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI)
                 startActivityForResult(intent, 10001)
               }else{
-                val apkUri = FileProvider.getUriForFile(this, this.getPackageName().toString() + ".fileProvider", pFile)
+                val apkUri = FileProvider.getUriForFile(this, this.packageName.toString() + ".fileProvider", pFile)
                 val install = Intent(Intent.ACTION_VIEW)
                 install.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -188,12 +261,12 @@ class MainActivity: FlutterActivity() {
         var method = call.method
         if(method.equals("isInstalled")){
           var apps = getInstalledApps()
-          result.success(apps.toString());
+          result.success(apps.toString())
         }else if(method.equals("startIsilo")){
-          startIsiloApp();
+          startIsiloApp()
         }else if(method.equals("installIsilo")){
           appPath = call.argument<String>("path")
-          installApp();
+          installApp()
           result.success(appPath)
         }
       }
@@ -201,7 +274,7 @@ class MainActivity: FlutterActivity() {
     // 转换文件的 channel
     MethodChannel(flutterView,CHANNEL_CONVERTER).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
       run {
-        val method = call.method;
+        val method = call.method
         if (method.equals("convertToHtml")) {
           this.isConvertFinish = false
           val path = call.argument<String>("path")
