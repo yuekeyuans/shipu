@@ -91,7 +91,7 @@ class _FunctionPageState extends State<FunctionPage> {
       ListTile(
           title: Text("加密文件"),
           leading: Icon(Icons.enhanced_encryption),
-          onTap: () => routePush(EncriptionFunctionPage()),
+          onTap: () => routePush(EncryptionFunctionPage()),
           enabled: true,
           trailing: GestureDetector(
               child: Icon(Icons.info),
@@ -125,38 +125,6 @@ class _FunctionPageState extends State<FunctionPage> {
           title: Text("存储管理"),
           leading: Icon(Icons.storage),
           onTap: () => routePush(StorageFunctionPage()),
-          trailing: GestureDetector(
-              child: Icon(Icons.info),
-              onTap: () => showDialog(
-                  context: context,
-                  barrierDismissible: true,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text("说明"),
-                      content: Text("管理程序使用的存储空间。"),
-                    );
-                  }))),
-      ListTile(
-          enabled: false,
-          title: Text("闹钟"),
-          leading: Icon(Icons.storage),
-          onTap: () => routePush(ScanFilesPage()),
-          trailing: GestureDetector(
-              child: Icon(Icons.info),
-              onTap: () => showDialog(
-                  context: context,
-                  barrierDismissible: true,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text("说明"),
-                      content: Text("管理程序使用的存储空间。"),
-                    );
-                  }))),
-      ListTile(
-          enabled: false,
-          title: Text("内容设置"),
-          leading: Icon(Icons.storage),
-          onTap: () => routePush(ScanFilesPage()),
           trailing: GestureDetector(
               child: Icon(Icons.info),
               onTap: () => showDialog(

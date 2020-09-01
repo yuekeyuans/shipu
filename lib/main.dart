@@ -75,14 +75,17 @@ initVal() async {
   DirectoryUtil.createDir(basePath + "/zhuhuifu/temp");
   SpUtil.putString("TEMP_PATH", basePath + "/zhuhuifu/temp");
 
-  DirectoryUtil.createDir("$basePath/zhuhuifu/encription");
-  SpUtil.putString("ENCRIPTION_PATH", "$basePath/zhuhuifu/encription");
+  DirectoryUtil.createDir("$basePath/zhuhuifu/encryption");
+  SpUtil.putString("ENCRYPTION_PATH", "$basePath/zhuhuifu/encryption");
 
   DirectoryUtil.createDir("$basePath/zhuhuifu/decription");
-  SpUtil.putString("DECRIPTION_PATH", "$basePath/zhuhuifu/decription");
+  SpUtil.putString("DECRYPTION_PATH", "$basePath/zhuhuifu/decription");
 
   DirectoryUtil.createDir(basePath + "/documents/iSilo/Settings");
   SpUtil.putString("ISILO_PATH", basePath + "/documents/iSilo/Settings");
+
+  //文件是否加密发送
+  SpUtil.putBool("Encryption", false);
 
   //splash
   SplashEntity().setSp();
