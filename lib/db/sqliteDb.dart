@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flustars/flustars.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
@@ -10,7 +10,7 @@ class DatabaseHelper {
   factory DatabaseHelper() => _instance;
   static Database _db;
   final filename = "clock_in.db";
-
+  String dir = SpUtil.getString("DB_PATH");
   Future<Database> get db async {
     if (_db != null) {
       return _db;
@@ -22,10 +22,7 @@ class DatabaseHelper {
   DatabaseHelper.internal();
 
   initDb() async {
-    String dir =
-        (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
-    var path = '$dir/zhuhuifu/clock_in.db';
-    print(path);
+    var path = '$dir/$filename';
     if (!File(path).existsSync()) {
       await copyFile();
     }
@@ -40,13 +37,7 @@ class DatabaseHelper {
           buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
     };
 
-    var bytes = await rootBundle.load("assets/db/clock_in.db");
-    String dir =
-        (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
-    var dirs = Directory("$dir/zhuhuifu");
-    if (!(await dirs.exists())) {
-      dirs.createSync();
-    }
-    return writeToFile(bytes, '$dir/zhuhuifu/$filename');
+    var bytes = await rootBundle.load("assets/db/$filename");
+    return writeToFile(bytes, '$dir/$filename');
   }
 }

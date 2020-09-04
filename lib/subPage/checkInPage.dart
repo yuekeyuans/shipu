@@ -1,4 +1,7 @@
+import 'package:da_ka/subPage/daka/reciteBible/ReciteBiblePage.dart';
+import 'package:da_ka/subPage/functions/dakaFunction/daka_recite_bible_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:nav_router/nav_router.dart';
 
 class CheckInPage extends StatefulWidget {
   @override
@@ -23,17 +26,22 @@ class _CheckInPageState extends State<CheckInPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: ListView.separated(
-        itemBuilder: (context, index) {
-          return ListTile(title: Text(items[index]));
-        },
-        separatorBuilder: (context, index) {
-          return Divider(
-            height: 1,
-          );
-        },
-        itemCount: items.length,
+      child: ListView(
+        children: getChildren(),
       ),
     );
+  }
+
+  List<Widget> getChildren() {
+    var widget = <Widget>[];
+    if (ReciteBibleEntity.fromSp().isOn) {
+      widget.add(ListTile(
+        title: Text("背经"),
+        onTap: () => routePush(ReciteBiblePage()),
+        trailing: Icon(Icons.check),
+      ));
+      widget.add(Divider());
+    }
+    return widget;
   }
 }

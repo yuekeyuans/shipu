@@ -39,3 +39,9 @@ const MDX_ICON_COLOR = Color.fromARGB(100, 0, 0, 0);
 
 const packageName = "com.example.clock_in";
 const appName = "clock_in.apk";
+
+const delay_bible_strategy = [
+  "没有完成时推迟到下一天",
+  "没有完成的叠加到下一天",
+  "没有完成就跳过",
+];

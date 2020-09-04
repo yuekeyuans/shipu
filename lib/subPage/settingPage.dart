@@ -1,3 +1,4 @@
+import 'package:da_ka/subPage/functions/dakaFunction/dakaFunctionPage.dart';
 import 'package:da_ka/subPage/functions/encriptionFunction/encriptionFunctionPage.dart';
 import 'package:da_ka/subPage/functions/isiloFunction/isiloFunction.dart';
 import 'package:da_ka/subPage/functions/splashFunction/splashFunction.dart';
@@ -105,10 +106,9 @@ class _FunctionPageState extends State<FunctionPage> {
                     );
                   }))),
       ListTile(
-          title: Text("听书模式"),
+          title: Text("打卡功能"),
           leading: Icon(Icons.speaker_phone),
-          onTap: () => routePush(ScanFilesPage()),
-          enabled: false,
+          onTap: () => routePush(DaKaFunctionPage()),
           trailing: GestureDetector(
               child: Icon(Icons.info),
               onTap: () => showDialog(

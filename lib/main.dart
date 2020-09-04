@@ -1,4 +1,6 @@
+import 'package:da_ka/db/bibleDb.dart';
 import 'package:da_ka/db/sqliteDb.dart';
+import 'package:da_ka/subPage/functions/dakaFunction/daka_recite_bible_entity.dart';
 import 'package:da_ka/subPage/functions/splashFunction/splahEntity.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +14,8 @@ import 'package:sp_util/sp_util.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  checkPermission();
-  await SpUtil.getInstance();
+  await initVal();
   await initDb();
-  initVal();
   runApp(MyApp());
 }
 
@@ -47,16 +47,15 @@ class MyApp extends StatelessWidget {
   }
 }
 
-///检查是否有权限
-void checkPermission() async {
+initVal() async {
+  ///检查是否有权限
   Map<Permission, PermissionStatus> statuses = await [
     Permission.storage,
     Permission.camera,
   ].request();
   print(statuses[Permission.storage]);
-}
 
-initVal() async {
+  await SpUtil.getInstance();
   //判断是否定义过变量
   if (SpUtil.getBool("defined", defValue: false)) {
     return;
@@ -78,8 +77,11 @@ initVal() async {
   DirectoryUtil.createDir("$basePath/zhuhuifu/encryption");
   SpUtil.putString("ENCRYPTION_PATH", "$basePath/zhuhuifu/encryption");
 
-  DirectoryUtil.createDir("$basePath/zhuhuifu/decription");
-  SpUtil.putString("DECRYPTION_PATH", "$basePath/zhuhuifu/decription");
+  DirectoryUtil.createDir("$basePath/zhuhuifu/decryption");
+  SpUtil.putString("DECRYPTION_PATH", "$basePath/zhuhuifu/decryption");
+
+  DirectoryUtil.createDir(basePath + "/zhuhuifu/database");
+  SpUtil.putString("DB_PATH", basePath + "/zhuhuifu/database");
 
   DirectoryUtil.createDir(basePath + "/documents/iSilo/Settings");
   SpUtil.putString("ISILO_PATH", basePath + "/documents/iSilo/Settings");
@@ -89,8 +91,12 @@ initVal() async {
 
   //splash
   SplashEntity().setSp();
+
+  //背经
+  ReciteBibleEntity.instance().toSp();
 }
 
 Future<void> initDb() async {
   await DatabaseHelper().db;
+  await BibleDatabaseHelper().db;
 }
