@@ -1,17 +1,17 @@
-import 'package:common_utils/common_utils.dart';
 import 'package:da_ka/db/bibleDb.dart';
+import 'package:da_ka/db/recitebibleTable.dart';
 import 'package:da_ka/db/sqliteDb.dart';
+import 'package:sqflite/sqflite.dart';
 
 /// 文件当中目前有两张表，现在仅提供一张表，另外一张暂时不提供
 class BibleTable {
+  static const String TABLENAME = "content";
   int id;
   int bookIndex;
   int chapter;
   int section;
   int flag;
   String content;
-
-  static const String TABLENAME = "content";
 
   BibleTable(
       {this.id,
@@ -61,23 +61,61 @@ class BibleTable {
     return null;
   }
 
-  Future<List<BibleTable>> queryByDay(DateTime date) async {
-    var list = <BibleTable>[];
+  List<BibleTable> queryByReciteBibleTableRecord(
+      List<ReciteBibleTable> records) {
+    var lst = <BibleTable>[];
+    records.forEach((element) async {
+      lst.addAll((await queryByIds(element)));
+    });
+    return lst;
+  }
+
+  Future<BibleTable> queryById(int id) async {
+    var lst = [];
     var db = await BibleDatabaseHelper().db;
-    var result = await db.query(
-      TABLENAME,
-    );
-    return list;
+    var result = await db.query(TABLENAME, where: "_id = ?", whereArgs: [id]);
+    result.forEach((element) {
+      lst.add(BibleTable.fromJson(element));
+    });
+    return lst.first;
+  }
+
+  Future<List<BibleTable>> queryByIds(ReciteBibleTable record) async {
+    var lst = <BibleTable>[];
+    var db = await BibleDatabaseHelper().db;
+    var ids = record.ids;
+    ids.add("-1");
+    var result = await db.query(TABLENAME,
+        where: "_id in (${record.listToString(ids)})");
+    result.forEach((element) {
+      lst.add(BibleTable.fromJson(element));
+    });
+    return lst;
+  }
+
+  //查询书目中的最大值和最小值
+  Future<List<int>> queryMinMaxId(int bookId) async {
+    var db = await BibleDatabaseHelper().db;
+    int min, max;
+    var result = await db.query(TABLENAME,
+        columns: ["min(_id), max(_id)"],
+        where: "book_index = ?",
+        whereArgs: [bookId]);
+
+    result.forEach((element) {
+      min = element.values.first;
+      max = element.values.last;
+    });
+    return [min, max];
   }
 }
 
 class BookName {
+  static const TABLENAME = "book_name";
   int id;
   int bookIndex;
   String name;
   String acronymName;
-
-  String TABLENAME = "book_name";
 
   BookName();
 
@@ -102,10 +140,19 @@ class BookName {
     var db = await BibleDatabaseHelper().db;
     var result = await db.query(TABLENAME, where: "name= ?", whereArgs: [name]);
     result.forEach((element) {
-      var a = BookName.fromJson(element);
-      id = a.id;
+      id = BookName.fromJson(element).id;
     });
     return id;
+  }
+
+  static Future<String> queryBookName(int id) async {
+    var name = "";
+    var db = await BibleDatabaseHelper().db;
+    var result = await db.query(TABLENAME, where: "_id = ?", whereArgs: [id]);
+    result.forEach((element) {
+      name = BookName.fromJson(element).acronymName;
+    });
+    return name;
   }
 
   Future<List<BookName>> queryBookNames() async {

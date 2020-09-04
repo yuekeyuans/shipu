@@ -1,3 +1,8 @@
+import 'package:common_utils/common_utils.dart';
+import 'package:da_ka/db/bibleTable.dart';
+import 'package:da_ka/db/recitebibleTable.dart';
+import 'package:da_ka/subPage/functions/dakaFunction/daka_recite_bible_entity.dart';
+import 'package:flustars/flustars.dart';
 import "package:flutter/material.dart";
 
 class ReciteBiblePage extends StatefulWidget {
@@ -6,12 +11,22 @@ class ReciteBiblePage extends StatefulWidget {
 }
 
 class _ReciteBiblePageState extends State<ReciteBiblePage> {
-  DateTime date;
+  DateTime date = DateTime.now();
+  List<BibleTable> bibles = [];
+  String bookName = "";
 
   @override
   void initState() {
     super.initState();
-    date = DateTime.now();
+    updateData();
+  }
+
+  updateData() async {
+    var record = await ReciteBibleTable().queryByDay(DateTime.now());
+    bibles = await BibleTable().queryByIds(record);
+    print(bibles.toString());
+    bookName = ReciteBibleEntity.fromSp().currentBook;
+    setState(() {});
   }
 
   bool get isCurrentDate {
@@ -26,9 +41,18 @@ class _ReciteBiblePageState extends State<ReciteBiblePage> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> getChildren() {
+      var lst = <Widget>[];
+      bibles.forEach((element) {
+        lst.add(createCard(element));
+      });
+      return lst;
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("背经"),
+        title: Text(
+            "背经 - ${DateUtil.formatDate(date, format: DateFormats.zh_y_mo_d)}"),
         actions: <Widget>[
           Padding(
             padding: EdgeInsets.only(right: 10),
@@ -37,29 +61,26 @@ class _ReciteBiblePageState extends State<ReciteBiblePage> {
           )
         ],
       ),
-      body: ListView(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(10),
+      body: ListView(children: getChildren()),
+    );
+  }
+
+  Widget createCard(BibleTable record) {
+    return Card(
+      child: Container(
+        padding: EdgeInsets.all(20),
+        child: Column(children: [
+          Text(
+            "$bookName ${record.chapter}:${record.section}",
+            textAlign: TextAlign.left,
           ),
-          Card(
-            child: Container(
-              padding: EdgeInsets.all(20),
-              child: Column(children: [
-                Text(
-                  "约翰福音 6:68",
-                  textAlign: TextAlign.left,
-                ),
-                Divider(),
-                Text(
-                  "西门彼得对曰、主有永生之道、吾谁与归、",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(fontSize: 25),
-                ),
-              ]),
-            ),
-          )
-        ],
+          Divider(),
+          Text(
+            record.content,
+            textAlign: TextAlign.left,
+            style: TextStyle(fontSize: 25),
+          ),
+        ]),
       ),
     );
   }
