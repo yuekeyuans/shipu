@@ -1,3 +1,5 @@
+import 'package:common_utils/common_utils.dart';
+
 class ReciteBibleTable {
   List<String> ids = [];
   DateTime date = DateTime.now();
@@ -6,15 +8,17 @@ class ReciteBibleTable {
 
   ReciteBibleTable();
 
-  ReciteBibleTable.fromJson(Map<String, String> map) {
+  ReciteBibleTable.fromJson(Map<String, dynamic> map) {
     ids = map["ids"].toString().split(",");
-    
+    date = DateTime.parse(map["date"]);
+    isComplete = map["iscomplete"] == true.toString();
+    isDelay = map["isDelay"] == true.toString();
   }
 
   toJson() {
     var map = Map<String, String>();
     map["ids"] = listToString(ids);
-    map["date"] = date.toIso8601String();
+    map["date"] = DateUtil.formatDate(date, format: DateFormats.y_mo_d);
     map["iscomplete"] = isComplete.toString();
     map["isdelay"] = isDelay.toString();
     return map;

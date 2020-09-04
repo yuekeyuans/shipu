@@ -10,34 +10,28 @@ class DatabaseHelper {
   factory DatabaseHelper() => _instance;
   static Database _db;
   final filename = "clock_in.db";
+
   String dir = SpUtil.getString("DB_PATH");
+
   Future<Database> get db async {
-    if (_db != null) {
-      return _db;
+    var path = '$dir/$filename';
+    if (_db == null) {
+      if (!File(path).existsSync()) await copyFile();
+      _db = await openDatabase(path, version: 1);
     }
-    _db = await initDb();
     return _db;
   }
 
   DatabaseHelper.internal();
 
-  initDb() async {
-    var path = '$dir/$filename';
-    if (!File(path).existsSync()) {
-      await copyFile();
-    }
-    var ourDb = await openDatabase(path, version: 1);
-    return ourDb;
-  }
-
   Future<File> copyFile() async {
     var writeToFile = (ByteData data, String path) {
-      final buffer = data.buffer;
+      if (!File(path).existsSync()) File(path).createSync();
       return new File(path).writeAsBytes(
-          buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
     };
 
     var bytes = await rootBundle.load("assets/db/$filename");
-    return writeToFile(bytes, '$dir/$filename');
+    return await writeToFile(bytes, '$dir/$filename');
   }
 }

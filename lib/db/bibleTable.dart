@@ -67,7 +67,6 @@ class BibleTable {
     var result = await db.query(
       TABLENAME,
     );
-
     return list;
   }
 }

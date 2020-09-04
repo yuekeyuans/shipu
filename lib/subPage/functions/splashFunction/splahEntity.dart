@@ -22,7 +22,7 @@ class SplashEntity {
     splashStrings = SpUtil.getStringList("splashStrings");
   }
 
-  setSp() {
+  toSp() {
     SpUtil.putBool("hasSplash", hasSplash);
     SpUtil.putInt("splashTime", splashTime);
     SpUtil.putString("splashString", splashString);

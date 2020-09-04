@@ -46,7 +46,7 @@ class _SplashStringPageState extends State<SplashStringPage> {
                     onTap: () => setState(
                           () {
                             entity.splashString = str;
-                            entity.setSp();
+                            entity.toSp();
                           },
                         ),
                     onLongPress: entity.splashStrings.length > 1
@@ -119,7 +119,7 @@ class _SplashStringPageState extends State<SplashStringPage> {
                     setState(() {
                       entity.addString(content);
                       entity.splashString = content;
-                      entity.setSp();
+                      entity.toSp();
                     });
                     Navigator.pop(context, "yes");
                   }),

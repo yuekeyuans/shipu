@@ -28,7 +28,7 @@ class _SplashFunctionPageState extends State<SplashFunctionPage> {
             onChanged: (val) {
               setState(() {
                 splashEntity.hasSplash = val;
-                splashEntity.setSp();
+                splashEntity.toSp();
               });
             },
             title: Text("使用启动页")),
@@ -61,7 +61,7 @@ class _SplashFunctionPageState extends State<SplashFunctionPage> {
                 onConfirm: (Picker picker, List value) {
                   setState(() {
                     splashEntity.splashTime = picker.getSelectedValues().first;
-                    splashEntity.setSp();
+                    splashEntity.toSp();
                   });
                 }).showDialog(context);
           },
@@ -98,7 +98,7 @@ class _SplashFunctionPageState extends State<SplashFunctionPage> {
                     setState(() {
                       splashEntity.splashFontSize =
                           picker.getSelectedValues().first;
-                      splashEntity.setSp();
+                      splashEntity.toSp();
                     });
                   }).showDialog(context);
             }),

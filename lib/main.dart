@@ -57,43 +57,31 @@ initVal() async {
 
   await SpUtil.getInstance();
   //判断是否定义过变量
-  if (SpUtil.getBool("defined", defValue: false)) {
-    return;
+  if (!SpUtil.getBool("defined", defValue: false)) {
+    SpUtil.putBool("defined", true);
+    var basePath =
+        (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
+    await DirectoryUtil.createDir(basePath);
+    SpUtil.putString("GLOBAL_PATH", basePath);
+    await DirectoryUtil.createDir(basePath + "/zhuhuifu");
+    SpUtil.putString("MAIN_PATH", basePath + "/zhuhuifu");
+    await DirectoryUtil.createDir(basePath + "/zhuhuifu/temp");
+    SpUtil.putString("TEMP_PATH", basePath + "/zhuhuifu/temp");
+    await DirectoryUtil.createDir("$basePath/zhuhuifu/encryption");
+    SpUtil.putString("ENCRYPTION_PATH", "$basePath/zhuhuifu/encryption");
+    await DirectoryUtil.createDir("$basePath/zhuhuifu/decryption");
+    SpUtil.putString("DECRYPTION_PATH", "$basePath/zhuhuifu/decryption");
+    await DirectoryUtil.createDir(basePath + "/zhuhuifu/database");
+    SpUtil.putString("DB_PATH", basePath + "/zhuhuifu/database");
+    await DirectoryUtil.createDir(basePath + "/documents/iSilo/Settings");
+    SpUtil.putString("ISILO_PATH", basePath + "/documents/iSilo/Settings");
+    //文件是否加密发送
+    SpUtil.putBool("Encryption", false);
+    //splash
+    SplashEntity().toSp();
+    //背经
+    ReciteBibleEntity.instance().toSp();
   }
-
-  SpUtil.putBool("defined", true);
-
-  var basePath =
-      (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
-  DirectoryUtil.createDir(basePath);
-  SpUtil.putString("GLOBAL_PATH", basePath);
-
-  DirectoryUtil.createDir(basePath + "/zhuhuifu");
-  SpUtil.putString("MAIN_PATH", basePath + "/zhuhuifu");
-
-  DirectoryUtil.createDir(basePath + "/zhuhuifu/temp");
-  SpUtil.putString("TEMP_PATH", basePath + "/zhuhuifu/temp");
-
-  DirectoryUtil.createDir("$basePath/zhuhuifu/encryption");
-  SpUtil.putString("ENCRYPTION_PATH", "$basePath/zhuhuifu/encryption");
-
-  DirectoryUtil.createDir("$basePath/zhuhuifu/decryption");
-  SpUtil.putString("DECRYPTION_PATH", "$basePath/zhuhuifu/decryption");
-
-  DirectoryUtil.createDir(basePath + "/zhuhuifu/database");
-  SpUtil.putString("DB_PATH", basePath + "/zhuhuifu/database");
-
-  DirectoryUtil.createDir(basePath + "/documents/iSilo/Settings");
-  SpUtil.putString("ISILO_PATH", basePath + "/documents/iSilo/Settings");
-
-  //文件是否加密发送
-  SpUtil.putBool("Encryption", false);
-
-  //splash
-  SplashEntity().setSp();
-
-  //背经
-  ReciteBibleEntity.instance().toSp();
 }
 
 Future<void> initDb() async {
