@@ -1,7 +1,8 @@
 import 'package:da_ka/db/bibleTable.dart';
 import 'package:da_ka/global.dart';
-import 'package:da_ka/subPage/functions/dakaFunction/daka_recite_bible_entity.dart';
+import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_picker/flutter_picker.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class DakaReciteBiblePage extends StatefulWidget {
@@ -10,84 +11,77 @@ class DakaReciteBiblePage extends StatefulWidget {
 }
 
 class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
-  Future<void> getVerseOfDay() async {
-    List<Widget> getChildren() {
-      var lst = <Widget>[];
-      for (int i = 1; i <= 30; i++) {
-        lst.add(ListTile(
-            title: Text(i.toString() + "节"),
-            onTap: () {
-              setState(() {
-                var entity = ReciteBibleEntity.fromSp();
-                entity.verseOfDay = i;
-                entity.toSp();
-              });
-              Navigator.pop(context);
-            }));
-        lst.add(Divider(height: 1.0));
-      }
-      return lst;
-    }
-
-    await showDialog(
-        context: context,
-        builder: (context) =>
-            SimpleDialog(title: Text("请选择每天背的节数"), children: getChildren()));
+  getVerseOfDay() async {
+    new Picker(
+        adapter: NumberPickerAdapter(data: [
+          NumberPickerColumn(
+              begin: 1,
+              end: 30,
+              initValue: ReciteBibleEntity.fromSp().verseOfDay)
+        ]),
+        hideHeader: true,
+        confirmText: "确定",
+        cancelText: "取消",
+        title: new Text("选择背经节数"),
+        onConfirm: (Picker picker, List value) {
+          setState(() {
+            var entity = ReciteBibleEntity.fromSp();
+            entity.verseOfDay = picker.getSelectedValues().first;
+            entity.toSp();
+          });
+        }).showDialog(context);
   }
 
-  Future<void> getStrategy() async {
-    List<Widget> getChildren() {
-      var lst = <Widget>[];
-      for (var item in delay_bible_strategy) {
-        lst.add(ListTile(
-            title: Text(item),
-            onTap: () {
-              setState(() {
-                var entity = ReciteBibleEntity.fromSp();
-                entity.delayMode = item;
-                entity.toSp();
-              });
-              Navigator.pop(context);
-            }));
-        lst.add(Divider(height: 1.0));
-      }
-      return lst;
-    }
-
-    await showDialog(
-        context: context,
-        builder: (context) => SimpleDialog(
-              title: Text("请选择未完成的策略"),
-              children: getChildren(),
-            ));
+  getStrategy() async {
+    new Picker(
+        adapter: PickerDataAdapter<String>(pickerdata: delay_bible_strategy),
+        hideHeader: true,
+        confirmText: "确定",
+        cancelText: "取消",
+        title: new Text("未完成策略"),
+        onConfirm: (Picker picker, List value) {
+          var entity = ReciteBibleEntity.fromSp();
+          entity.delayMode = picker.getSelectedValues().first;
+          entity.toSp();
+          setState(() {});
+        }).showDialog(context);
   }
 
-  Future<void> getCurrentBook() async {
+  getCurrentBook() async {
     var books = await BookName().queryBookNames();
+    new Picker(
+        adapter: PickerDataAdapter<String>(pickerdata: books),
+        hideHeader: true,
+        confirmText: "确定",
+        cancelText: "取消",
+        title: new Text("选择圣经卷"),
+        onConfirm: (Picker picker, List value) {
+          var entity = ReciteBibleEntity.fromSp();
+          entity.currentBook = picker.getSelectedValues().first;
+          entity.toSp();
+          setState(() {});
+        }).showDialog(context);
+  }
 
-    List<Widget> getChildren() {
-      var lst = <Widget>[];
-      for (var book in books) {
-        lst.add(ListTile(
-            title: Text(book.name),
-            onTap: () {
-              setState(() {
-                var entity = ReciteBibleEntity.fromSp();
-                entity.currentBook = book.name;
-                entity.toSp();
-              });
-              Navigator.pop(context);
-            },
-            dense: true));
-        lst.add(Divider(height: 1.0));
-      }
-      return lst;
-    }
-
-    await showDialog(
-        context: context,
-        builder: (context) =>
-            SimpleDialog(title: Text("请选择圣经卷"), children: getChildren()));
+  getFontSize() {
+    new Picker(
+        adapter: NumberPickerAdapter(data: [
+          NumberPickerColumn(
+              begin: 10,
+              end: 40,
+              initValue: ReciteBibleEntity.fromSp().fontSize)
+        ]),
+        hideHeader: true,
+        confirmText: "确定",
+        cancelText: "取消",
+        title: new Text("选择字体大小"),
+        onConfirm: (Picker picker, List value) {
+          setState(() {
+            var entity = ReciteBibleEntity.fromSp();
+            entity.fontSize = picker.getSelectedValues().first;
+            entity.toSp();
+          });
+        }).showDialog(context);
   }
 
   @override
@@ -154,21 +148,19 @@ class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
           SettingsTile(
               title: "篇目",
               subtitle: ReciteBibleEntity.fromSp().currentBook,
-              onTap: () async {
-                await getCurrentBook();
-              }),
+              onTap: getCurrentBook),
           SettingsTile(
               title: "每天背经节数目",
               subtitle: ReciteBibleEntity.fromSp().verseOfDay.toString(),
-              onTap: () async {
-                await getVerseOfDay();
-              }),
+              onTap: getVerseOfDay),
           SettingsTile(
               title: "没有完成策略",
               subtitle: ReciteBibleEntity.fromSp().delayMode,
-              onTap: () async {
-                await getStrategy();
-              })
+              onTap: getStrategy),
+          SettingsTile(
+              title: "字体大小",
+              subtitle: ReciteBibleEntity.fromSp().fontSize.toString(),
+              onTap: getFontSize)
         ]));
       }
       return lst;

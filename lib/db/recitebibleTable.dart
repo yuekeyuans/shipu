@@ -1,7 +1,7 @@
 import 'package:common_utils/common_utils.dart';
 import 'package:da_ka/db/bibleTable.dart';
 import 'package:da_ka/db/sqliteDb.dart';
-import 'package:da_ka/subPage/functions/dakaFunction/daka_recite_bible_entity.dart';
+import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:sqflite/sqflite.dart';
 
 //该表存在于 clock_in.db

@@ -49,7 +49,7 @@ dependencies:
   flutter_p2p: ^0.1.1
   file_picker: ^1.13.3
   settings_ui: ^0.4.0
-  getwidget: ^1.1.3
+  icon_font_generator: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -86,8 +86,28 @@ flutter:
         - asset: assets/fonts/raleway/Raleway-Medium.ttf
           weight: 500
         - asset: assets/fonts/raleway/Raleway-SemiBold.ttf
-          weight: 600
+          weight: 500
+
+    - family: OpenSans
+      fonts:
+        - asset: assets/fonts/cobsg/cobsg.ttf
+        - asset: assets/fonts/cobsg/cobsh.ttf
+        - asset: assets/fonts/cobsg/OpenSans-Regular.ttf
+          weight: 500
 
     - family: kaiti
       fonts:
         - asset: assets/fonts/kaiti/simkai.ttf
+
+
+    # - family: UiIcons
+    # fonts:
+    # - asset: assets/fonts/ui_icons.ttf
+
+# generate icons
+scripts:
+  gi: icon_font_generator
+    --from=icons
+    --class-name=UiIcons
+    --out-font=assets/fonts/ui_icons.ttf
+    --out-flutter=lib/font/icons.dart

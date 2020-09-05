@@ -1,6 +1,6 @@
 import 'package:da_ka/db/bibleDb.dart';
 import 'package:da_ka/db/sqliteDb.dart';
-import 'package:da_ka/subPage/functions/dakaFunction/daka_recite_bible_entity.dart';
+import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:da_ka/subPage/functions/splashFunction/splahEntity.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';

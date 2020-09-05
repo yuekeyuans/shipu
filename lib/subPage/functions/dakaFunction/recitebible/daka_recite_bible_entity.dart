@@ -8,6 +8,7 @@ class ReciteBibleEntity {
   String delayMode = "";
   DateTime startDate;
   bool isMultiLanguange = false;
+  int fontSize = 16;
 
   ReciteBibleEntity.instance();
 
@@ -18,6 +19,7 @@ class ReciteBibleEntity {
     delayMode = SpUtil.getString("ReciteBibleEntity_delayMode");
     isMultiLanguange = SpUtil.getBool("ReciteBibleEntity_isMultiLanguange");
     dbPath = SpUtil.getString("ReciteBibleEntity_dbPath");
+    fontSize = SpUtil.getInt("ReciteBibleEntity_fontSize");
     startDate = DateTime.parse(SpUtil.getString("ReciteBibleEntity_startDate"));
   }
 
@@ -25,6 +27,7 @@ class ReciteBibleEntity {
     SpUtil.putBool("ReciteBibleEntity_isOn", isOn);
     SpUtil.putString("ReciteBibleEntity_currentBook", currentBook);
     SpUtil.putInt("ReciteBibleEntity_verseOfDay", verseOfDay);
+    SpUtil.putInt("ReciteBibleEntity_fontSize", fontSize);
     SpUtil.putString("ReciteBibleEntity_delayMode", delayMode);
     SpUtil.putBool("ReciteBibleEntity_isMultiLanguange", isMultiLanguange);
     SpUtil.putString("ReciteBibleEntity_dbPath", dbPath);

@@ -150,18 +150,29 @@ class BookName {
     var db = await BibleDatabaseHelper().db;
     var result = await db.query(TABLENAME, where: "_id = ?", whereArgs: [id]);
     result.forEach((element) {
+      name = BookName.fromJson(element).name;
+    });
+    return name;
+  }
+
+  Future<String> queryShortName(String fullName) async {
+    var name = "";
+    var db = await BibleDatabaseHelper().db;
+    var result =
+        await db.query(TABLENAME, where: "name = ?", whereArgs: [fullName]);
+    result.forEach((element) {
       name = BookName.fromJson(element).acronymName;
     });
     return name;
   }
 
-  Future<List<BookName>> queryBookNames() async {
-    var list = <BookName>[];
+  Future<List<String>> queryBookNames() async {
+    var list = <String>[];
     var db = await BibleDatabaseHelper().db;
-    var result = await db.query(TABLENAME);
+    var result = await db.query(TABLENAME, columns: ["name"]);
     result.forEach((element) {
-      var book = BookName.fromJson(element);
-      list.add(book);
+      var name = element.values.first;
+      list.add(name);
     });
     return list;
   }

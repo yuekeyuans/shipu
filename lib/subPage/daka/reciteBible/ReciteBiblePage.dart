@@ -1,7 +1,7 @@
 import 'package:common_utils/common_utils.dart';
 import 'package:da_ka/db/bibleTable.dart';
 import 'package:da_ka/db/recitebibleTable.dart';
-import 'package:da_ka/subPage/functions/dakaFunction/daka_recite_bible_entity.dart';
+import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:flustars/flustars.dart';
 import "package:flutter/material.dart";
 
@@ -13,7 +13,11 @@ class ReciteBiblePage extends StatefulWidget {
 class _ReciteBiblePageState extends State<ReciteBiblePage> {
   DateTime date = DateTime.now();
   List<BibleTable> bibles = [];
-  String bookName = "";
+  String shortName;
+
+  var textStyle = TextStyle(
+      fontSize: ReciteBibleEntity.fromSp().fontSize.toDouble(),
+      fontFamily: "OpenSans");
 
   @override
   void initState() {
@@ -24,8 +28,8 @@ class _ReciteBiblePageState extends State<ReciteBiblePage> {
   updateData() async {
     var record = await ReciteBibleTable().queryByDay(DateTime.now());
     bibles = await BibleTable().queryByIds(record);
-    print(bibles.toString());
-    bookName = ReciteBibleEntity.fromSp().currentBook;
+    var bookName = ReciteBibleEntity.fromSp().currentBook;
+    shortName = await BookName().queryShortName(bookName);
     setState(() {});
   }
 
@@ -56,8 +60,9 @@ class _ReciteBiblePageState extends State<ReciteBiblePage> {
         actions: <Widget>[
           Padding(
             padding: EdgeInsets.only(right: 10),
-            child:
-                isCurrentDate ? Icon(Icons.date_range) : Icon(Icons.av_timer),
+            child: isCurrentDate
+                ? Icon(Icons.date_range)
+                : Icon(Icons.keyboard_return),
           )
         ],
       ),
@@ -66,22 +71,31 @@ class _ReciteBiblePageState extends State<ReciteBiblePage> {
   }
 
   Widget createCard(BibleTable record) {
-    return Card(
-      child: Container(
-        padding: EdgeInsets.all(20),
+    return Container(
+        padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
         child: Column(children: [
-          Text(
-            "$bookName ${record.chapter}:${record.section}",
-            textAlign: TextAlign.left,
+          SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                child: Text(
+                  "$shortName ${record.chapter}-${record.section}",
+                  style: textStyle,
+                ),
+              ),
+              Expanded(
+                  child: Text(
+                record.content,
+                softWrap: true,
+                maxLines: 10,
+                style: textStyle,
+              )),
+            ],
           ),
-          Divider(),
-          Text(
-            record.content,
-            textAlign: TextAlign.left,
-            style: TextStyle(fontSize: 25),
-          ),
-        ]),
-      ),
-    );
+          SizedBox(height: 15),
+          Divider(height: 2.0)
+        ]));
   }
 }

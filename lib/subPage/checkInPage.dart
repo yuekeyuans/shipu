@@ -1,5 +1,5 @@
 import 'package:da_ka/subPage/daka/reciteBible/ReciteBiblePage.dart';
-import 'package:da_ka/subPage/functions/dakaFunction/daka_recite_bible_entity.dart';
+import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
 
