@@ -82,6 +82,13 @@ class ReciteBibleTable {
     await db.insert(TABLENAME, this.toJson());
   }
 
+  Future<void> update() async {
+    var db = await DatabaseHelper().db;
+    await db.update(TABLENAME, this.toJson(),
+        where: "date = ?",
+        whereArgs: [DateUtil.formatDate(date, format: DateFormats.y_mo_d)]);
+  }
+
   String listToString(List<String> strs) {
     if (strs == null) {
       return "";
