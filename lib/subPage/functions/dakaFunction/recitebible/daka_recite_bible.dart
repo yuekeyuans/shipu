@@ -1,8 +1,10 @@
 import 'package:da_ka/db/bibleTable.dart';
+import 'package:da_ka/db/recitebibleTable.dart';
 import 'package:da_ka/global.dart';
 import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_picker/flutter_picker.dart';
+import 'package:nav_router/nav_router.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class DakaReciteBiblePage extends StatefulWidget {
@@ -25,6 +27,7 @@ class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
         title: new Text("选择背经节数"),
         onConfirm: (Picker picker, List value) {
           setState(() {
+            ReciteBibleTable().deleteToday();
             var entity = ReciteBibleEntity.fromSp();
             entity.verseOfDay = picker.getSelectedValues().first;
             entity.toSp();
@@ -40,6 +43,7 @@ class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
         cancelText: "取消",
         title: new Text("未完成策略"),
         onConfirm: (Picker picker, List value) {
+          ReciteBibleTable().deleteToday();
           var entity = ReciteBibleEntity.fromSp();
           entity.delayMode = picker.getSelectedValues().first;
           entity.toSp();
@@ -57,6 +61,10 @@ class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
         title: new Text("选择圣经卷"),
         onConfirm: (Picker picker, List value) {
           var entity = ReciteBibleEntity.fromSp();
+          if (entity.currentBook != picker.getSelectedValues().first) {
+            entity.startDate = DateTime.now();
+          }
+          ReciteBibleTable().deleteToday();
           entity.currentBook = picker.getSelectedValues().first;
           entity.toSp();
           setState(() {});
@@ -84,6 +92,52 @@ class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
         }).showDialog(context);
   }
 
+  //开启和关闭背经功能
+  openReciteMode(bool value) async {
+    if (value == true) {
+      await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+                title: Text("提示"),
+                content: Text("开启背经功能,选择背经的内容"),
+                actions: <Widget>[
+                  FlatButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text("确定"))
+                ]);
+          });
+      setState(() {
+        var entity = ReciteBibleEntity.fromSp();
+        entity.isOn = value;
+        entity.toSp();
+      });
+    } else {
+      await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+                title: Text("提示"),
+                content: Text("坚持来之不易,是否继续坚持?"),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text("放弃"),
+                    onPressed: () {
+                      setState(() {
+                        var entity = ReciteBibleEntity.fromSp();
+                        entity.isOn = value;
+                        entity.toSp();
+                        ReciteBibleTable().deleteToday();
+                      });
+                      pop();
+                    },
+                  ),
+                  FlatButton(onPressed: pop, child: Text("继续坚持"))
+                ]);
+          });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<SettingsSection> getChildren() {
@@ -93,51 +147,7 @@ class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
           tiles: [
             SettingsTile.switchTile(
               title: "开启背经功能",
-              onToggle: (value) async {
-                if (value == true) {
-                  await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                            title: Text("提示"),
-                            content: Text("开启背经功能,选择背经的内容"),
-                            actions: <Widget>[
-                              FlatButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text("确定"))
-                            ]);
-                      });
-                  setState(() {
-                    var entity = ReciteBibleEntity.fromSp();
-                    entity.isOn = value;
-                    entity.toSp();
-                  });
-                } else {
-                  await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                            title: Text("提示"),
-                            content: Text("坚持来之不易,是否继续坚持?"),
-                            actions: <Widget>[
-                              FlatButton(
-                                child: Text("放弃"),
-                                onPressed: () {
-                                  setState(() {
-                                    var entity = ReciteBibleEntity.fromSp();
-                                    entity.isOn = value;
-                                    entity.toSp();
-                                  });
-                                  Navigator.pop(context);
-                                },
-                              ),
-                              FlatButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text("继续坚持"))
-                            ]);
-                      });
-                }
-              },
+              onToggle: openReciteMode,
               switchValue: ReciteBibleEntity.fromSp().isOn,
             )
           ],

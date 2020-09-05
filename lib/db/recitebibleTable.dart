@@ -61,12 +61,18 @@ class ReciteBibleTable {
     var id = await BookName().queryBookId(entity.currentBook);
     var minMax = await BibleTable().queryMinMaxId(id);
     var record = ReciteBibleTable();
-    var lastDay = DateTime.now().add(Duration(days: -1));
+
     var lastNumber = minMax.first;
-    if (await existDateRecord(lastDay)) {
-      var last = await queryByDay(lastDay);
-      lastNumber = int.parse(last.ids.last.toString()) + 1;
+    //第一次开始
+    if (DateUtil.formatDate(entity.startDate, format: DateFormats.y_mo_d) !=
+        DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d)) {
+      var lastDay = DateTime.now().add(Duration(days: -1));
+      if (await existDateRecord(lastDay)) {
+        var last = await queryByDay(lastDay);
+        lastNumber = int.parse(last.ids.last.toString()) + 1;
+      }
     }
+
     var ids = <String>[];
     for (int i = 0;
         i < entity.verseOfDay && lastNumber + i <= minMax.last;
@@ -87,6 +93,13 @@ class ReciteBibleTable {
     await db.update(TABLENAME, this.toJson(),
         where: "date = ?",
         whereArgs: [DateUtil.formatDate(date, format: DateFormats.y_mo_d)]);
+  }
+
+  Future<void> deleteToday() async {
+    var db = await DatabaseHelper().db;
+    await db.delete(TABLENAME, where: "date = ?", whereArgs: [
+      DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d)
+    ]);
   }
 
   String listToString(List<String> strs) {

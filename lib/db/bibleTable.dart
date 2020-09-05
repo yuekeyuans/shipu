@@ -84,7 +84,6 @@ class BibleTable {
     var lst = <BibleTable>[];
     var db = await BibleDatabaseHelper().db;
     var ids = record.ids;
-    ids.add("-1");
     var result = await db.query(TABLENAME,
         where: "_id in (${record.listToString(ids)})");
     result.forEach((element) {
