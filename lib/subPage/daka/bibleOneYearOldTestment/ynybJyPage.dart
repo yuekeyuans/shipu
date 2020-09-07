@@ -2,18 +2,18 @@ import 'package:common_utils/common_utils.dart';
 import 'package:da_ka/db/bible/bibleTable.dart';
 import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/mainDb/recitebibleTable.dart';
-import 'package:da_ka/db/mainDb/ynybXyTable.dart';
+import 'package:da_ka/db/mainDb/YnybJyTable.dart';
 import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:flustars/flustars.dart';
 import "package:flutter/material.dart";
 import 'package:nav_router/nav_router.dart';
 
-class YnybXyPage extends StatefulWidget {
+class YnybJyPage extends StatefulWidget {
   @override
-  _YnybXyPageState createState() => _YnybXyPageState();
+  _YnybJyPageState createState() => _YnybJyPageState();
 }
 
-class _YnybXyPageState extends State<YnybXyPage> {
+class _YnybJyPageState extends State<YnybJyPage> {
   DateTime date = DateTime.now();
   List<BibleTable> bibles = [];
   String shortName;
@@ -29,7 +29,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
   }
 
   updateData() async {
-    var record = await YnybXyTable().queryByDate(date);
+    var record = await YnybJyTable().queryByDate(date);
     bibles = await BibleTable().queryByIds(record.ids);
     var bookName = ReciteBibleEntity.fromSp().currentBook;
     shortName = await BookNameTable().queryShortName(bookName);
@@ -59,7 +59,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
     return Scaffold(
       appBar: AppBar(
           title: Text(
-              "新约 - ${DateUtil.formatDate(date, format: DateFormats.zh_mo_d)}"),
+              "旧约 - ${DateUtil.formatDate(date, format: DateFormats.zh_mo_d)}"),
           actions: <Widget>[
             Padding(
                 padding: EdgeInsets.only(right: 10),
