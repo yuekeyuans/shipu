@@ -1,6 +1,7 @@
 import 'package:common_utils/common_utils.dart';
-import 'package:da_ka/db/bibleTable.dart';
-import 'package:da_ka/db/recitebibleTable.dart';
+import 'package:da_ka/db/bible/bibleTable.dart';
+import 'package:da_ka/db/bible/bookNameTable.dart';
+import 'package:da_ka/db/mainDb/recitebibleTable.dart';
 import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:flustars/flustars.dart';
 import "package:flutter/material.dart";
@@ -28,9 +29,9 @@ class _ReciteBiblePageState extends State<ReciteBiblePage> {
 
   updateData() async {
     var record = await ReciteBibleTable().queryByDay(date);
-    bibles = await BibleTable().queryByIds(record);
+    bibles = await BibleTable().queryByIds(record.ids);
     var bookName = ReciteBibleEntity.fromSp().currentBook;
-    shortName = await BookName().queryShortName(bookName);
+    shortName = await BookNameTable().queryShortName(bookName);
     setState(() {});
   }
 
@@ -122,10 +123,7 @@ class _ReciteBiblePageState extends State<ReciteBiblePage> {
         });
   }
 
-  listToMusic(){
-
-  }
-
+  listToMusic() {}
 
 //当天
   currPage() async {

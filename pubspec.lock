@@ -2,7 +2,7 @@
 # See https://dart.dev/tools/pub/glossary#lockfile
 packages:
   archive:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: archive
       url: "https://pub.flutter-io.cn"
@@ -254,13 +254,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.2"
-  icon_font_generator:
-    dependency: "direct main"
-    description:
-      name: icon_font_generator
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.0"
   image:
     dependency: transitive
     description:
@@ -422,13 +415,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.3.8"
-  register:
-    dependency: transitive
-    description:
-      name: register
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.1"
   search_widget:
     dependency: "direct main"
     description:

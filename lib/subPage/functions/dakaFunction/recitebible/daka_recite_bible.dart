@@ -1,5 +1,5 @@
-import 'package:da_ka/db/bibleTable.dart';
-import 'package:da_ka/db/recitebibleTable.dart';
+import 'package:da_ka/db/bible/bookNameTable.dart';
+import 'package:da_ka/db/mainDb/recitebibleTable.dart';
 import 'package:da_ka/global.dart';
 import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +52,7 @@ class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
   }
 
   getCurrentBook() async {
-    var books = await BookName().queryBookNames();
+    var books = await BookNameTable().queryBookNames();
     new Picker(
         adapter: PickerDataAdapter<String>(pickerdata: books),
         hideHeader: true,

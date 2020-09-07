@@ -1,3 +1,5 @@
+import 'package:da_ka/subPage/functions/utilsFunction/UtilFunction.dart';
+import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
@@ -78,28 +80,10 @@ class _IsiloFunctionPageState extends State<IsiloFunctionPage> {
     });
   }
 
-  Future<File> copyFile() async {
-    var writeToFile = (ByteData data, String path) {
-      final buffer = data.buffer;
-      return new File(path).writeAsBytes(
-          buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
-    };
-    var bytes = await rootBundle.load("assets/apk/isilo.apk");
-    String dir =
-        (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
-    var dirs = Directory(dir + "/zhuhuifu");
-    if (!(await dirs.exists())) {
-      dirs.createSync();
-    }
-    var dirName = dir + "/zhuhuifu";
-    return writeToFile(bytes, '$dirName/isilo.apk');
-  }
-
   installIsilo() async {
-    await copyFile();
-    String dir =
-        (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
-    var dirName = dir + "/zhuhuifu";
+    var dirName = SpUtil.getString("TEMP_PATH");
+    UtilFunction.copyFile(
+        await rootBundle.load("assets/apk/isilo.apk"), '$dirName/isilo.apk');
     channel.invokeMethod("installIsilo", {"path": '$dirName/isilo.apk'}).then(
         (value) => isinstallIsilo());
   }

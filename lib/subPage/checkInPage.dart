@@ -2,6 +2,7 @@ import 'package:da_ka/subPage/daka/reciteBible/ReciteBiblePage.dart';
 import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
+import "package:da_ka/subPage/daka/bibleOneYearNewTestment/ynybXyPage.dart";
 
 class CheckInPage extends StatefulWidget {
   @override
@@ -42,6 +43,25 @@ class _CheckInPageState extends State<CheckInPage> {
       ));
       widget.add(Divider());
     }
+
+    widget.add(ListTile(
+      title: Text("一年一遍-新约"),
+      onTap: () => routePush(YnybXyPage()),
+      trailing: Icon(Icons.check),
+    ));
+
+    widget.add(ListTile(
+      title: Text("一年一遍-旧约"),
+      onTap: () => routePush(YnybXyPage()),
+      trailing: Icon(Icons.check),
+    ));
+
+    widget.add(ListTile(
+      title: Text("每日生命读经"),
+      onTap: () => routePush(YnybXyPage()),
+      trailing: Icon(Icons.check),
+    ));
+
     return widget;
   }
 }

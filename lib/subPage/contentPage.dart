@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:da_ka/db/contentFileInfoTable.dart';
+import 'package:da_ka/db/mainDb/contentFileInfoTable.dart';
 import 'package:da_ka/subPage/openViews/openPdfPage.dart';
 import 'package:da_ka/subPage/viewBookPage.dart';
 import 'package:flutter/material.dart';
