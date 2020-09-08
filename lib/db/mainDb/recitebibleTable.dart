@@ -54,6 +54,17 @@ class ReciteBibleTable {
     );
   }
 
+  Future<List<ReciteBibleTable>> queryCurrentBookList(DateTime date) async {
+    var lst = <ReciteBibleTable>[];
+    var db = await MainDb().db;
+    var result = await db.query(TABLENAME, where: "date >= ?", whereArgs: [
+      DateUtil.formatDate(ReciteBibleEntity.fromSp().startDate,
+          format: DateFormats.y_mo_d)
+    ]);
+    result.forEach((element) => lst.add(ReciteBibleTable.fromJson(element)));
+    return lst;
+  }
+
   Future<ReciteBibleTable> queryByDay(DateTime date) async {
     ReciteBibleTable record;
     if (!await existDateRecord(date)) {
