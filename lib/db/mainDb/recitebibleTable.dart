@@ -32,6 +32,28 @@ class ReciteBibleTable {
     return map;
   }
 
+  Future<bool> queryIsComplete(DateTime date) async {
+    var db = await MainDb().db;
+    var result = Sqflite.firstIntValue(await db.query(TABLENAME,
+        columns: ["count(1)"],
+        where: "date = ? and iscomplete = ? ",
+        whereArgs: [
+          DateUtil.formatDate(date, format: DateFormats.y_mo_d),
+          true.toString()
+        ]));
+    return result != 0;
+  }
+
+  Future<void> toggleIsComplete(DateTime date, bool orignalValue) async {
+    var db = await MainDb().db;
+    await db.update(
+      TABLENAME,
+      {"iscomplete": (!orignalValue).toString()},
+      where: "date = ?",
+      whereArgs: [DateUtil.formatDate(date, format: DateFormats.y_mo_d)],
+    );
+  }
+
   Future<ReciteBibleTable> queryByDay(DateTime date) async {
     ReciteBibleTable record;
     if (!await existDateRecord(date)) {

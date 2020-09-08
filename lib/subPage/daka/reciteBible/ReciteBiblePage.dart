@@ -6,6 +6,7 @@ import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bib
 import 'package:flustars/flustars.dart';
 import "package:flutter/material.dart";
 import 'package:nav_router/nav_router.dart';
+import 'package:da_ka/subPage/daka/reciteBible/ReciteBibleTimelinePage.dart';
 
 class ReciteBiblePage extends StatefulWidget {
   @override
@@ -110,6 +111,10 @@ class _ReciteBiblePageState extends State<ReciteBiblePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           IconButton(
+                              icon: Icon(Icons.date_range),
+                              onPressed: () =>
+                                  routePush(ReciteBibleTimelinePage())),
+                          IconButton(
                               icon: Icon(Icons.arrow_back),
                               onPressed: prevPage),
                           IconButton(
@@ -123,7 +128,9 @@ class _ReciteBiblePageState extends State<ReciteBiblePage> {
         });
   }
 
-  listToMusic() {}
+  listToMusic() {
+    
+  }
 
 //当天
   currPage() async {

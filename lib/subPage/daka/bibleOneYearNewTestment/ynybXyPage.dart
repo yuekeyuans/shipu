@@ -56,18 +56,20 @@ class _YnybXyPageState extends State<YnybXyPage> {
       return lst;
     }
 
-    return Scaffold(
-      appBar: AppBar(
-          title: Text(
-              "新约 - ${DateUtil.formatDate(date, format: DateFormats.zh_mo_d)}"),
-          actions: <Widget>[
-            Padding(
-                padding: EdgeInsets.only(right: 10),
-                child: IconButton(
-                    icon: Icon(Icons.menu), onPressed: showBottomSheet))
-          ]),
-      body: ListView(children: getChildren()),
-    );
+    return WillPopScope(
+        child: Scaffold(
+          appBar: AppBar(
+              title: Text(
+                  "新约 - ${DateUtil.formatDate(date, format: DateFormats.zh_mo_d)}"),
+              actions: <Widget>[
+                Padding(
+                    padding: EdgeInsets.only(right: 10),
+                    child: IconButton(
+                        icon: Icon(Icons.menu), onPressed: showBottomSheet))
+              ]),
+          body: ListView(children: getChildren()),
+        ),
+        onWillPop: () => pop("ddd"));
   }
 
   Widget createCard(BibleTable record) {

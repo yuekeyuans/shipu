@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:sqflite/sqflite.dart';
+
 import 'sqliteDb.dart';
 import 'package:common_utils/common_utils.dart';
 
@@ -38,6 +40,25 @@ class YnybXyTable {
       record = YnybXyTable.fromJson(element);
     });
     return record;
+  }
+
+  Future<bool> queryIsComplete(DateTime date) async {
+    var db = await MainDb().db;
+    var count = Sqflite.firstIntValue(await db.query(TABLENAME,
+        columns: ["count(1)"],
+        where: "days = ? and isComplete = ?",
+        whereArgs: [getDaysOfDate(date), true.toString()]));
+    return count != 0;
+  }
+
+  Future<void> toggleIsComplete(DateTime date, bool orignalValue) async {
+    var db = await MainDb().db;
+    await db.update(
+      TABLENAME,
+      {"isComplete": (!orignalValue).toString()},
+      where: "days = ?",
+      whereArgs: [getDaysOfDate(date)],
+    );
   }
 
   int getDaysOfDate(DateTime date) {
