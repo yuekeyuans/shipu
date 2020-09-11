@@ -1,26 +1,24 @@
 import 'dart:io';
-
 import 'package:da_ka/db/mainDb/contentFileInfoTable.dart';
+import 'package:da_ka/mainDir/contentPage/ContentPageByType.dart';
 import 'package:da_ka/subPage/openViews/openPdfPage.dart';
 import 'package:da_ka/subPage/viewBookPage.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
-import 'package:path_provider/path_provider.dart';
-
-import '../global.dart';
-import 'mdxViews/mdxView.dart';
-import 'openViews/openDocPage.dart';
-import 'openViews/openImagePage.dart';
+import 'package:da_ka/global.dart';
+import 'package:da_ka/subPage/mdxViews/mdxView.dart';
+import 'package:da_ka/subPage/openViews/openDocPage.dart';
+import 'package:da_ka/subPage/openViews/openImagePage.dart';
 import "package:flutter_slidable/flutter_slidable.dart";
 import 'package:share_extend/share_extend.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class ContentPage extends StatefulWidget {
+class ContentPageByList extends StatefulWidget {
   @override
-  _ContentPageState createState() => _ContentPageState();
+  _ContentPageByListState createState() => _ContentPageByListState();
 }
 
-class _ContentPageState extends State<ContentPage> {
+class _ContentPageByListState extends State<ContentPageByList> {
   List<ContentFileInfoTable> list = [];
   FToast ftoast;
 
@@ -28,39 +26,13 @@ class _ContentPageState extends State<ContentPage> {
   void initState() {
     super.initState();
     ftoast = FToast(context);
-    scanMainDir();
+
     updateTable();
   }
 
   Future<void> updateTable() async {
     list = await ContentFileInfoTable().queryAll();
     setState(() {});
-  }
-
-  void scanMainDir() async {
-    //根目录文件
-    var basePath =
-        (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
-    var existFile = await ContentFileInfoTable().queryAll();
-
-    existFile.forEach((element) async {
-      if (!await File(element.filepath).exists()) {
-        element.remove();
-      }
-    });
-    existFile = await ContentFileInfoTable().queryAll();
-
-    var directory = Directory(basePath + "/zhuhuifu");
-    directory.list().forEach((e) {
-      if (e is File) {
-        var path = e.path;
-        if (!existFile.any((el) => el.filename == path.split("/").last)) {
-          if (suffix.any((element) => path.endsWith(element))) {
-            ContentFileInfoTable.fromPath(path).insert();
-          }
-        }
-      }
-    });
   }
 
   Future<void> deleteFile(ContentFileInfoTable _file) async {
@@ -99,6 +71,7 @@ class _ContentPageState extends State<ContentPage> {
     );
   }
 
+  //创建文件列表
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -163,5 +136,15 @@ class _ContentPageState extends State<ContentPage> {
         );
       },
     ));
+  }
+
+  //按照打开时间
+  Widget getViewByOpenTime() {
+    return null;
+  }
+
+  //按照加入时间排序
+  Widget getViewByAddTime() {
+    return null;
   }
 }

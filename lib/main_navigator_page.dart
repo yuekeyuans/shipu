@@ -1,6 +1,6 @@
-import 'package:da_ka/subPage/checkInPage.dart';
-import 'package:da_ka/subPage/contentPage.dart';
-import 'package:da_ka/subPage/settingPage.dart';
+import 'package:da_ka/mainDir/checkInPage.dart';
+import 'package:da_ka/mainDir/contentPage/contentPage.dart';
+import 'package:da_ka/mainDir/settingPage.dart';
 import 'package:flutter/material.dart';
 
 class MainNavigator extends StatefulWidget {

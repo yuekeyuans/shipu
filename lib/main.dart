@@ -1,6 +1,7 @@
 import 'package:da_ka/db/bible/bibleDb.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
 import 'package:da_ka/db/lifestudyDb/LifeStudyDb.dart';
+import 'package:da_ka/main_navigator_page.dart';
 import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:da_ka/subPage/functions/splashFunction/splahEntity.dart';
 import 'package:flustars/flustars.dart';
@@ -9,8 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:simple_splashscreen/simple_splashscreen.dart';
-import 'HomePage.dart';
-import 'subPage/functions/splashFunction/SplashScreen.dart';
+import 'package:da_ka/subPage/functions/splashFunction/SplashScreen.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:sp_util/sp_util.dart';
 
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var homePage = MyHomePage(title: "学习");
+    var homePage = MainNavigator();
     return MaterialApp(
       title: '打卡',
       theme: ThemeData(

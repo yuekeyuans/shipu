@@ -6,9 +6,9 @@ import 'package:da_ka/subPage/functions/wifiFunction/wifiFunctionPage.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
 
-import 'functions/backupFunction/backupFunctionPage.dart';
-import 'functions/scanFileFunction/scanFile.dart';
-import 'functions/storageFunction/storageFunctionPage.dart';
+import '../subPage/functions/backupFunction/backupFunctionPage.dart';
+import '../subPage/functions/scanFileFunction/scanFile.dart';
+import '../subPage/functions/storageFunction/storageFunctionPage.dart';
 
 class FunctionPage extends StatefulWidget {
   @override
