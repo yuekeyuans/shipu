@@ -26,7 +26,7 @@ const ISILO_DELETE_FILES = [
   "readme.txt"
 ];
 
-const APPBAR_HEIGHT = 40.0;
+const APPBAR_HEIGHT = 35.0;
 
 const Color mainBackgroundColor = Color(0xfff1f3f6);
 const Color mainTextTitleColor = Color(0xff366471);

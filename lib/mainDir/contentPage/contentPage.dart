@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:da_ka/db/mainDb/contentFileInfoTable.dart';
+import 'package:da_ka/mainDir/contentPage/ContentPageByType.dart';
 import 'package:da_ka/mainDir/contentPage/contentPageByList.dart';
+import 'package:da_ka/mainDir/contentPage/contentPageEntity.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:da_ka/global.dart';
@@ -44,24 +46,11 @@ class _ContentPageState extends State<ContentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-          child: AppBar(title: Text("文件列表"), actions: <Widget>[
-            PopupMenuButton(
-                onSelected: (String selectValue) {
-                  setState(() {
-                    value = selectValue;
-                  });
-                },
-                itemBuilder: (BuildContext context) => <PopupMenuItem<String>>[
-                      new PopupMenuItem(value: "1", child: new Text("查看日期")),
-                      new PopupMenuItem(value: "2", child: new Text("查看记录"))
-                    ],
-                icon: Icon(Icons.more_vert),
-                offset: Offset(0, 100))
-          ]),
+          child: AppBar(title: Text("文件列表")),
           preferredSize: Size.fromHeight(APPBAR_HEIGHT)),
-      body: ContentPageByList(),
+      body: ContentPageEntity.fromSp().listType == ContentPageEntityType.list
+          ? ContentPageByList()
+          : ContentPageByType(),
     );
-    // return ContentPageByType();
-    // return ContentPageByList();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:da_ka/db/bible/bibleDb.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
 import 'package:da_ka/db/lifestudyDb/LifeStudyDb.dart';
+import 'package:da_ka/mainDir/contentPage/contentPageEntity.dart';
 import 'package:da_ka/main_navigator_page.dart';
 import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:da_ka/subPage/functions/splashFunction/splahEntity.dart';
@@ -85,6 +86,8 @@ initVal() async {
     SplashEntity().toSp();
     //背经
     ReciteBibleEntity.instance().toSp();
+    //主页面展示
+    ContentPageEntity().toSp();
   }
 }
 
