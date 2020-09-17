@@ -1,7 +1,18 @@
+import 'dart:io';
+
 import 'package:da_ka/db/mainDb/contentFileInfoTable.dart';
+import 'package:da_ka/global.dart';
+import 'package:da_ka/plugin/treeview/tree_view.dart';
+import 'package:da_ka/subPage/mdxViews/mdxView.dart';
+import 'package:da_ka/subPage/openViews/openDocPage.dart';
+import 'package:da_ka/subPage/openViews/openImagePage.dart';
+import 'package:da_ka/subPage/openViews/openPdfPage.dart';
+import 'package:da_ka/subPage/viewBookPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_treeview/tree_view.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nav_router/nav_router.dart';
+import 'package:share_extend/share_extend.dart';
 
 class ContentPageByType extends StatefulWidget {
   final List<ContentFileInfoTable> list;
@@ -17,6 +28,7 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
   String _selectedNode;
   List<Node> _nodes = [];
   TreeViewController _treeViewController;
+  FToast ftoast;
 
   var lst = <ContentFileInfoTable>[];
   var docs = <ContentFileInfoTable>[];
@@ -33,6 +45,7 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
   @override
   void initState() {
     super.initState();
+    ftoast = FToast(context);
 
     _treeViewController = TreeViewController(
       children: _nodes,
@@ -82,6 +95,79 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
     });
   }
 
+  Future<void> updateTable() async {
+    lst = await ContentFileInfoTable().queryAll();
+    setState(() {});
+  }
+
+  Future<void> deleteFile(ContentFileInfoTable _file) async {
+    pop();
+    _file.remove();
+    var file = File(_file.filepath);
+    if (await file.exists()) {
+      file.deleteSync();
+    }
+    updateTable();
+  }
+
+  void shareIt(ContentFileInfoTable _file) {
+    pop();
+    var file = File(_file.filepath);
+    if (file.existsSync()) {
+      ShareExtend.share(_file.filepath, "file");
+    } else {
+      _showToast();
+    }
+  }
+
+  _showToast() {
+    Widget toast = Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25.0),
+          color: Colors.black12,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [Icon(Icons.check), SizedBox(width: 12.0), Text("无法分享")],
+        ));
+    ftoast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 2),
+    );
+  }
+
+  void open(ContentFileInfoTable _file) {
+    _file.updateLastOpenTime();
+    if (_file.filename.endsWith(".doc") || _file.filename.endsWith(".docx")) {
+      routePush(DocViewer(_file.filepath)).then((value) => updateTable());
+    } else if (_file.filename.endsWith(".dict")) {
+      routePush(MdxViewer(_file.filepath), RouterType.fade)
+          .then((value) => updateTable());
+    } else if (_file.filename.endsWith(".pdf")) {
+      routePush(PdfViewer(_file.filepath)).then((value) => updateTable());
+    } else if (IMAGE_SUFFIX
+        .any((element) => _file.filepath.endsWith(element))) {
+      routePush(ImageViewer(_file.filepath)).then((value) => updateTable());
+    } else {
+      routePush(ViewBookPage(), RouterType.material)
+          .then((value) => updateTable());
+    }
+  }
+
+  popupMenu(ContentFileInfoTable _file) {
+    showDialog(
+        context: context,
+        builder: (context) => SimpleDialog(
+              title: Text("操作"),
+              children: <Widget>[
+                ListTile(title: Text("分享"), onTap: () => shareIt(_file)),
+                ListTile(title: Text("删除"), onTap: () => deleteFile(_file))
+              ],
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     TreeViewTheme _treeViewTheme = TreeViewTheme(
@@ -106,15 +192,25 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
           onBackground: Colors.black,
         ));
     return Container(
-      child: Container(
-        height: double.infinity,
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: TreeView(
+        child: Container(
+            height: double.infinity,
+            child: Column(children: <Widget>[
+              Expanded(
+                  child: TreeView(
                 controller: _treeViewController,
                 onExpansionChanged: (key, expanded) =>
                     _expandNode(key, expanded),
+                onNodeDoubleTap: (key) {
+                  debugPrint('double tap: $key');
+                  setState(() {
+                    _selectedNode = key;
+                    _treeViewController =
+                        _treeViewController.copyWith(selectedKey: key);
+                  });
+                },
+                onNodeLongPress: (key) {
+                  popupMenu(_treeViewController.getNode(key).data);
+                },
                 onNodeTap: (key) {
                   debugPrint('Selected: $key');
                   setState(() {
@@ -122,14 +218,11 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
                     _treeViewController =
                         _treeViewController.copyWith(selectedKey: key);
                   });
+                  open(_treeViewController.getNode(_selectedNode).data);
                 },
                 theme: _treeViewTheme,
-              ),
-            )
-          ],
-        ),
-      ),
-    );
+              ))
+            ])));
   }
 
   _expandNode(String key, bool expanded) {

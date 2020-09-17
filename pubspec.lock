@@ -127,6 +127,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.3.1"
+  filesize:
+    dependency: "direct main"
+    description:
+      name: filesize
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.4"
   fixnum:
     dependency: transitive
     description:
@@ -228,13 +235,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_treeview:
-    dependency: "direct main"
-    description:
-      name: flutter_treeview
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.6.0+1"
   flutter_tts:
     dependency: "direct main"
     description:
@@ -588,6 +588,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.8"
+  wakelock:
+    dependency: "direct main"
+    description:
+      name: wakelock
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.4+2"
   webview_flutter:
     dependency: "direct main"
     description:

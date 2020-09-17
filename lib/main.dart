@@ -1,4 +1,5 @@
 import 'package:da_ka/db/bible/bibleDb.dart';
+import 'package:da_ka/db/lifestudyDb/lifestudyTable.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
 import 'package:da_ka/db/lifestudyDb/LifeStudyDb.dart';
 import 'package:da_ka/mainDir/contentPage/contentPageEntity.dart';
@@ -14,11 +15,14 @@ import 'package:simple_splashscreen/simple_splashscreen.dart';
 import 'package:da_ka/subPage/functions/splashFunction/SplashScreen.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:sp_util/sp_util.dart';
+import 'package:wakelock/wakelock.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initVal();
   await initDb();
+  debugMode();
+  Wakelock.enable();
   runApp(MyApp());
 }
 
@@ -48,6 +52,14 @@ class MyApp extends StatelessWidget {
           : homePage,
     );
   }
+}
+
+debugMode() {
+  var a = SplashEntity();
+  a.hasSplash = false;
+  a.toSp();
+
+  LifeStudyTable().queryChapter();
 }
 
 initVal() async {

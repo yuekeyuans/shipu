@@ -10,7 +10,7 @@ class LifeStudyDb {
   factory LifeStudyDb() => _instance;
   static Database _db;
 
-  final filename = "lifstudy.db";
+  final filename = "lifestudy.db";
   final dir = SpUtil.getString("DB_PATH");
 
   Future<Database> get db async {

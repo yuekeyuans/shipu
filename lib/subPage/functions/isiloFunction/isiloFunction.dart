@@ -2,8 +2,6 @@ import 'package:da_ka/subPage/functions/utilsFunction/UtilFunction.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'sharePdbFunction.dart';
 import 'package:nav_router/nav_router.dart';
 import 'scanPdbFunction.dart';

@@ -51,7 +51,8 @@ dependencies:
   settings_ui: ^0.4.0
   archive: ^2.0.13
   timeline_tile: ^0.1.2
-  flutter_treeview: ^0.6.0+1
+  filesize: ^1.0.4
+  wakelock: ^0.1.4+2
 
 dev_dependencies:
   flutter_test:

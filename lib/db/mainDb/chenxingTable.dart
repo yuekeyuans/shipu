@@ -18,9 +18,10 @@ class ChenXingTable {
     hasread = json['hasread'] == 1 ? true : false;
   }
 
-  ChenXingTable.fromSql() {}
+  //TODO:
+  ChenXingTable.fromSql();
 
-  ChenXingTable.toJson() {}
+  ChenXingTable.toJson();
 
   static const TABLE_NAME = "chenxing";
 
