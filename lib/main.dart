@@ -9,6 +9,7 @@ import 'package:da_ka/subPage/functions/splashFunction/splahEntity.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:simple_splashscreen/simple_splashscreen.dart';
@@ -32,25 +33,27 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var homePage = MainNavigator();
-    return MaterialApp(
-      title: '打卡',
-      theme: ThemeData(
-        // Define the default brightness and colors.
-        brightness: Brightness.light,
-        primaryColor: Colors.white,
-        accentColor: Colors.cyan[600],
-        fontFamily: 'Montserrat',
-      ),
-      debugShowCheckedModeBanner: false,
-      navigatorKey: navGK,
-      home: splashEntity.hasSplash
-          ? Simple_splashscreen(
-              context: context,
-              gotoWidget: homePage,
-              splashscreenWidget: SplashScreen(),
-              timerInSeconds: splashEntity.splashTime)
-          : homePage,
-    );
+    return OKToast(
+        position: ToastPosition.bottom,
+        child: MaterialApp(
+          title: '打卡',
+          theme: ThemeData(
+            // Define the default brightness and colors.
+            brightness: Brightness.light,
+            primaryColor: Colors.white,
+            accentColor: Colors.cyan[600],
+            fontFamily: 'Montserrat',
+          ),
+          debugShowCheckedModeBanner: false,
+          navigatorKey: navGK,
+          home: splashEntity.hasSplash
+              ? Simple_splashscreen(
+                  context: context,
+                  gotoWidget: homePage,
+                  splashscreenWidget: SplashScreen(),
+                  timerInSeconds: splashEntity.splashTime)
+              : homePage,
+        ));
   }
 }
 

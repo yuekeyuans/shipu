@@ -10,8 +10,8 @@ import 'package:da_ka/subPage/openViews/openPdfPage.dart';
 import 'package:da_ka/subPage/viewBookPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nav_router/nav_router.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:share_extend/share_extend.dart';
 
 class ContentPageByType extends StatefulWidget {
@@ -28,7 +28,6 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
   String _selectedNode;
   List<Node> _nodes = [];
   TreeViewController _treeViewController;
-  FToast ftoast;
 
   var lst = <ContentFileInfoTable>[];
   var docs = <ContentFileInfoTable>[];
@@ -45,7 +44,6 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
   @override
   void initState() {
     super.initState();
-    ftoast = FToast(context);
 
     _treeViewController = TreeViewController(
       children: _nodes,
@@ -116,26 +114,8 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
     if (file.existsSync()) {
       ShareExtend.share(_file.filepath, "file");
     } else {
-      _showToast();
+      showToast("无法分享");
     }
-  }
-
-  _showToast() {
-    Widget toast = Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25.0),
-          color: Colors.black12,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [Icon(Icons.check), SizedBox(width: 12.0), Text("无法分享")],
-        ));
-    ftoast.showToast(
-      child: toast,
-      gravity: ToastGravity.BOTTOM,
-      toastDuration: Duration(seconds: 2),
-    );
   }
 
   void open(ContentFileInfoTable _file) {

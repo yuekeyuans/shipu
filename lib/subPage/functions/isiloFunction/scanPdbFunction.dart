@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import '../../../global.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:da_ka/global.dart';
 
 class ScanPdbFunction extends StatefulWidget {
   @override
@@ -69,7 +69,7 @@ class _ScanPdbFunctionState extends State<ScanPdbFunction> {
                 File(pdbs[index].path).copySync(pdbs[index].copyPath);
                 setState(() => pdbs[index].exist = true);
                 Navigator.of(context).pop();
-                Fluttertoast.showToast(msg: "添加成功");
+                showToast("添加成功");
               },
             ),
             FlatButton(

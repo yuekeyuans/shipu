@@ -9,8 +9,8 @@ import 'package:da_ka/subPage/mdxViews/mdxView.dart';
 import 'package:da_ka/subPage/openViews/openDocPage.dart';
 import 'package:da_ka/subPage/openViews/openImagePage.dart';
 import "package:flutter_slidable/flutter_slidable.dart";
+import 'package:oktoast/oktoast.dart';
 import 'package:share_extend/share_extend.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class ContentPageByList extends StatefulWidget {
   @override
@@ -19,12 +19,10 @@ class ContentPageByList extends StatefulWidget {
 
 class _ContentPageByListState extends State<ContentPageByList> {
   List<ContentFileInfoTable> list = [];
-  FToast ftoast;
 
   @override
   void initState() {
     super.initState();
-    ftoast = FToast(context);
 
     updateTable();
   }
@@ -48,26 +46,8 @@ class _ContentPageByListState extends State<ContentPageByList> {
     if (file.existsSync()) {
       ShareExtend.share(_file.filepath, "file");
     } else {
-      _showToast();
+      showToast("无法分享");
     }
-  }
-
-  _showToast() {
-    Widget toast = Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25.0),
-          color: Colors.black12,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [Icon(Icons.check), SizedBox(width: 12.0), Text("无法分享")],
-        ));
-    ftoast.showToast(
-      child: toast,
-      gravity: ToastGravity.BOTTOM,
-      toastDuration: Duration(seconds: 2),
-    );
   }
 
   //创建文件列表

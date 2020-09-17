@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:da_ka/db/mainDb/contentFileInfoTable.dart';
 import "package:flutter/material.dart";
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nav_router/nav_router.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../global.dart';
 
@@ -16,7 +16,6 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
   List<ContentFileInfoTable> existFile = [];
   List<bool> selected = new List<bool>();
   BuildContext ctx;
-  FToast ftoast;
 
   var basePath = "";
 
@@ -24,7 +23,6 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
   void initState() {
     loadData();
     super.initState();
-    ftoast = FToast(context);
   }
 
   @override
@@ -104,28 +102,10 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
         }
       }
       if (hasSelected) {
-        _showToast();
+        showToast("添加完成");
       }
       pop("finished");
     }
-  }
-
-  _showToast() {
-    Widget toast = Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25.0),
-          color: Colors.black12,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [Icon(Icons.check), SizedBox(width: 12.0), Text("添加完成")],
-        ));
-    ftoast.showToast(
-      child: toast,
-      gravity: ToastGravity.BOTTOM,
-      toastDuration: Duration(seconds: 2),
-    );
   }
 
   void loadData() async {
