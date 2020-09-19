@@ -1,5 +1,5 @@
 import 'package:common_utils/common_utils.dart';
-import 'package:da_ka/db/bible/bibleTable.dart';
+import 'package:da_ka/db/bible/bibleContentTable.dart';
 import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/mainDb/recitebibleTable.dart';
 import 'package:da_ka/db/mainDb/YnybJyTable.dart';
@@ -15,7 +15,7 @@ class YnybJyPage extends StatefulWidget {
 
 class _YnybJyPageState extends State<YnybJyPage> {
   DateTime date = DateTime.now();
-  List<BibleTable> bibles = [];
+  List<BibleContentTable> bibles = [];
   String shortName;
 
   var textStyle = TextStyle(
@@ -30,7 +30,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
 
   updateData() async {
     var record = await YnybJyTable().queryByDate(date);
-    bibles = await BibleTable().queryByIds(record.ids);
+    bibles = await BibleContentTable().queryByIds(record.ids);
     var bookName = ReciteBibleEntity.fromSp().currentBook;
     shortName = await BookNameTable().queryShortName(bookName);
     setState(() {});
@@ -70,7 +70,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
     );
   }
 
-  Widget createCard(BibleTable record) {
+  Widget createCard(BibleContentTable record) {
     return Container(
         padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
         child: Column(children: [

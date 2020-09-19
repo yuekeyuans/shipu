@@ -1,5 +1,5 @@
 import 'package:common_utils/common_utils.dart';
-import 'package:da_ka/db/bible/bibleTable.dart';
+import 'package:da_ka/db/bible/bibleContentTable.dart';
 import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/mainDb/recitebibleTable.dart';
 import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
@@ -15,7 +15,7 @@ class ReciteBiblePage extends StatefulWidget {
 }
 
 class _ReciteBiblePageState extends State<ReciteBiblePage> {
-  List<BibleTable> bibles = [];
+  List<BibleContentTable> bibles = [];
   DateTime date = DateTime.now();
   FlutterTts flutterTts = FlutterTts();
   ReciteBibleTable record = ReciteBibleTable();
@@ -33,7 +33,7 @@ class _ReciteBiblePageState extends State<ReciteBiblePage> {
 
   updateData() async {
     record = await ReciteBibleTable().queryByDay(date);
-    bibles = await BibleTable().queryByIds(record.ids);
+    bibles = await BibleContentTable().queryByIds(record.ids);
     var bookName = ReciteBibleEntity.fromSp().currentBook;
     shortName = await BookNameTable().queryShortName(bookName);
     setState(() {});
@@ -47,7 +47,7 @@ class _ReciteBiblePageState extends State<ReciteBiblePage> {
   }
 
   //创建 圣经节
-  Widget createCard(BibleTable record) {
+  Widget createCard(BibleContentTable record) {
     return Container(
         padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
         child: Column(children: [

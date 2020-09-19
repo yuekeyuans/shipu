@@ -1,5 +1,5 @@
 import 'package:common_utils/common_utils.dart';
-import 'package:da_ka/db/bible/bibleTable.dart';
+import 'package:da_ka/db/bible/bibleContentTable.dart';
 import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
 import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
@@ -93,7 +93,7 @@ class ReciteBibleTable {
   Future<void> createDateRecord() async {
     var entity = ReciteBibleEntity.fromSp();
     var id = await BookNameTable().queryBookId(entity.currentBook);
-    var minMax = await BibleTable().queryMinMaxId(id);
+    var minMax = await BibleContentTable().queryMinMaxId(id);
     var record = ReciteBibleTable();
 
     var lastNumber = minMax.first;
