@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
     var homePage = MainNavigator();
     return OKToast(
         position: ToastPosition.bottom,
+        duration: Duration(seconds: 2),
         child: MaterialApp(
           title: '打卡',
           theme: ThemeData(
@@ -57,12 +58,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
-debugMode() {
+debugMode() async {
   var a = SplashEntity();
   a.hasSplash = false;
   a.toSp();
 
-  LifeStudyTable().queryChapter();
+  print((await LifeStudyTable().queryArticleByDate(DateTime.now()))
+      .first
+      .content);
 }
 
 initVal() async {

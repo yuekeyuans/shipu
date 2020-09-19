@@ -1,7 +1,12 @@
+import 'package:common_utils/common_utils.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyRecord.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyTable.dart';
+import 'package:da_ka/global.dart';
+import 'package:da_ka/subPage/daka/dakaSettings/DakaSettings.dart';
+import 'package:da_ka/subPage/daka/dakaSettings/dakaSettingsEntity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
@@ -12,16 +17,23 @@ class SmdjPage extends StatefulWidget {
 }
 
 class _SmdjPageState extends State<SmdjPage> {
-  List<LifeStudyRecord> records = [];
-
-  DateTime curDate = DateTime.now();
-  double baseScaleFactor = 1.2;
+  double baseScaleFactor = 1.0;
+  //播放音频
+  bool continuePlay = true;
+  bool isPlay = false;
 
   AutoScrollController controller;
+  int counter = 30;
+  var currentPlayIndex = 0;
+  DateTime date = DateTime.parse(
+      DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
+  FlutterTts flutterTts = FlutterTts();
+  List<LifeStudyRecord> records = [];
 
   @override
   void initState() {
     super.initState();
+
     controller = AutoScrollController(
         viewportBoundaryGetter: () =>
             Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
@@ -31,36 +43,15 @@ class _SmdjPageState extends State<SmdjPage> {
   }
 
   update() async {
-    records = await LifeStudyTable().queryChapter();
+    //更新声音
+    var e = DakaSettingsEntity.fromSp();
+    flutterTts.setLanguage("zh-hant");
+    flutterTts.setVolume(e.volumn);
+    flutterTts.setPitch(e.pitch);
+    flutterTts.setSpeechRate(e.speechRate);
+    records = await LifeStudyTable().queryArticleByDate(date);
+    baseScaleFactor = DakaSettingsEntity.fromSp().baseFont;
     setState(() {});
-  }
-
-  int counter = 30;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("生命读经"), actions: <Widget>[
-        Padding(
-            padding: EdgeInsets.only(right: 10),
-            child:
-                IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheet))
-      ]),
-      body: Scrollbar(
-          child: ListView(
-        controller: controller,
-        scrollDirection: Axis.vertical,
-        children:
-            records.map((e) => wrapScrollWidget(records.indexOf(e))).toList(),
-      )),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            await controller.scrollToIndex(counter,
-                preferPosition: AutoScrollPosition.begin);
-            controller.highlight(counter, highlightDuration: Duration(days: 1));
-            counter++;
-          },
-          child: Icon(Icons.headset)),
-    );
   }
 
   Widget wrapScrollWidget(int index) {
@@ -69,7 +60,7 @@ class _SmdjPageState extends State<SmdjPage> {
       controller: controller,
       index: index,
       child: wrapOperationWidget(index),
-      highlightColor: Colors.black.withOpacity(0.1),
+      highlightColor: Colors.black.withOpacity(0.2),
     );
   }
 
@@ -89,35 +80,167 @@ class _SmdjPageState extends State<SmdjPage> {
     ));
   }
 
+  //长按效果
   void longPressParagraph(int index) {
-    controller.highlight(index);
-    print(controller.position);
     showDialog(
         context: context,
         builder: (context) {
-          return SimpleDialog(
-            children: <Widget>[
-              ListTile(
-                dense: true,
-                title: Text("标记"),
-              ),
-              ListTile(
-                dense: true,
-                title: Text("复制"),
-                onTap: () {
-                  pop();
-                  Clipboard.setData(
-                      new ClipboardData(text: records[index].content));
-                  showToast("复制成功");
-                },
-              ),
-              ListTile(
+          return SimpleDialog(children: <Widget>[
+            ListTile(
+              dense: true,
+              title: Text("复制"),
+              onTap: () {
+                pop();
+                Clipboard.setData(
+                    new ClipboardData(text: records[index].content));
+                showToast("复制成功");
+              },
+            ),
+            ListTile(
                 dense: true,
                 title: Text("朗读"),
-              )
-            ],
-          );
+                onTap: () {
+                  pop();
+                  playCurrentParagraph(index);
+                })
+          ]);
         });
+  }
+
+  //底部导航栏
+  showBottomSheetDialog() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          var curDate = DateTime.parse(
+              DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
+          return StatefulBuilder(builder: (context, setDialogState) {
+            int Function() todayDifference = () {
+              return curDate.difference(date).inDays;
+            };
+            return Container(
+                height: 40,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      //打卡
+                      IconButton(icon: Icon(Icons.blur_on), onPressed: null),
+                      Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            // 播放音频
+                            isPlay
+                                ? IconButton(
+                                    icon: Icon(Icons.stop),
+                                    onPressed: () {
+                                      stopMusic();
+                                      setDialogState(() {});
+                                    },
+                                  )
+                                : IconButton(
+                                    icon: Icon(Icons.headset),
+                                    onPressed: () {
+                                      autoPlay();
+                                      setDialogState(() {});
+                                    }),
+                            //后退
+                            todayDifference() >= 0
+                                ? IconButton(
+                                    icon: Icon(Icons.arrow_back),
+                                    onPressed: () {
+                                      stopMusic();
+                                      date = date.add(Duration(days: -1));
+                                      update();
+                                      setDialogState(() {});
+                                    },
+                                  )
+                                : IconButton(
+                                    icon: Icon(Icons.adjust),
+                                    onPressed: () {
+                                      stopMusic();
+                                      date = curDate;
+                                      update();
+                                      setDialogState(() {});
+                                    }),
+                            //前进
+                            todayDifference() <= 0
+                                ? IconButton(
+                                    icon: Icon(Icons.arrow_forward),
+                                    onPressed: () {
+                                      stopMusic();
+                                      date = date.add(Duration(days: 1));
+                                      setDialogState(() {});
+                                      update();
+                                    },
+                                  )
+                                : IconButton(
+                                    icon: Icon(Icons.adjust),
+                                    onPressed: () {
+                                      stopMusic();
+                                      date = curDate;
+                                      update();
+                                      setDialogState(() {});
+                                    }),
+                            //设置
+                            IconButton(
+                              icon: Icon(Icons.settings),
+                              onPressed: () {
+                                routePush(DakaSettings()).then((value) {
+                                  update();
+                                });
+                              },
+                            ),
+                          ])
+                    ]));
+          });
+        });
+  }
+
+  playCurrentParagraph(int index) {
+    currentPlayIndex = index;
+    continuePlay = false;
+    flutterTts.stop();
+    playMusic();
+  }
+
+  //在这里定义函数，可以直接更新页面
+  playMusic() async {
+    if (currentPlayIndex == records.length) {
+      currentPlayIndex = 0;
+      continuePlay = false;
+    } else {
+      await controller.scrollToIndex(currentPlayIndex);
+      controller.highlight(currentPlayIndex,
+          highlightDuration: Duration(days: 1));
+      await flutterTts.speak(records[currentPlayIndex].content);
+      currentPlayIndex++;
+    }
+  }
+
+  stopMusic() {
+    flutterTts.stop();
+    isPlay = false;
+    currentPlayIndex = 0;
+    continuePlay = true;
+  }
+
+  //从头到尾播放，播放完成，暂停重置
+  autoPlay() async {
+    isPlay = true;
+    currentPlayIndex = 0;
+    continuePlay = true;
+    flutterTts.setCompletionHandler(() async {
+      if (currentPlayIndex >= records.length) {
+        isPlay = false;
+        continuePlay = false;
+        currentPlayIndex = 0;
+      }
+      if (continuePlay) {
+        await playMusic();
+      }
+    });
+    playMusic();
   }
 
   /// 这是一个大类 TODO: 需要在之后被重新拆分,但是现在由于代码比较混乱，就先不动
@@ -354,5 +477,26 @@ class _SmdjPageState extends State<SmdjPage> {
         return createHL10(index);
     }
     return Text("default");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var time = DateUtil.formatDate(date, format: DateFormats.zh_mo_d);
+    return Scaffold(
+        appBar: PreferredSize(
+            preferredSize: Size.fromHeight(APPBAR_HEIGHT),
+            child: AppBar(title: Text("生命读经-$time"), actions: <Widget>[
+              Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: IconButton(
+                      icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))
+            ])),
+        body: Scrollbar(
+            child: ListView(
+          controller: controller,
+          scrollDirection: Axis.vertical,
+          children:
+              records.map((e) => wrapScrollWidget(records.indexOf(e))).toList(),
+        )));
   }
 }
