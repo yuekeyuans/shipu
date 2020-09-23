@@ -65,6 +65,28 @@ class ReciteBibleTable {
     return lst;
   }
 
+  //第一次生成数据
+  Future<void> generateData() async {
+    var entity = ReciteBibleEntity.fromSp();
+    var id = await BookNameTable().queryBookId(entity.currentBook);
+    var minMax = await BibleContentTable().queryMinMaxId(id);
+    var count = minMax.last - minMax.first + 1;
+    var length = entity.verseOfDay;
+    var times = (count * 1.0 / length).ceil();
+    for (var i = 0; i < times; i++) {
+      var record = ReciteBibleTable();
+      var ids = <String>[];
+      for (var j = minMax.first + i * length;
+          j < minMax.first * (i + 1) && j <= minMax.last;
+          i++) {
+        ids.add(j.toString());
+      }
+      record.ids = ids;
+      record.date = DateTime.now().add(Duration(days: i));
+      record.save();
+    }
+  }
+
   Future<ReciteBibleTable> queryByDay(DateTime date) async {
     ReciteBibleTable record;
     if (!await existDateRecord(date)) {
