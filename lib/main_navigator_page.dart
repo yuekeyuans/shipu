@@ -9,7 +9,7 @@ class MainNavigator extends StatefulWidget {
 }
 
 class _MainNavigatorState extends State<MainNavigator> {
-  List<Widget> pages = List<Widget>();
+  List<Widget> pages = <Widget>[];
   int _currentIndex = 0;
 
   @override
@@ -21,25 +21,18 @@ class _MainNavigatorState extends State<MainNavigator> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.list), title: new Text('内容')),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.check), title: new Text('打卡')),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), title: new Text('功能')),
-        ],
-        currentIndex: _currentIndex,
-        onTap: (int i) {
-          setState(() {
-            _currentIndex = i;
-          });
-        },
-        selectedItemColor: Colors.red,
-        showUnselectedLabels: true,
-      ),
-    );
+        body: pages[_currentIndex],
+        bottomNavigationBar: BottomNavigationBar(
+            items: [
+              BottomNavigationBarItem(icon: Icon(Icons.list), title: Text('内容')),
+              BottomNavigationBarItem(icon: Icon(Icons.check), title: Text('打卡')),
+              BottomNavigationBarItem(icon: Icon(Icons.settings), title: Text('功能')),
+            ],
+            currentIndex: _currentIndex,
+            onTap: (int i) => setState(() {
+                  _currentIndex = i;
+                }),
+            selectedItemColor: Colors.red,
+            showUnselectedLabels: true));
   }
 }

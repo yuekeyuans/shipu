@@ -28,7 +28,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
     updateData();
   }
 
-  updateData() async {
+  void updateData() async {
     var record = await YnybXyTable().queryByDate(date);
     bibles = await BibleContentTable().queryByIds(record.ids);
     var bookName = ReciteBibleEntity.fromSp().currentBook;

@@ -8,8 +8,6 @@ class ViewBookPage extends StatefulWidget {
 class _ViewBookPageState extends State<ViewBookPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Text("hellow rod"),
-    );
+    return Scaffold(body: Text("hellow rod"));
   }
 }

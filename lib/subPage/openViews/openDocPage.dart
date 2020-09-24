@@ -18,7 +18,7 @@ class _DocViewerState extends State<DocViewer> {
   String docPath;
 
   static const methodChannel =
-      const MethodChannel('com.example.clock_in/converter');
+      MethodChannel('com.example.clock_in/converter');
 
   _DocViewerState(this.docPath);
 
@@ -34,11 +34,11 @@ class _DocViewerState extends State<DocViewer> {
       return;
     }
 
-    showDialog(
+    await showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return new LoadingDialog(text: "文件转换中…");
+          return  LoadingDialog(text: "文件转换中…");
         });
 
     //调用
@@ -60,8 +60,8 @@ class _DocViewerState extends State<DocViewer> {
         AlertDialog(
           content: Text("打开失败"),
           actions: <Widget>[
-            new FlatButton(
-                child: new Text('确认'),
+             FlatButton(
+                child:  Text('确认'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 })
@@ -121,13 +121,13 @@ class LoadingDialog extends Dialog {
 
   @override
   Widget build(BuildContext context) {
-    return new Material(
+    return  Material(
       type: MaterialType.transparency,
-      child: new Center(
-        child: new SizedBox(
+      child:  Center(
+        child:  SizedBox(
           width: 120.0,
           height: 120.0,
-          child: new Container(
+          child:  Container(
             decoration: ShapeDecoration(
               color: Color(0xffffffff),
               shape: RoundedRectangleBorder(
@@ -136,16 +136,16 @@ class LoadingDialog extends Dialog {
                 ),
               ),
             ),
-            child: new Column(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                new CircularProgressIndicator(),
-                new Padding(
+                 CircularProgressIndicator(),
+                 Padding(
                   padding: const EdgeInsets.only(
                     top: 20.0,
                   ),
-                  child: new Text(text),
+                  child: Text(text),
                 ),
               ],
             ),

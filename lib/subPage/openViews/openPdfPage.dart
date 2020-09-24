@@ -21,19 +21,11 @@ class _PdfViewerState extends State<PdfViewer> {
   Widget build(BuildContext context) {
     return PDFViewerScaffold(
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(APPBAR_HEIGHT),
-          child: AppBar(
-            title: Text(pdfPath.split("/").last),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.share),
-                onPressed: () {
-                  ShareExtend.share(pdfPath, "file");
-                },
-              ),
-            ],
-          ),
-        ),
+            preferredSize: Size.fromHeight(APPBAR_HEIGHT),
+            child: AppBar(
+              title: Text(pdfPath.split("/").last),
+              actions: <Widget>[IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(pdfPath, "file"))],
+            )),
         path: pdfPath);
   }
 }

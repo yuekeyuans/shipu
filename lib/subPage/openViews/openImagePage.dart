@@ -22,15 +22,7 @@ class _ImageViewerState extends State<ImageViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: PreferredSize(
-            preferredSize: Size.fromHeight(APPBAR_HEIGHT),
-            child: AppBar(
-                title: Text(imagePath.split("/").last),
-                actions: <Widget>[
-                  IconButton(
-                      icon: Icon(Icons.share),
-                      onPressed: () => ShareExtend.share(imagePath, "file"))
-                ])),
+        appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text(imagePath.split("/").last), actions: <Widget>[IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(imagePath, "file"))])),
         body: PhotoView(imageProvider: FileImage(File(imagePath))));
   }
 }

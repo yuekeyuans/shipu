@@ -25,30 +25,24 @@ class _SmdjPageState extends State<SmdjPage> {
   AutoScrollController controller;
   int counter = 30;
   var currentPlayIndex = 0;
-  DateTime date = DateTime.parse(
-      DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
+  DateTime date = DateTime.parse(DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
   FlutterTts flutterTts = FlutterTts();
   List<LifeStudyRecord> records = [];
 
   @override
   void initState() {
     super.initState();
-
-    controller = AutoScrollController(
-        viewportBoundaryGetter: () =>
-            Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
-        axis: Axis.vertical,
-        suggestedRowHeight: 200);
+    controller = AutoScrollController(viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom), axis: Axis.vertical, suggestedRowHeight: 200);
     update();
   }
 
-  update() async {
+  Future<void> update() async {
     //更新声音
     var e = DakaSettingsEntity.fromSp();
-    flutterTts.setLanguage("zh-hant");
-    flutterTts.setVolume(e.volumn);
-    flutterTts.setPitch(e.pitch);
-    flutterTts.setSpeechRate(e.speechRate);
+    await flutterTts.setLanguage("zh-hant");
+    await flutterTts.setVolume(e.volumn);
+    await flutterTts.setPitch(e.pitch);
+    await flutterTts.setSpeechRate(e.speechRate);
     records = await LifeStudyTable().queryArticleByDate(date);
     baseScaleFactor = DakaSettingsEntity.fromSp().baseFont;
     setState(() {});
@@ -66,18 +60,15 @@ class _SmdjPageState extends State<SmdjPage> {
 
   Widget wrapOperationWidget(int index) {
     return Container(
-        child: Column(
-      children: <Widget>[
-        SizedBox(height: 5.0),
-        GestureDetector(
+        child: Column(children: <Widget>[
+      SizedBox(height: 5.0),
+      GestureDetector(
           child: createWidget(index),
           onLongPress: () {
             longPressParagraph(index);
-          },
-        ),
-        SizedBox(height: 5.0)
-      ],
-    ));
+          }),
+      SizedBox(height: 5.0)
+    ]));
   }
 
   //长按效果
@@ -87,15 +78,13 @@ class _SmdjPageState extends State<SmdjPage> {
         builder: (context) {
           return SimpleDialog(children: <Widget>[
             ListTile(
-              dense: true,
-              title: Text("复制"),
-              onTap: () {
-                pop();
-                Clipboard.setData(
-                    new ClipboardData(text: records[index].content));
-                showToast("复制成功");
-              },
-            ),
+                dense: true,
+                title: Text("复制"),
+                onTap: () {
+                  pop();
+                  Clipboard.setData(ClipboardData(text: records[index].content));
+                  showToast("复制成功");
+                }),
             ListTile(
                 dense: true,
                 title: Text("朗读"),
@@ -108,125 +97,118 @@ class _SmdjPageState extends State<SmdjPage> {
   }
 
   //底部导航栏
-  showBottomSheetDialog() {
-    showModalBottomSheet(
+  Future<void> showBottomSheetDialog() async {
+    await showModalBottomSheet(
         context: context,
         builder: (context) {
-          var curDate = DateTime.parse(
-              DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
+          var curDate = DateTime.parse(DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
           return StatefulBuilder(builder: (context, setDialogState) {
             int Function() todayDifference = () {
               return curDate.difference(date).inDays;
             };
             return Container(
                 height: 40,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      //打卡
-                      IconButton(icon: Icon(Icons.blur_on), onPressed: null),
-                      Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            // 播放音频
-                            isPlay
-                                ? IconButton(
-                                    icon: Icon(Icons.stop),
-                                    onPressed: () {
-                                      stopMusic();
-                                      setDialogState(() {});
-                                    },
-                                  )
-                                : IconButton(
-                                    icon: Icon(Icons.headset),
-                                    onPressed: () {
-                                      autoPlay();
-                                      setDialogState(() {});
-                                    }),
-                            //后退
-                            todayDifference() >= 0
-                                ? IconButton(
-                                    icon: Icon(Icons.arrow_back),
-                                    onPressed: () {
-                                      stopMusic();
-                                      date = date.add(Duration(days: -1));
-                                      update();
-                                      setDialogState(() {});
-                                    },
-                                  )
-                                : IconButton(
-                                    icon: Icon(Icons.adjust),
-                                    onPressed: () {
-                                      stopMusic();
-                                      date = curDate;
-                                      update();
-                                      setDialogState(() {});
-                                    }),
-                            //前进
-                            todayDifference() <= 0
-                                ? IconButton(
-                                    icon: Icon(Icons.arrow_forward),
-                                    onPressed: () {
-                                      stopMusic();
-                                      date = date.add(Duration(days: 1));
-                                      setDialogState(() {});
-                                      update();
-                                    },
-                                  )
-                                : IconButton(
-                                    icon: Icon(Icons.adjust),
-                                    onPressed: () {
-                                      stopMusic();
-                                      date = curDate;
-                                      update();
-                                      setDialogState(() {});
-                                    }),
-                            //设置
-                            IconButton(
-                              icon: Icon(Icons.settings),
-                              onPressed: () {
-                                routePush(DakaSettings()).then((value) {
-                                  update();
-                                });
-                              },
-                            ),
-                          ])
-                    ]));
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                  //打卡
+                  IconButton(icon: Icon(Icons.blur_on), onPressed: null),
+                  Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+                    // 播放音频
+                    isPlay
+                        ? IconButton(
+                            icon: Icon(Icons.stop),
+                            onPressed: () {
+                              stopMusic();
+                              setDialogState(() {});
+                            },
+                          )
+                        : IconButton(
+                            icon: Icon(Icons.headset),
+                            onPressed: () {
+                              autoPlay();
+                              setDialogState(() {});
+                            }),
+                    //后退
+                    todayDifference() >= 0
+                        ? IconButton(
+                            icon: Icon(Icons.arrow_back),
+                            onPressed: () {
+                              stopMusic();
+                              date = date.add(Duration(days: -1));
+                              update();
+                              setDialogState(() {});
+                            },
+                          )
+                        : IconButton(
+                            icon: Icon(Icons.adjust),
+                            onPressed: () {
+                              stopMusic();
+                              date = curDate;
+                              update();
+                              setDialogState(() {});
+                            }),
+                    //前进
+                    todayDifference() <= 0
+                        ? IconButton(
+                            icon: Icon(Icons.arrow_forward),
+                            onPressed: () {
+                              stopMusic();
+                              date = date.add(Duration(days: 1));
+                              setDialogState(() {});
+                              update();
+                            },
+                          )
+                        : IconButton(
+                            icon: Icon(Icons.adjust),
+                            onPressed: () {
+                              stopMusic();
+                              date = curDate;
+                              update();
+                              setDialogState(() {});
+                            }),
+                    //设置
+                    IconButton(
+                      icon: Icon(Icons.settings),
+                      onPressed: () {
+                        routePush(DakaSettings()).then((value) {
+                          update();
+                        });
+                      },
+                    ),
+                  ])
+                ]));
           });
         });
   }
 
-  playCurrentParagraph(int index) {
+  Future<void> playCurrentParagraph(int index) async {
     currentPlayIndex = index;
     continuePlay = false;
-    flutterTts.stop();
-    playMusic();
+    await flutterTts.stop();
+    await playMusic();
   }
 
   //在这里定义函数，可以直接更新页面
-  playMusic() async {
+  Future<void> playMusic() async {
     if (currentPlayIndex == records.length) {
       currentPlayIndex = 0;
       continuePlay = false;
     } else {
       await controller.scrollToIndex(currentPlayIndex);
-      controller.highlight(currentPlayIndex,
-          highlightDuration: Duration(days: 1));
+      await controller.highlight(currentPlayIndex, highlightDuration: Duration(days: 1));
       await flutterTts.speak(records[currentPlayIndex].content);
       currentPlayIndex++;
     }
   }
 
-  stopMusic() {
-    flutterTts.stop();
+  Future<void> stopMusic() async {
+    await flutterTts.stop();
     isPlay = false;
     currentPlayIndex = 0;
     continuePlay = true;
   }
 
   //从头到尾播放，播放完成，暂停重置
-  autoPlay() async {
+  Future<void> autoPlay() async {
     isPlay = true;
     currentPlayIndex = 0;
     continuePlay = true;
@@ -240,16 +222,14 @@ class _SmdjPageState extends State<SmdjPage> {
         await playMusic();
       }
     });
-    playMusic();
+    await playMusic();
   }
 
   /// 这是一个大类 TODO: 需要在之后被重新拆分,但是现在由于代码比较混乱，就先不动
   Widget createWidget(int index) {
     //缩进文本
     String indent(String content, double size) {
-      return "                                                                                                    "
-              .substring(0, (size * 4).toInt()) +
-          content;
+      return "                                                                                                    ".substring(0, (size * 4).toInt()) + content;
     }
 
 //基本内容
@@ -312,8 +292,8 @@ class _SmdjPageState extends State<SmdjPage> {
 
 //1
     Widget createHL1(int index) {
-      return new Container(
-          decoration: new BoxDecoration(color: Colors.grey[200]),
+      return Container(
+          decoration: BoxDecoration(color: Colors.grey[200]),
           child: ListTile(
             title: Text(
               records[index].content,
@@ -325,8 +305,8 @@ class _SmdjPageState extends State<SmdjPage> {
 
 //2
     Widget createHL2(int index) {
-      return new Container(
-          decoration: new BoxDecoration(color: Colors.transparent),
+      return Container(
+          decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
               records[index].content,
@@ -338,8 +318,8 @@ class _SmdjPageState extends State<SmdjPage> {
 
 //3
     Widget createHL3(int index) {
-      return new Container(
-          decoration: new BoxDecoration(color: Colors.transparent),
+      return Container(
+          decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
               records[index].content,
@@ -351,8 +331,8 @@ class _SmdjPageState extends State<SmdjPage> {
 
 //4
     Widget createHL4(int index) {
-      return new Container(
-          decoration: new BoxDecoration(color: Colors.transparent),
+      return Container(
+          decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
               indent(records[index].content, 1),
@@ -364,8 +344,8 @@ class _SmdjPageState extends State<SmdjPage> {
 
 //5
     Widget createHL5(int index) {
-      return new Container(
-          decoration: new BoxDecoration(color: Colors.transparent),
+      return Container(
+          decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
               indent(records[index].content, 1),
@@ -377,8 +357,8 @@ class _SmdjPageState extends State<SmdjPage> {
 
 //6
     Widget createHL6(int index) {
-      return new Container(
-          decoration: new BoxDecoration(color: Colors.transparent),
+      return Container(
+          decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
               indent(records[index].content, 1),
@@ -390,8 +370,8 @@ class _SmdjPageState extends State<SmdjPage> {
 
 //7
     Widget createHL7(int index) {
-      return new Container(
-          decoration: new BoxDecoration(color: Colors.transparent),
+      return Container(
+          decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
               indent(records[index].content, 1.5),
@@ -403,8 +383,8 @@ class _SmdjPageState extends State<SmdjPage> {
 
 //8
     Widget createHL8(int index) {
-      return new Container(
-          decoration: new BoxDecoration(color: Colors.transparent),
+      return Container(
+          decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
               indent(records[index].content, 1.5),
@@ -416,8 +396,8 @@ class _SmdjPageState extends State<SmdjPage> {
 
 //9
     Widget createHL9(int index) {
-      return new Container(
-          decoration: new BoxDecoration(color: Colors.transparent),
+      return Container(
+          decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
               indent(records[index].content, 2),
@@ -429,8 +409,8 @@ class _SmdjPageState extends State<SmdjPage> {
 
 //10
     Widget createHL10(int index) {
-      return new Container(
-          decoration: new BoxDecoration(color: Colors.transparent),
+      return Container(
+          decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
               indent(records[index].content, 2),
@@ -483,20 +463,7 @@ class _SmdjPageState extends State<SmdjPage> {
   Widget build(BuildContext context) {
     var time = DateUtil.formatDate(date, format: DateFormats.zh_mo_d);
     return Scaffold(
-        appBar: PreferredSize(
-            preferredSize: Size.fromHeight(APPBAR_HEIGHT),
-            child: AppBar(title: Text("生命读经-$time"), actions: <Widget>[
-              Padding(
-                  padding: EdgeInsets.only(right: 10),
-                  child: IconButton(
-                      icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))
-            ])),
-        body: Scrollbar(
-            child: ListView(
-          controller: controller,
-          scrollDirection: Axis.vertical,
-          children:
-              records.map((e) => wrapScrollWidget(records.indexOf(e))).toList(),
-        )));
+        appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text("生命读经-$time"), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))])),
+        body: Scrollbar(child: ListView(controller: controller, scrollDirection: Axis.vertical, children: records.map((e) => wrapScrollWidget(records.indexOf(e))).toList())));
   }
 }

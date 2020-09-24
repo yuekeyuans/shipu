@@ -22,8 +22,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initVal();
   await initDb();
-  debugMode();
-  Wakelock.enable();
+  await Wakelock.enable();
   runApp(MyApp());
 }
 
@@ -38,68 +37,44 @@ class MyApp extends StatelessWidget {
         duration: Duration(seconds: 2),
         child: MaterialApp(
           title: '打卡',
-          theme: ThemeData(
-            // Define the default brightness and colors.
-            brightness: Brightness.light,
-            primaryColor: Colors.white,
-            accentColor: Colors.cyan[600],
-            fontFamily: 'Montserrat',
-          ),
+          theme: ThemeData(brightness: Brightness.light, primaryColor: Colors.white, accentColor: Colors.cyan[600], fontFamily: 'Montserrat'),
           debugShowCheckedModeBanner: false,
           navigatorKey: navGK,
-          home: splashEntity.hasSplash
-              ? Simple_splashscreen(
-                  context: context,
-                  gotoWidget: homePage,
-                  splashscreenWidget: SplashScreen(),
-                  timerInSeconds: splashEntity.splashTime)
-              : homePage,
+          home: splashEntity.hasSplash ? Simple_splashscreen(context: context, gotoWidget: homePage, splashscreenWidget: SplashScreen(), timerInSeconds: splashEntity.splashTime) : homePage,
         ));
   }
 }
 
-debugMode() async {
-  var a = SplashEntity();
-  a.hasSplash = false;
-  a.toSp();
-
-  print((await LifeStudyTable().queryArticleByDate(DateTime.now()))
-      .first
-      .content);
-}
-
-initVal() async {
+Future<void> initVal() async {
   ///检查是否有权限
   Map<Permission, PermissionStatus> statuses = await [
     Permission.storage,
     Permission.camera,
   ].request();
   print(statuses[Permission.storage]);
-  var basePath =
-      (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
+  var basePath = (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
 
   await SpUtil.getInstance();
   //判断是否定义过变量
-  if (!SpUtil.getBool("defined", defValue: false) ||
-      SpUtil.getString("MAIN_PATH", defValue: "") == "") {
-    SpUtil.putBool("defined", true);
+  if (!SpUtil.getBool("defined", defValue: false) || SpUtil.getString("MAIN_PATH", defValue: "") == "") {
+    await SpUtil.putBool("defined", true);
 
     await DirectoryUtil.createDir(basePath);
-    SpUtil.putString("GLOBAL_PATH", basePath);
+    await SpUtil.putString("GLOBAL_PATH", basePath);
     await DirectoryUtil.createDir(basePath + "/zhuhuifu");
-    SpUtil.putString("MAIN_PATH", basePath + "/zhuhuifu");
+    await SpUtil.putString("MAIN_PATH", basePath + "/zhuhuifu");
     await DirectoryUtil.createDir(basePath + "/zhuhuifu/temp");
-    SpUtil.putString("TEMP_PATH", basePath + "/zhuhuifu/temp");
+    await SpUtil.putString("TEMP_PATH", basePath + "/zhuhuifu/temp");
     await DirectoryUtil.createDir("$basePath/zhuhuifu/encryption");
-    SpUtil.putString("ENCRYPTION_PATH", "$basePath/zhuhuifu/encryption");
+    await SpUtil.putString("ENCRYPTION_PATH", "$basePath/zhuhuifu/encryption");
     await DirectoryUtil.createDir("$basePath/zhuhuifu/decryption");
-    SpUtil.putString("DECRYPTION_PATH", "$basePath/zhuhuifu/decryption");
+    await SpUtil.putString("DECRYPTION_PATH", "$basePath/zhuhuifu/decryption");
     await DirectoryUtil.createDir(basePath + "/zhuhuifu/database");
-    SpUtil.putString("DB_PATH", basePath + "/zhuhuifu/database");
+    await SpUtil.putString("DB_PATH", basePath + "/zhuhuifu/database");
     await DirectoryUtil.createDir(basePath + "/documents/iSilo/Settings");
-    SpUtil.putString("ISILO_PATH", basePath + "/documents/iSilo/Settings");
+    await SpUtil.putString("ISILO_PATH", basePath + "/documents/iSilo/Settings");
     //文件是否加密发送
-    SpUtil.putBool("Encryption", false);
+    await SpUtil.putBool("Encryption", false);
     //splash
     SplashEntity().toSp();
     //背经

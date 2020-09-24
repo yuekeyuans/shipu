@@ -6,26 +6,24 @@ import 'package:settings_ui/settings_ui.dart';
 
 class ContentManageFunctionPage extends StatefulWidget {
   @override
-  _ContentManageFunctionPageState createState() =>
-      _ContentManageFunctionPageState();
+  _ContentManageFunctionPageState createState() => _ContentManageFunctionPageState();
 }
 
 class _ContentManageFunctionPageState extends State<ContentManageFunctionPage> {
   var viewModeType = ["列表", "分类"];
 
   void changeViewMode() {
-    new Picker(
+    Picker(
         adapter: PickerDataAdapter<String>(pickerdata: viewModeType),
         hideHeader: true,
         confirmText: "确定",
         cancelText: "取消",
-        title: new Text("选择显示方式"),
+        title: Text("选择显示方式"),
         onConfirm: (Picker picker, List value) {
           var selected = picker.getSelectedValues().first;
           print(selected);
           var entity = ContentPageEntity.fromSp();
-          entity.listType =
-              ContentPageEntityType.values[viewModeType.indexOf(selected)];
+          entity.listType = ContentPageEntityType.values[viewModeType.indexOf(selected)];
           entity.toSp();
           setState(() {});
         }).showDialog(context);
@@ -33,26 +31,19 @@ class _ContentManageFunctionPageState extends State<ContentManageFunctionPage> {
 
   List<SettingsSection> getChildren() {
     var lst = <SettingsSection>[
-      SettingsSection(
-        title: "页面显示方式",
-        tiles: [
-          SettingsTile(
-            title: "开启背经功能",
-            subtitle: viewModeType[ContentPageEntity.fromSp().listType.index],
-            onTap: changeViewMode,
-          )
-        ],
-      )
+      SettingsSection(title: "页面显示方式", tiles: [
+        SettingsTile(
+          title: "开启背经功能",
+          subtitle: viewModeType[ContentPageEntity.fromSp().listType.index],
+          onTap: changeViewMode,
+        )
+      ])
     ];
     return lst;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: PreferredSize(
-            child: AppBar(title: Text("设置")),
-            preferredSize: Size.fromHeight(APPBAR_HEIGHT)),
-        body: SettingsList(sections: getChildren()));
+    return Scaffold(appBar: PreferredSize(child: AppBar(title: Text("设置")), preferredSize: Size.fromHeight(APPBAR_HEIGHT)), body: SettingsList(sections: getChildren()));
   }
 }

@@ -9,7 +9,9 @@ import android.os.StatFs
 import android.provider.Settings
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import com.aspose.words.Document
 import com.aspose.words.SaveFormat
+import com.example.clock_in.BuildConfig.*
 import io.flutter.Log
 import io.flutter.app.FlutterActivity
 import io.flutter.plugin.common.MethodChannel
@@ -285,7 +287,7 @@ class MainActivity: FlutterActivity() {
                     result.error("0", "file not fond", "cant find the file")
               }
               val stream = FileInputStream(path)
-              val document = com.aspose.words.Document(stream)
+              val document = Document(stream)
               stream.close()
               document.save(path + ".html", SaveFormat.HTML)
               this.isConvertFinish = true
@@ -310,7 +312,7 @@ class MainActivity: FlutterActivity() {
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     super.onActivityResult(requestCode, resultCode, data)
       if (resultCode == 10001) {
-        val apkUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileProvider",File(appPath)) //在AndroidManifest中的android:authorities值
+        val apkUri = FileProvider.getUriForFile(this, APPLICATION_ID + ".fileProvider",File(appPath)) //在AndroidManifest中的android:authorities值
         val install = Intent(Intent.ACTION_VIEW)
         install.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

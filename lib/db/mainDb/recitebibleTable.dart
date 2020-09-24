@@ -7,13 +7,6 @@ import 'package:sqflite/sqflite.dart';
 
 //该表存在于 clock_in.db
 class ReciteBibleTable {
-  List<String> ids = [];
-  DateTime date = DateTime.now();
-  bool isComplete = false;
-  bool isDelay = false;
-
-  static const TABLENAME = "recitebible";
-
   ReciteBibleTable();
 
   ReciteBibleTable.fromJson(Map<String, dynamic> map) {
@@ -22,6 +15,17 @@ class ReciteBibleTable {
     isComplete = map["iscomplete"] == true.toString();
     isDelay = map["isDelay"] == true.toString();
   }
+
+  // record = ReciteBibleTable.fromJson(element);
+
+  // record = ReciteBibleTable.fromJson(element);
+
+  static const TABLENAME = "recitebible";
+
+  DateTime date = DateTime.now();
+  List<String> ids = [];
+  bool isComplete = false;
+  bool isDelay = false;
 
   toJson() {
     var map = Map<String, String>();

@@ -9,5 +9,8 @@
     "eslint.alwaysShowStatus": true,
     "markdown.showToolbar": true,
     "editor.cursorBlinking": "smooth",
-    "editor.multiCursorMergeOverlapping": false
+    "editor.multiCursorMergeOverlapping": false,
+    "editor.wordWrapColumn": 200,
+    "editor.wordWrap": "wordWrapColumn",
+    "prettier.printWidth": 800
 }
