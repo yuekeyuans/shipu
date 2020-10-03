@@ -1,4 +1,5 @@
-include: package:pedantic/analysis_options.yaml
+include: package:pedantic/analysis_options.1.9.0.yaml
+
 analyzer:
   strong-mode:
     implicit-casts: false
@@ -9,17 +10,20 @@ analyzer:
     annotate_overrides: ignore
     prefer_single_quotes: ignore
     use_function_type_syntax_for_parameters: ignore
+    unawaited_futures: ignore
+    always_declare_return_types: ignore
+    prefer_equal_for_default_values: ignore
 
 linter:
   rules:
-    - always_declare_return_types
+    # - always_declare_return_types
     - always_put_control_body_on_new_line
-    - always_put_required_named_parameters_first
-    - annotate_overrides
-    - avoid_double_and_int_checks
-    - avoid_empty_else
-    - avoid_field_initializers_in_const_classes
-    - unnecessary_this
-    - unnecessary_statements
-    - unawaited_futures
-    - package_names
+    # - always_put_required_named_parameters_first
+    # - annotate_overrides
+    # - avoid_double_and_int_checks
+    # - avoid_empty_else
+    # - avoid_field_initializers_in_const_classes
+    # - unnecessary_this
+    # - unnecessary_statements
+    # - unawaited_futures
+    # - package_names

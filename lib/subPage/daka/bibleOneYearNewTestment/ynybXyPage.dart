@@ -18,9 +18,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
   List<BibleContentTable> bibles = [];
   String shortName;
 
-  var textStyle = TextStyle(
-      fontSize: ReciteBibleEntity.fromSp().fontSize.toDouble(),
-      fontFamily: "OpenSans");
+  var textStyle = TextStyle(fontSize: ReciteBibleEntity.fromSp().fontSize.toDouble(), fontFamily: "OpenSans");
 
   @override
   void initState() {
@@ -38,9 +36,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
 
   bool get isCurrentDate {
     var curDate = DateTime.now();
-    if (curDate.year == curDate.year &&
-        curDate.month == date.month &&
-        curDate.day == date.day) {
+    if (curDate.year == curDate.year && curDate.month == date.month && curDate.day == date.day) {
       return true;
     }
     return false;
@@ -58,18 +54,13 @@ class _YnybXyPageState extends State<YnybXyPage> {
 
     return WillPopScope(
         child: Scaffold(
-          appBar: AppBar(
-              title: Text(
-                  "新约 - ${DateUtil.formatDate(date, format: DateFormats.zh_mo_d)}"),
-              actions: <Widget>[
-                Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child: IconButton(
-                        icon: Icon(Icons.menu), onPressed: showBottomSheet))
-              ]),
+          appBar: AppBar(title: Text("新约 - ${DateUtil.formatDate(date, format: DateFormats.zh_mo_d)}"), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheet))]),
           body: ListView(children: getChildren()),
         ),
-        onWillPop: () => pop("ddd"));
+        onWillPop: () async {
+          pop("ddd");
+          return true;
+        });
   }
 
   Widget createCard(BibleContentTable record) {
@@ -80,13 +71,8 @@ class _YnybXyPageState extends State<YnybXyPage> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                  padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-                  child: Text("$shortName ${record.chapter}-${record.section}",
-                      style: textStyle)),
-              Expanded(
-                  child: Text(record.content,
-                      softWrap: true, maxLines: 10, style: textStyle)),
+              Padding(padding: EdgeInsets.fromLTRB(5, 0, 5, 0), child: Text("$shortName ${record.chapter}-${record.section}", style: textStyle)),
+              Expanded(child: Text(record.content, softWrap: true, maxLines: 10, style: textStyle)),
             ],
           ),
           SizedBox(height: 15),
@@ -100,29 +86,17 @@ class _YnybXyPageState extends State<YnybXyPage> {
         builder: (context) {
           return Container(
               height: 40,
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    IconButton(icon: Icon(Icons.check), onPressed: checkIn),
-                    IconButton(
-                      icon: Icon(Icons.music_note),
-                      onPressed: () {},
-                    ),
-                    Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          IconButton(
-                              icon: Icon(Icons.arrow_back),
-                              onPressed: prevPage),
-                          IconButton(
-                              icon: Icon(Icons.pause_circle_outline),
-                              onPressed: currPage),
-                          IconButton(
-                              icon: Icon(Icons.arrow_forward),
-                              onPressed: nextPage)
-                        ])
-                  ]));
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                IconButton(icon: Icon(Icons.check), onPressed: checkIn),
+                IconButton(
+                  icon: Icon(Icons.music_note),
+                  onPressed: () {},
+                ),
+                Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[IconButton(icon: Icon(Icons.arrow_back), onPressed: prevPage), IconButton(icon: Icon(Icons.pause_circle_outline), onPressed: currPage), IconButton(icon: Icon(Icons.arrow_forward), onPressed: nextPage)])
+              ]));
         });
   }
 
@@ -135,9 +109,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
       showDialog(
           context: context,
           builder: (_) {
-            return AlertDialog(
-                content: Text(
-                    """${DateUtil.formatDate(temDate, format: DateFormats.y_mo_d)}\n还没有呢开始背经
+            return AlertDialog(content: Text("""${DateUtil.formatDate(temDate, format: DateFormats.y_mo_d)}\n还没有呢开始背经
                   """));
           });
     } else {
@@ -155,9 +127,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
       showDialog(
           context: context,
           builder: (_) {
-            return AlertDialog(
-                content: Text(
-                    """${DateUtil.formatDate(temDate, format: DateFormats.y_mo_d)}\n还没有呢开始背经
+            return AlertDialog(content: Text("""${DateUtil.formatDate(temDate, format: DateFormats.y_mo_d)}\n还没有呢开始背经
                   """));
           });
     } else {
@@ -175,9 +145,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
       showDialog(
           context: context,
           builder: (_) {
-            return AlertDialog(
-                content: Text(
-                    """${DateUtil.formatDate(temDate, format: DateFormats.y_mo_d)}\n还没有呢开始背经
+            return AlertDialog(content: Text("""${DateUtil.formatDate(temDate, format: DateFormats.y_mo_d)}\n还没有呢开始背经
                     """));
           });
     } else {
@@ -192,14 +160,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
   Future<void> checkIn() async {
     var entity = await ReciteBibleTable().queryByDay(date);
     if (entity.isComplete) {
-      showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-                  title: Text("提示"),
-                  content: Text("已经背诵完成，打卡，无需重复打卡"),
-                  actions: <Widget>[
-                    FlatButton(onPressed: pop, child: Text("好的"))
-                  ]));
+      showDialog(context: context, builder: (_) => AlertDialog(title: Text("提示"), content: Text("已经背诵完成，打卡，无需重复打卡"), actions: <Widget>[FlatButton(onPressed: pop, child: Text("好的"))]));
     } else {
       showDialog(
           context: context,

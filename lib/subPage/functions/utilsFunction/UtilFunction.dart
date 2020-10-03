@@ -36,8 +36,7 @@ class UtilFunction {
   static void copyFile(ByteData bytes, String dest) {
     var writeToFile = (ByteData data, String path) {
       final buffer = data.buffer;
-      return new File(path).writeAsBytesSync(
-          buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+      return File(path).writeAsBytesSync(buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
     };
     return writeToFile(bytes, dest);
   }

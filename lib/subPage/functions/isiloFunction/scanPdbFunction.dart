@@ -10,7 +10,7 @@ class ScanPdbFunction extends StatefulWidget {
 }
 
 class _ScanPdbFunctionState extends State<ScanPdbFunction> {
-  var pdbs = List<PDB>();
+  var pdbs = <PDB>[];
 
   @override
   void initState() {

@@ -12,9 +12,9 @@ class ScanFilesPage extends StatefulWidget {
 }
 
 class _ScanFilesPageState extends State<ScanFilesPage> {
-  List<String> files = new List<String>();
+  List<String> files = <String>[];
   List<ContentFileInfoTable> existFile = [];
-  List<bool> selected = new List<bool>();
+  List<bool> selected = <bool>[];
   BuildContext ctx;
 
   var basePath = "";
@@ -29,7 +29,7 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
   Widget build(BuildContext context) {
     ctx = context;
     if (selected.length != files.length) {
-      selected = new List<bool>(files.length);
+      selected = List<bool>(files.length);
       selected.fillRange(0, files.length, false);
     }
 
@@ -58,16 +58,16 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-              icon: Icon(IconData(0xe14c, fontFamily: "MaterialIcons")),
-              title: new Text('取消')),
+              icon: Icon(Icons.cancel),
+              title: Text('取消')),
           BottomNavigationBarItem(
-              icon: Icon(IconData(0xe1b3, fontFamily: "MaterialIcons")),
-              title: new Text('全选')),
+              icon: Icon(Icons.select_all),
+              title: Text('全选')),
           BottomNavigationBarItem(
-              icon: Icon(IconData(0xe1b4, fontFamily: "MaterialIcons")),
-              title: new Text('反选')),
+              icon: Icon(Icons.tab_unselected),
+              title: Text('反选')),
           BottomNavigationBarItem(
-              icon: Icon(Icons.check), title: new Text('确定')),
+              icon: Icon(Icons.check), title: Text('确定')),
         ],
         currentIndex: 0,
         onTap: onBarSelected,

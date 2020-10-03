@@ -2,7 +2,6 @@ import 'package:da_ka/plugin/treeview/src/tree_view_controller.dart';
 import 'package:da_ka/plugin/treeview/src/tree_view_theme.dart';
 import 'package:flutter/material.dart';
 
-
 import 'models/node.dart';
 import 'tree_node.dart';
 
@@ -84,12 +83,12 @@ class TreeView extends InheritedWidget {
     this.onNodeLongPress,
     this.physics,
     this.onExpansionChanged,
-    this.allowParentSelect: false,
-    this.supportParentDoubleTap: false,
-    this.shrinkWrap: false,
-    this.primary: true,
+    this.allowParentSelect = false,
+    this.supportParentDoubleTap = false,
+    this.shrinkWrap = false,
+    this.primary = true,
     TreeViewTheme theme,
-  })  : this.theme = theme ?? const TreeViewTheme(),
+  })  : theme = theme ?? const TreeViewTheme(),
         super(
           key: key,
           child: _TreeViewData(
@@ -100,17 +99,11 @@ class TreeView extends InheritedWidget {
           ),
         );
 
-  static TreeView of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType(aspect: TreeView);
+  static TreeView of(BuildContext context) => context.dependOnInheritedWidgetOfExactType(aspect: TreeView);
 
   @override
   bool updateShouldNotify(TreeView oldWidget) {
-    return oldWidget.controller.children != this.controller.children ||
-        oldWidget.onNodeTap != this.onNodeTap ||
-        oldWidget.onExpansionChanged != this.onExpansionChanged ||
-        oldWidget.theme != this.theme ||
-        oldWidget.supportParentDoubleTap != this.supportParentDoubleTap ||
-        oldWidget.allowParentSelect != this.allowParentSelect;
+    return oldWidget.controller.children != controller.children || oldWidget.onNodeTap != onNodeTap || oldWidget.onExpansionChanged != onExpansionChanged || oldWidget.theme != theme || oldWidget.supportParentDoubleTap != supportParentDoubleTap || oldWidget.allowParentSelect != allowParentSelect;
   }
 }
 
@@ -120,8 +113,7 @@ class _TreeViewData extends StatelessWidget {
   final bool primary;
   final ScrollPhysics physics;
 
-  const _TreeViewData(this._controller,
-      {this.shrinkWrap, this.primary, this.physics});
+  const _TreeViewData(this._controller, {this.shrinkWrap, this.primary, this.physics});
 
   @override
   Widget build(BuildContext context) {

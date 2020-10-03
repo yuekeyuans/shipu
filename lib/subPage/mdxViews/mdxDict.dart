@@ -12,24 +12,24 @@ class MdxDict {
   MdxDict({this.id, this.title, this.description, this.image, this.html});
 
   MdxDict.fromJson(Map<String, dynamic> json) {
-    id = json["id"];
-    title = json["title"];
-    description = json["description"];
-    image = json["image"];
-    html = json["html"];
+    id = json["id"] as int;
+    title = json["title"] as String;
+    description = json["description"] as String;
+    image = json["image"] as String;
+    html = json["html"] as String;
   }
 
   MdxDict.fromSql(Map<String, dynamic> json) {
     print(json);
-    id = json["id"];
-    title = json["title"];
-    description = json["description"];
-    image = json["image"];
-    html = json["html"];
+    id = json["id"] as int;
+    title = json["title"] as String;
+    description = json["description"] as String;
+    image = json["image"] as String;
+    html = json["html"] as String;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> json = new Map<String, dynamic>();
+    final json = <String, dynamic>{};
     json["id"] = id;
     json["title"] = title;
     json["description"] = description;
@@ -58,6 +58,6 @@ class MdxDict {
       print(item);
       html = MdxDict.fromSql(item).html;
     });
-    return html == null ? "" : html;
+    return html ?? "";
   }
 }

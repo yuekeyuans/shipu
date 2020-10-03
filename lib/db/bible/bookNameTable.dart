@@ -10,14 +10,14 @@ class BookNameTable {
   BookNameTable();
 
   BookNameTable.fromJson(Map<String, dynamic> json) {
-    id = json["_id"];
-    bookIndex = json["book_index"];
-    name = json["name"];
-    acronymName = json["acronym_name"];
+    id = json["_id"] as int;
+    bookIndex = json["book_index"] as int;
+    name = json["name"] as String;
+    acronymName = json["acronym_name"] as String;
   }
 
-  toJson() {
-    final Map<String, dynamic> json = new Map<String, dynamic>();
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{};
     json['_id'] = id;
     json["name"] = name;
     json["book_index"] = bookIndex;
@@ -48,8 +48,7 @@ class BookNameTable {
   Future<String> queryShortName(String fullName) async {
     var name = "";
     var db = await BibleDb().db;
-    var result =
-        await db.query(TABLENAME, where: "name = ?", whereArgs: [fullName]);
+    var result = await db.query(TABLENAME, where: "name = ?", whereArgs: [fullName]);
     result.forEach((element) {
       name = BookNameTable.fromJson(element).acronymName;
     });
@@ -67,7 +66,7 @@ class BookNameTable {
     var result = await db.query(TABLENAME, columns: ["name"]);
     result.forEach((element) {
       var name = element.values.first;
-      list.add(name);
+      list.add(name as String);
     });
     return list;
   }

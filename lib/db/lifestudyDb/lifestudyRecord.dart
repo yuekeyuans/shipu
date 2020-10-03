@@ -7,12 +7,12 @@ class LifeStudyRecord {
   String flag;
   String content;
   LifeStudyRecord.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    language = json["language"];
-    bookIndex = json["book_index"];
-    chapter = json["chapter"];
-    section = json["section"];
+    id = json['id'] as int;
+    language = json["language"] as String;
+    bookIndex = json["book_index"] as int;
+    chapter = json["chapter"] as int;
+    section = json["section"] as int;
     flag = json["flag"].toString();
-    content = json["outline"];
+    content = json["outline"] as String;
   }
 }

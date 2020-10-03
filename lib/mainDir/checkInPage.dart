@@ -28,7 +28,7 @@ class _CheckInPageState extends State<CheckInPage> {
     updatePage();
   }
 
-  Future<void> updatePage() async {
+  updatePage() async {
     hasReadXy = await YnybXyTable().queryIsComplete(date);
     hasReadJy = await YnybJyTable().queryIsComplete(date);
     hasReadSmdj = false; //TODO:
@@ -63,13 +63,12 @@ class _CheckInPageState extends State<CheckInPage> {
       lst.add(wrapListTile(
           ListTile(
             title: Text("背经"),
-            onTap: () =>
-                routePush(ReciteBiblePage()).then((value) => updatePage()),
+            onTap: () => routePush(ReciteBiblePage()).then((value) => updatePage()),
             trailing: hasBj ? Icon(Icons.check) : null,
           ),
           isRead: hasBj, onReaded: () async {
         await ReciteBibleTable().toggleIsComplete(date, hasBj);
-        updatePage();
+        await updatePage();
       }));
       lst.add(Divider(height: 1.0));
     }
@@ -104,7 +103,7 @@ class _CheckInPageState extends State<CheckInPage> {
         ),
         isRead: hasReadJy, onReaded: () async {
       await YnybJyTable().toggleIsComplete(date, hasReadJy);
-      updatePage();
+      await updatePage();
     }));
 
     lst.add(Divider(height: 1.0));
@@ -127,19 +126,14 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 
   //包装器
+  // ignore: avoid_types_as_parameter_names
   Widget wrapListTile(Widget widget, {bool isRead = false, Function onReaded}) {
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
-      child: Container(
-          decoration: new BoxDecoration(color: isRead ? Colors.black12 : null),
-          child: widget),
+      child: Container(decoration: BoxDecoration(color: isRead ? Colors.black12 : null), child: widget),
       secondaryActions: <Widget>[
-        IconSlideAction(
-            caption: isRead ? '取消打卡' : "打卡",
-            color: Colors.blue,
-            icon: isRead ? Icons.blur_off : Icons.blur_on,
-            onTap: onReaded == null ? () {} : onReaded),
+        IconSlideAction(caption: isRead ? '取消打卡' : '打卡', color: Colors.blue, icon: isRead ? Icons.blur_off : Icons.blur_on, onTap: () => onReaded()),
       ],
     );
   }

@@ -15,26 +15,26 @@ class YnybXyTable {
 
   static const TABLENAME = "ynyb_xy";
 
-  YnybXyTable.fromJson(Map<String, String> map) {
-    ids = map["ids"].split(",");
-    days = int.parse(map["days"]);
+  YnybXyTable.fromJson(Map<String, dynamic> map) {
+    ids = map["ids"].split(",") as List<String>;
+    days = int.parse(map["days"] as String);
     isComplete = (map["isComplete"].toString() == true.toString());
-    comments = json.decode(map["comments"]);
+    // ignore: unnecessary_cast
+    comments = json.decode(map['comments'] as String) as Map<String, String>;
   }
 
-  toJson() {
+  Map<String, String> toJson() {
     Map<String, String> map = {};
     map["ids"] = ids.join(",");
     map["days"] = days.toString();
     map["isComplete"] = isComplete.toString();
     map["comments"] = json.encode(comments);
-    return json;
+    return map;
   }
 
   Future<YnybXyTable> queryByDate(DateTime date) async {
     var db = await MainDb().db;
-    var result = await db
-        .query(TABLENAME, where: "days = ?", whereArgs: [getDaysOfDate(date)]);
+    var result = await db.query(TABLENAME, where: "days = ?", whereArgs: [getDaysOfDate(date)]);
     var record = YnybXyTable();
     result.forEach((element) {
       record = YnybXyTable.fromJson(element);
@@ -44,10 +44,7 @@ class YnybXyTable {
 
   Future<bool> queryIsComplete(DateTime date) async {
     var db = await MainDb().db;
-    var count = Sqflite.firstIntValue(await db.query(TABLENAME,
-        columns: ["count(1)"],
-        where: "days = ? and isComplete = ?",
-        whereArgs: [getDaysOfDate(date), true.toString()]));
+    var count = Sqflite.firstIntValue(await db.query(TABLENAME, columns: ["count(1)"], where: "days = ? and isComplete = ?", whereArgs: [getDaysOfDate(date), true.toString()]));
     return count != 0;
   }
 

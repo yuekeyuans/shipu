@@ -12,22 +12,19 @@ class BibleDb {
   final filename = "bible.db";
 
   Future<Database> get db async {
-    if (_db == null) {
-      _db = await initDb();
-    }
+    _db ??= await initDb();
     return _db;
   }
 
   BibleDb.internal();
 
-  initDb() async {
+  Future<Database> initDb() async {
     String dir = SpUtil.getString("DB_PATH");
     var path = '$dir/$filename';
     if (!File(path).existsSync()) {
       //await copyFile();
       var bytes = await rootBundle.load("assets/db/bible.zip");
-      UtilFunction.unzip(
-          bytes.buffer.asUint8List(), SpUtil.getString("DB_PATH"));
+      UtilFunction.unzip(bytes.buffer.asUint8List(), SpUtil.getString("DB_PATH"));
     }
     var ourDb = await openDatabase(path, version: 1);
     return ourDb;

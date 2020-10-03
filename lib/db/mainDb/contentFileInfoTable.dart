@@ -11,11 +11,11 @@ class ContentFileInfoTable {
   static const String TABLENAME = "contentfileinfo";
 
   ContentFileInfoTable(
-      {this.id,
-      this.filepath,
-      this.filename,
-      this.inserttime,
-      this.lastopentime});
+      {id,
+      filepath,
+      filename,
+      inserttime,
+      lastopentime});
 
   ContentFileInfoTable.fromPath(String path) {
     filepath = path;
@@ -27,34 +27,34 @@ class ContentFileInfoTable {
   }
 
   ContentFileInfoTable.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    filepath = json['filepath'];
-    filename = json['filename'];
-    inserttime = json['inserttime'];
-    lastopentime = json['lastopentime'];
+    id = json['id'] as int;
+    filepath = json['filepath'] as String;
+    filename = json['filename'] as String;
+    inserttime = json['inserttime'] as String;
+    lastopentime = json['lastopentime'] as String;
   }
 
   ContentFileInfoTable.fromSql(Map<String, dynamic> json) {
-    id = json['id'];
-    filepath = json['filepath'];
-    filename = json['filename'];
-    inserttime = json['inserttime'];
-    lastopentime = json['lastopentime'];
+    id = json['id'] as int;
+    filepath = json['filepath'] as String;
+    filename = json['filename'] as String;
+    inserttime = json['inserttime'] as String;
+    lastopentime = json['lastopentime'] as String;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['filename'] = this.filename;
-    data['filepath'] = this.filepath;
-    data['inserttime'] = this.inserttime;
-    data['lastopentime'] = this.lastopentime;
+    final data = <String, dynamic>{};
+    data['id'] = id;
+    data['filename'] = filename;
+    data['filepath'] = filepath;
+    data['inserttime'] = inserttime;
+    data['lastopentime'] = lastopentime;
     return data;
   }
 
   Future<int> insert() async {
     var db = await MainDb().db;
-    return await db.insert(TABLENAME, this.toJson());
+    return await db.insert(TABLENAME, toJson());
   }
 
   Future<int> remove() async {
@@ -65,7 +65,7 @@ class ContentFileInfoTable {
 
   Future<int> updateLastOpenTime() async {
     var db = await MainDb().db;
-    this.lastopentime = DateUtil.formatDateMs(DateUtil.getNowDateMs(),
+    lastopentime = DateUtil.formatDateMs(DateUtil.getNowDateMs(),
         format: DateFormats.full);
     return await db.update(TABLENAME, toJson(),
         where: "filepath = ?", whereArgs: [filepath]);
@@ -77,7 +77,7 @@ class ContentFileInfoTable {
         await db.query(TABLENAME, where: "filepath = ?", whereArgs: [filepath]);
     List<ContentFileInfoTable> contents = [];
     result.forEach((item) => contents.add(ContentFileInfoTable.fromSql(item)));
-    if (contents.length > 0) {
+    if (contents.isNotEmpty) {
       return contents.first;
     }
     return null;

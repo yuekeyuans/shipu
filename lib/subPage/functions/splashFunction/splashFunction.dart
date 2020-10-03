@@ -12,7 +12,7 @@ class SplashFunctionPage extends StatefulWidget {
 class _SplashFunctionPageState extends State<SplashFunctionPage> {
   var splashEntity = SplashEntity.fromSp();
 
-  updatePage() {
+  Future<void> updatePage() async {
     setState(() {
       splashEntity = SplashEntity.fromSp();
     });
@@ -37,30 +37,22 @@ class _SplashFunctionPageState extends State<SplashFunctionPage> {
           title: Text("启动页时间"),
           trailing: Text(
             splashEntity.splashTime.toString() + "秒",
-            style: TextStyle(
-                color: splashEntity.hasSplash ? Colors.black : Colors.black26),
+            style: TextStyle(color: splashEntity.hasSplash ? Colors.black : Colors.black26),
           ),
           enabled: splashEntity.hasSplash,
           onTap: () {
-            new Picker(
+            Picker(
                 adapter: NumberPickerAdapter(data: [
-                  NumberPickerColumn(
-                      begin: 1, end: 10, initValue: splashEntity.splashTime),
+                  NumberPickerColumn(begin: 1, end: 10, initValue: splashEntity.splashTime),
                 ]),
-                delimiter: [
-                  PickerDelimiter(
-                      child: Container(
-                          width: 30.0,
-                          alignment: Alignment.center,
-                          child: Text("秒")))
-                ],
+                delimiter: [PickerDelimiter(child: Container(width: 30.0, alignment: Alignment.center, child: Text("秒")))],
                 hideHeader: true,
                 confirmText: "确定",
                 cancelText: "取消",
-                title: new Text("选择启动时长"),
+                title: Text("选择启动时长"),
                 onConfirm: (Picker picker, List value) {
                   setState(() {
-                    splashEntity.splashTime = picker.getSelectedValues().first;
+                    splashEntity.splashTime = picker.getSelectedValues().first as int;
                     splashEntity.toSp();
                   });
                 }).showDialog(context);
@@ -69,35 +61,21 @@ class _SplashFunctionPageState extends State<SplashFunctionPage> {
         Divider(),
         ListTile(
             title: Text("字体大小"),
-            trailing: Text(splashEntity.splashFontSize.toString() + "px",
-                style: TextStyle(
-                    color: splashEntity.hasSplash
-                        ? Colors.black
-                        : Colors.black26)),
+            trailing: Text(splashEntity.splashFontSize.toString() + "px", style: TextStyle(color: splashEntity.hasSplash ? Colors.black : Colors.black26)),
             enabled: splashEntity.hasSplash,
             onTap: () {
-              new Picker(
+              Picker(
                   adapter: NumberPickerAdapter(data: [
-                    NumberPickerColumn(
-                        begin: 6,
-                        end: 40,
-                        initValue: splashEntity.splashFontSize),
+                    NumberPickerColumn(begin: 6, end: 40, initValue: splashEntity.splashFontSize),
                   ]),
-                  delimiter: [
-                    PickerDelimiter(
-                        child: Container(
-                            width: 30.0,
-                            alignment: Alignment.center,
-                            child: Text("像素")))
-                  ],
+                  delimiter: [PickerDelimiter(child: Container(width: 30.0, alignment: Alignment.center, child: Text("像素")))],
                   hideHeader: true,
                   confirmText: "确定",
                   cancelText: "取消",
-                  title: new Text("选择字体大小"),
+                  title: Text("选择字体大小"),
                   onConfirm: (Picker picker, List value) {
                     setState(() {
-                      splashEntity.splashFontSize =
-                          picker.getSelectedValues().first;
+                      splashEntity.splashFontSize = picker.getSelectedValues().first as int;
                       splashEntity.toSp();
                     });
                   }).showDialog(context);
@@ -120,8 +98,7 @@ class _SplashFunctionPageState extends State<SplashFunctionPage> {
                         );
                       });
                 }),
-            onTap: () =>
-                routePush(SplashStringPage()).then((value) => updatePage()))
+            onTap: () => routePush(SplashStringPage()).then((value) => updatePage()))
       ]),
     );
   }

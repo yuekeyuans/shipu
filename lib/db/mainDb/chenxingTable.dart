@@ -10,11 +10,11 @@ class ChenXingTable {
       this.readtime});
 
   ChenXingTable.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    day = json['day'];
-    date = json['date'];
-    content = json['content'];
-    voice = json['voice'];
+    id = json['id'] as String;
+    day = json['day'] as int;
+    date = json['date'] as String;
+    content = json['content'] as String;
+    voice = json['voice'] as String;
     hasread = json['hasread'] == 1 ? true : false;
   }
 

@@ -61,28 +61,24 @@ class Node<T> {
   /// value. Excepted values include: 1, yes, true and their
   /// associated string values.
   factory Node.fromMap(Map<String, dynamic> map) {
-    String _key = map['key'];
-    String _label = map['label'];
+    String _key = map['key'] as String;
+    String _label = map['label'] as String;
     var _data = map['data'];
     NodeIcon _icon;
     List<Node> _children = [];
-    if (_key == null) {
-      _key = Utilities.generateRandom();
-    }
+    _key ??= Utilities.generateRandom();
     if (map['icon'] != null) {
-      _icon = NodeIcon.fromMap(map['icon']);
+      _icon = NodeIcon.fromMap(map['icon'] as Map<String, dynamic>);
     }
     if (map['children'] != null) {
-      List<Map<String, dynamic>> _childrenMap = List.from(map['children']);
-      _children = _childrenMap
-          .map((Map<String, dynamic> child) => Node.fromMap(child))
-          .toList();
+      var _childrenMap = List<Map<String, dynamic>>.from(map['children'] as List<Map<String, dynamic>>);
+      _children = _childrenMap.map((Map<String, dynamic> child) => Node.fromMap(child)).toList();
     }
     return Node(
       key: '$_key',
       label: _label,
       icon: _icon,
-      data: _data,
+      data: _data as T,
       expanded: Utilities.truthful(map['expanded']),
       children: _children,
     );
@@ -147,14 +143,12 @@ class Node<T> {
 
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
-    return other is Node &&
-        other.key == key &&
-        other.label == label &&
-        other.icon == icon &&
-        other.expanded == expanded &&
-        other.data.runtimeType == T &&
-        other.children.length == children.length;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is Node && other.key == key && other.label == label && other.icon == icon && other.expanded == expanded && other.data.runtimeType == T && other.children.length == children.length;
   }
 }

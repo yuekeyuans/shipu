@@ -17,7 +17,7 @@ class MdxViewer extends StatefulWidget {
   final String mdxPath;
 
   @override
-  _MdxViewerState createState() => _MdxViewerState(this.mdxPath);
+  _MdxViewerState createState() => _MdxViewerState(mdxPath);
 }
 
 class _MdxViewerState extends State<MdxViewer> {
@@ -32,17 +32,16 @@ class _MdxViewerState extends State<MdxViewer> {
   String languageAvailableText = '';
   List<String> languages;
   String mdxPath;
-  Random rng = new Random();
+  Random rng = Random();
   String searchText;
-  final TextEditingController speechTextController =
-      new TextEditingController();
+  final TextEditingController speechTextController = TextEditingController();
 
   bool startPlay = false;
   String titleName;
   WebView view;
 
   final _controller = Completer<WebViewController>();
-  var _scaffoldkey = new GlobalKey<ScaffoldState>();
+  final _scaffoldkey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -63,12 +62,11 @@ class _MdxViewerState extends State<MdxViewer> {
   updatePage() async {
     String html;
     if (entry == null) {
-      html = dictHtml == null ? "" : dictHtml;
+      html = dictHtml ?? "";
     } else {
       html = (await entry.load()).html;
     }
-    var uri = Uri.dataFromString(parseHtml(html),
-        mimeType: 'text/html', encoding: Encoding.getByName('utf-8'));
+    var uri = Uri.dataFromString(parseHtml(html), mimeType: 'text/html', encoding: Encoding.getByName('utf-8'));
     _controller.future.then((value) => value.loadUrl(uri.toString()));
   }
 
@@ -90,63 +88,54 @@ class _MdxViewerState extends State<MdxViewer> {
             child: Container(
                 height: MDX_BOTTOM_HEIGHT,
                 color: Color.fromARGB(10, 200, 200, 200),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Row(children: <Widget>[
-                        SizedBox(width: 10),
-                        GestureDetector(
-                            child: Icon(Icons.menu, color: MDX_ICON_COLOR),
-                            onTap: () =>
-                                _scaffoldkey.currentState.openDrawer()),
-                      ]),
-                      Row(children: <Widget>[
-                        SizedBox(width: 10),
-                        GestureDetector(
-                            child: Icon(Icons.zoom_in, color: MDX_ICON_COLOR),
-                            onTap: () {
-                              fontSize += 2;
-                              updatePage();
-                            }),
-                        SizedBox(width: 10),
-                        GestureDetector(
-                          child: Icon(Icons.zoom_out, color: MDX_ICON_COLOR),
-                          onTap: () => _scaffoldkey.currentState.setState(() {
-                            fontSize -= 2;
-                            updatePage();
-                          }),
-                        ),
-                        SizedBox(width: 10),
-                        GestureDetector(
-                          child: Icon(
-                              startPlay ? Icons.play_arrow : Icons.pause,
-                              color: MDX_ICON_COLOR),
-                          onTap: () async {
-                            if (entry != null &&
-                                entry.text != null &&
-                                entry.text != "") {
-                              if (!startPlay) {
-                                await flutterTts.speak(entry.text);
-                                startPlay = !startPlay;
-                              } else {
-                                await flutterTts.stop();
-                                startPlay = !startPlay;
-                              }
-                              setState(() {});
-                            }
-                          },
-                        ),
-                        SizedBox(width: 10),
-                        GestureDetector(
-                          child: Icon(Icons.home, color: MDX_ICON_COLOR),
-                          onTap: () {
-                            entry = null;
-                            updatePage();
-                          },
-                        ),
-                        SizedBox(width: 10),
-                      ])
-                    ])),
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                  Row(children: <Widget>[
+                    SizedBox(width: 10),
+                    GestureDetector(child: Icon(Icons.menu, color: MDX_ICON_COLOR), onTap: () => _scaffoldkey.currentState.openDrawer()),
+                  ]),
+                  Row(children: <Widget>[
+                    SizedBox(width: 10),
+                    GestureDetector(
+                        child: Icon(Icons.zoom_in, color: MDX_ICON_COLOR),
+                        onTap: () {
+                          fontSize += 2;
+                          updatePage();
+                        }),
+                    SizedBox(width: 10),
+                    GestureDetector(
+                      child: Icon(Icons.zoom_out, color: MDX_ICON_COLOR),
+                      onTap: () => _scaffoldkey.currentState.setState(() {
+                        fontSize -= 2;
+                        updatePage();
+                      }),
+                    ),
+                    SizedBox(width: 10),
+                    GestureDetector(
+                      child: Icon(startPlay ? Icons.play_arrow : Icons.pause, color: MDX_ICON_COLOR),
+                      onTap: () async {
+                        if (entry != null && entry.text != null && entry.text != "") {
+                          if (!startPlay) {
+                            await flutterTts.speak(entry.text);
+                            startPlay = !startPlay;
+                          } else {
+                            await flutterTts.stop();
+                            startPlay = !startPlay;
+                          }
+                          setState(() {});
+                        }
+                      },
+                    ),
+                    SizedBox(width: 10),
+                    GestureDetector(
+                      child: Icon(Icons.home, color: MDX_ICON_COLOR),
+                      onTap: () {
+                        entry = null;
+                        updatePage();
+                      },
+                    ),
+                    SizedBox(width: 10),
+                  ])
+                ])),
             onTap: () {
               setState(() {
                 isShow = !isShow;
@@ -154,10 +143,7 @@ class _MdxViewerState extends State<MdxViewer> {
             },
           )
         : GestureDetector(
-            child: Opacity(
-                opacity: 1.0,
-                child: Container(
-                    height: MDX_BOTTOM_HEIGHT, color: Colors.transparent)),
+            child: Opacity(opacity: 1.0, child: Container(height: MDX_BOTTOM_HEIGHT, color: Colors.transparent)),
             onTap: () {
               setState(() {
                 isShow = !isShow;
@@ -175,7 +161,7 @@ class _MdxViewerState extends State<MdxViewer> {
           _controller.complete(webViewController);
           updatePage();
         },
-        javascriptChannels: <JavascriptChannel>[].toSet(),
+        javascriptChannels: <JavascriptChannel>{},
         navigationDelegate: (NavigationRequest request) {
           print(request.url);
           if (request.url.startsWith('entry:')) {
@@ -207,9 +193,7 @@ class _MdxViewerState extends State<MdxViewer> {
       child: TextFormField(
         decoration: InputDecoration(
           isDense: true,
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(color: Colors.black)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide(color: Colors.black)),
           contentPadding: EdgeInsets.all(0.0),
           fillColor: Colors.transparent,
           filled: true,
@@ -258,8 +242,7 @@ class _MdxViewerState extends State<MdxViewer> {
                             dense: true,
                           );
                         },
-                        separatorBuilder: (context, index) =>
-                            Divider(height: 1),
+                        separatorBuilder: (context, index) => Divider(height: 1),
                         itemCount: entries.length))
               ]))),
       bottomNavigationBar: getBottomNaviBar(),

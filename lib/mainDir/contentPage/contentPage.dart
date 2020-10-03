@@ -45,12 +45,8 @@ class _ContentPageState extends State<ContentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-          child: AppBar(title: Text("文件列表")),
-          preferredSize: Size.fromHeight(APPBAR_HEIGHT)),
-      body: ContentPageEntity.fromSp().listType == ContentPageEntityType.list
-          ? ContentPageByList()
-          : ContentPageByType(),
+      appBar: PreferredSize(child: AppBar(title: Text("文件列表")), preferredSize: Size.fromHeight(APPBAR_HEIGHT)),
+      body: ContentPageEntity.fromSp().listType == ContentPageEntityType.list ? ContentPageByList() : ContentPageByType(),
     );
   }
 }

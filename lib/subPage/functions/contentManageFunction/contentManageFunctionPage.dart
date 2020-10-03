@@ -20,8 +20,7 @@ class _ContentManageFunctionPageState extends State<ContentManageFunctionPage> {
         cancelText: "取消",
         title: Text("选择显示方式"),
         onConfirm: (Picker picker, List value) {
-          var selected = picker.getSelectedValues().first;
-          print(selected);
+          var selected = picker.getSelectedValues().first as String;
           var entity = ContentPageEntity.fromSp();
           entity.listType = ContentPageEntityType.values[viewModeType.indexOf(selected)];
           entity.toSp();

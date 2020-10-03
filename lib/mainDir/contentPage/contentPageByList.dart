@@ -98,13 +98,13 @@ class _ContentPageByListState extends State<ContentPageByList> {
               caption: '删除',
               color: Colors.redAccent,
               icon: Icons.delete,
-              onTap: () => this.deleteFile(_file),
+              onTap: () => deleteFile(_file),
             ),
             IconSlideAction(
               caption: '分享',
               color: Colors.blue,
               icon: Icons.share,
-              onTap: () => this.shareIt(_file),
+              onTap: () => shareIt(_file),
             ),
           ],
         );

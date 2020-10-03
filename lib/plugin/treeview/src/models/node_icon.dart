@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:da_ka/plugin/treeview/src/utilities.dart';
 import 'package:flutter/widgets.dart';
 
@@ -26,7 +25,7 @@ class NodeIcon {
   final String color;
 
   NodeIcon({
-    this.codePoint,
+    @required this.codePoint,
     this.fontFamily: 'MaterialIcons',
     this.fontPackage,
     this.color,
@@ -50,10 +49,7 @@ class NodeIcon {
   /// default Material Design font and returns a [NodeIcon] object
   /// with an appropriate [codePoint] value and other defaults.
   factory NodeIcon.fromIconData(IconData icon) {
-    return NodeIcon(
-        codePoint: icon.codePoint,
-        fontFamily: icon.fontFamily,
-        fontPackage: icon.fontPackage);
+    return NodeIcon(codePoint: icon.codePoint, fontFamily: icon.fontFamily, fontPackage: icon.fontPackage);
   }
 
   /// Creates a [NodeIcon] from a Map<String, dynamic> map. The map
@@ -62,15 +58,15 @@ class NodeIcon {
   factory NodeIcon.fromMap(Map<String, dynamic> map) {
     if (map['codePoint'] != null) {
       IconData _icon = IconData(
-        map['codePoint'],
-        fontFamily: map['fontFamily'] ?? 'MaterialIcons',
-        fontPackage: map['fontPackage'],
+        map['codePoint'] as int,
+        fontFamily: (map['fontFamily'] ?? 'MaterialIcons') as String,
+        fontPackage: map['fontPackage'] as String,
       );
       return NodeIcon(
         codePoint: _icon.codePoint,
         fontFamily: _icon.fontFamily,
         fontPackage: _icon.fontPackage,
-        color: map['color'],
+        color: map['color'] as String,
       );
     }
     return null;
@@ -110,11 +106,12 @@ class NodeIcon {
 
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other.runtimeType != runtimeType) return false;
-    return other is NodeIcon &&
-        other.color == color &&
-        other.codePoint == codePoint &&
-        other.icon == icon;
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is NodeIcon && other.color == color && other.codePoint == codePoint && other.icon == icon;
   }
 }

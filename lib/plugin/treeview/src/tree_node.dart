@@ -31,12 +31,10 @@ class TreeNode extends StatefulWidget {
   _TreeNodeState createState() => _TreeNodeState();
 }
 
-class _TreeNodeState extends State<TreeNode>
-    with SingleTickerProviderStateMixin {
-  static final Animatable<double> _easeInTween =
-      CurveTween(curve: Curves.easeIn);
-  static Duration _kExpand = Duration(milliseconds: 200);
-  static double _kIconSize = 28;
+class _TreeNodeState extends State<TreeNode> with SingleTickerProviderStateMixin {
+  static final Animatable<double> _easeInTween = CurveTween(curve: Curves.easeIn);
+  static final Duration _kExpand = Duration(milliseconds: 200);
+  static final double _kIconSize = 28;
 
   AnimationController _controller;
   Animation<double> _heightFactor;
@@ -48,7 +46,9 @@ class _TreeNodeState extends State<TreeNode>
     _controller = AnimationController(duration: _kExpand, vsync: this);
     _heightFactor = _controller.drive(_easeInTween);
     _isExpanded = widget.node.expanded;
-    if (_isExpanded) _controller.value = 1.0;
+    if (_isExpanded) {
+      _controller.value = 1.0;
+    }
   }
 
   @override
@@ -66,7 +66,9 @@ class _TreeNodeState extends State<TreeNode>
           _controller.forward();
         } else {
           _controller.reverse().then<void>((void value) {
-            if (!mounted) return;
+            if (!mounted) {
+              return;
+            }
             setState(() {});
           });
         }
@@ -86,13 +88,16 @@ class _TreeNodeState extends State<TreeNode>
         _controller.forward();
       } else {
         _controller.reverse().then<void>((void value) {
-          if (!mounted) return;
+          if (!mounted) {
+            return;
+          }
           setState(() {});
         });
       }
     });
-    if (_treeView.onExpansionChanged != null)
+    if (_treeView.onExpansionChanged != null) {
       _treeView.onExpansionChanged(widget.node.key, _isExpanded);
+    }
   }
 
   void _handleTap() {
@@ -146,10 +151,7 @@ class _TreeNodeState extends State<TreeNode>
           ? Icon(
               widget.node.icon.icon,
               size: _theme.iconTheme.size,
-              color:
-                  widget.node.icon != null && widget.node.icon.iconColor != null
-                      ? widget.node.icon.iconColor
-                      : _theme.iconTheme.color,
+              color: widget.node.icon != null && widget.node.icon.iconColor != null ? widget.node.icon.iconColor : _theme.iconTheme.color,
             )
           : null,
     );
@@ -159,17 +161,14 @@ class _TreeNodeState extends State<TreeNode>
     TreeView _treeView = TreeView.of(context);
     assert(_treeView != null, 'TreeView must exist in context');
     TreeViewTheme _theme = _treeView.theme;
-    bool isSelected = _treeView.controller.selectedKey != null &&
-        _treeView.controller.selectedKey == widget.node.key;
+    bool isSelected = _treeView.controller.selectedKey != null && _treeView.controller.selectedKey == widget.node.key;
     final icon = _buildNodeIcon();
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: _theme.dense ? 10 : 15,
         horizontal: 0,
       ),
-      color: isSelected
-          ? _theme.colorScheme.primary
-          : _theme.colorScheme.background,
+      color: isSelected ? _theme.colorScheme.primary : _theme.colorScheme.background,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -181,17 +180,11 @@ class _TreeNodeState extends State<TreeNode>
               style: widget.node.isParent
                   ? _theme.parentLabelStyle.copyWith(
                       fontWeight: _theme.parentLabelStyle.fontWeight,
-                      color: isSelected
-                          ? _theme.colorScheme.onPrimary
-                          : _theme.parentLabelStyle.color == TextStyle().color
-                              ? _theme.colorScheme.onBackground
-                              : _theme.parentLabelStyle.color,
+                      color: isSelected ? _theme.colorScheme.onPrimary : _theme.parentLabelStyle.color == TextStyle().color ? _theme.colorScheme.onBackground : _theme.parentLabelStyle.color,
                     )
                   : _theme.labelStyle.copyWith(
                       fontWeight: _theme.labelStyle.fontWeight,
-                      color: isSelected
-                          ? _theme.colorScheme.onPrimary
-                          : _theme.colorScheme.onBackground,
+                      color: isSelected ? _theme.colorScheme.onPrimary : _theme.colorScheme.onBackground,
                     ),
             ),
           ),
@@ -204,8 +197,7 @@ class _TreeNodeState extends State<TreeNode>
     TreeView _treeView = TreeView.of(context);
     assert(_treeView != null, 'TreeView must exist in context');
     TreeViewTheme _theme = _treeView.theme;
-    bool isSelected = _treeView.controller.selectedKey != null &&
-        _treeView.controller.selectedKey == widget.node.key;
+    bool isSelected = _treeView.controller.selectedKey != null && _treeView.controller.selectedKey == widget.node.key;
     bool canSelectParent = _treeView.allowParentSelect;
     final arrowContainer = _buildNodeExpander();
     final labelContainer = _buildNodeLabel();
@@ -247,9 +239,7 @@ class _TreeNodeState extends State<TreeNode>
       }
     }
     return Container(
-      color: isSelected
-          ? _theme.colorScheme.primary
-          : _theme.colorScheme.background,
+      color: isSelected ? _theme.colorScheme.primary : _theme.colorScheme.background,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -274,8 +264,7 @@ class _TreeNodeState extends State<TreeNode>
   Widget build(BuildContext context) {
     TreeView _treeView = TreeView.of(context);
     assert(_treeView != null, 'TreeView must exist in context');
-    final bool closed =
-        (!_isExpanded || !widget.node.expanded) && _controller.isDismissed;
+    final bool closed = (!_isExpanded || !widget.node.expanded) && _controller.isDismissed;
     final nodeLabel = _buildNodeTitle();
     return widget.node.isParent
         ? AnimatedBuilder(
@@ -324,8 +313,7 @@ class _TreeNodeExpander extends StatefulWidget {
   _TreeNodeExpanderState createState() => _TreeNodeExpanderState();
 }
 
-class _TreeNodeExpanderState extends State<_TreeNodeExpander>
-    with SingleTickerProviderStateMixin {
+class _TreeNodeExpanderState extends State<_TreeNodeExpander> with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController controller;
 
@@ -334,10 +322,7 @@ class _TreeNodeExpanderState extends State<_TreeNodeExpander>
     bool isEnd = widget.themeData.position == ExpanderPosition.end;
     if (widget.themeData.type != ExpanderType.plusMinus) {
       controller = AnimationController(
-        duration: Duration(
-            milliseconds: widget.themeData.animated
-                ? isEnd ? _kExpander180Speed : _kExpander90Speed
-                : 0),
+        duration: Duration(milliseconds: widget.themeData.animated ? isEnd ? _kExpander180Speed : _kExpander90Speed : 0),
         vsync: this,
       );
       animation = Tween<double>(
@@ -345,8 +330,7 @@ class _TreeNodeExpanderState extends State<_TreeNodeExpander>
         end: isEnd ? 180 : 90,
       ).animate(controller);
     } else {
-      controller =
-          AnimationController(duration: Duration(milliseconds: 0), vsync: this);
+      controller = AnimationController(duration: Duration(milliseconds: 0), vsync: this);
       animation = Tween<double>(begin: 0, end: 0).animate(controller);
     }
     super.initState();
@@ -360,15 +344,11 @@ class _TreeNodeExpanderState extends State<_TreeNodeExpander>
 
   @override
   void didUpdateWidget(_TreeNodeExpander oldWidget) {
-    if (widget.themeData != oldWidget.themeData ||
-        widget.expanded != oldWidget.expanded) {
+    if (widget.themeData != oldWidget.themeData || widget.expanded != oldWidget.expanded) {
       bool isEnd = widget.themeData.position == ExpanderPosition.end;
       setState(() {
         if (widget.themeData.type != ExpanderType.plusMinus) {
-          controller.duration = Duration(
-              milliseconds: widget.themeData.animated
-                  ? isEnd ? _kExpander180Speed : _kExpander90Speed
-                  : 0);
+          controller.duration = Duration(milliseconds: widget.themeData.animated ? isEnd ? _kExpander180Speed : _kExpander90Speed : 0);
           animation = Tween<double>(
             begin: 0,
             end: isEnd ? 180 : 90,
@@ -424,9 +404,7 @@ class _TreeNodeExpanderState extends State<_TreeNodeExpander>
         break;
       case ExpanderType.arrow:
         _arrow = Icons.arrow_downward;
-        _iconSize = widget.themeData.size > 20
-            ? widget.themeData.size - 8
-            : widget.themeData.size;
+        _iconSize = widget.themeData.size > 20 ? widget.themeData.size - 8 : widget.themeData.size;
         break;
       case ExpanderType.caret:
         _arrow = Icons.arrow_drop_down;

@@ -5,13 +5,10 @@ class ContentPageEntity {
   ContentPageEntityType listType = ContentPageEntityType.list;
 
   ContentPageEntity.fromSp() {
-    listType = ContentPageEntityType
-        .values[SpUtil.getInt("ContentPageEntity_listType")];
+    listType = ContentPageEntityType.values[SpUtil.getInt("ContentPageEntity_listType")];
   }
 
-  toSp() {
-    SpUtil.putInt("ContentPageEntity_listType", listType.index);
-  }
+  Future<bool> toSp() async => await SpUtil.putInt("ContentPageEntity_listType", listType.index);
 }
 
 enum ContentPageEntityType {

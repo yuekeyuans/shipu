@@ -12,44 +12,37 @@ class BibleOutlineTable {
   int level;
   String outline;
 
-  BibleOutlineTable(
-      {this.id,
-      this.bookIndex,
-      this.chapter,
-      this.section,
-      this.flag,
-      this.level,
-      this.outline});
+  BibleOutlineTable({this.id, this.bookIndex, this.chapter, this.section, this.flag, this.level, this.outline});
 
   BibleOutlineTable.fromJson(Map<String, dynamic> json) {
-    id = json['_id'];
-    bookIndex = json['book_index'];
-    chapter = json['chapter'];
-    section = json['section'];
-    flag = json['flag'];
-    level = json['level'];
-    outline = json["outline"];
+    id = json['_id'] as int;
+    bookIndex = json['book_index'] as int;
+    chapter = json['chapter'] as int;
+    section = json['section'] as int;
+    flag = json['flag'] as int;
+    level = json['level'] as int;
+    outline = json["outline"] as String;
   }
 
   BibleOutlineTable.fromSql(Map<String, dynamic> json) {
-    id = json['_id'];
-    bookIndex = json['book_index'];
-    chapter = json['chapter'];
-    section = json['section'];
-    flag = json['flag'];
-    level = json['level'];
-    outline = json["outline"];
+    id = json['_id'] as int;
+    bookIndex = json['book_index'] as int;
+    chapter = json['chapter'] as int;
+    section = json['section'] as int;
+    flag = json['flag'] as int;
+    level = json['level'] as int;
+    outline = json["outline"] as String;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.id;
-    data['book_index'] = this.bookIndex;
-    data['chapter'] = this.chapter;
-    data['section'] = this.section;
-    data['flag'] = this.flag;
-    data['level'] = this.level;
-    data['outline'] = this.outline;
+    final data = <String, dynamic>{};
+    data['_id'] = id;
+    data['book_index'] = bookIndex;
+    data['chapter'] = chapter;
+    data['section'] = section;
+    data['flag'] = flag;
+    data['level'] = level;
+    data['outline'] = outline;
     return data;
   }
 
@@ -58,14 +51,13 @@ class BibleOutlineTable {
     var result = await db.query(TABLENAME, where: "_id = ?", whereArgs: [id]);
     List<BibleOutlineTable> outlines = [];
     result.forEach((item) => outlines.add(BibleOutlineTable.fromSql(item)));
-    if (outlines.length > 0) {
+    if (outlines.isNotEmpty) {
       return outlines.first;
     }
     return null;
   }
 
-  List<BibleOutlineTable> queryByReciteBibleTableRecord(
-      List<ReciteBibleTable> records) {
+  List<BibleOutlineTable> queryByReciteBibleTableRecord(List<ReciteBibleTable> records) {
     var lst = <BibleOutlineTable>[];
     records.forEach((element) async {
       lst.addAll((await queryByIds(element.ids)));
@@ -74,7 +66,7 @@ class BibleOutlineTable {
   }
 
   Future<BibleOutlineTable> queryById(int id) async {
-    var lst = [];
+    var lst = <BibleOutlineTable>[];
     var db = await BibleDb().db;
     var result = await db.query(TABLENAME, where: "_id = ?", whereArgs: [id]);
     result.forEach((element) {
@@ -87,8 +79,7 @@ class BibleOutlineTable {
     var lst = <BibleOutlineTable>[];
     var db = await BibleDb().db;
 
-    var result =
-        await db.query(TABLENAME, where: "_id in (${listToString(ids)})");
+    var result = await db.query(TABLENAME, where: "_id in (${listToString(ids)})");
     result.forEach((element) {
       lst.add(BibleOutlineTable.fromJson(element));
     });
@@ -99,14 +90,11 @@ class BibleOutlineTable {
   Future<List<int>> queryMinMaxId(int bookId) async {
     var db = await BibleDb().db;
     int min, max;
-    var result = await db.query(TABLENAME,
-        columns: ["min(_id), max(_id)"],
-        where: "book_index = ?",
-        whereArgs: [bookId]);
+    var result = await db.query(TABLENAME, columns: ["min(_id), max(_id)"], where: "book_index = ?", whereArgs: [bookId]);
 
     result.forEach((element) {
-      min = element.values.first;
-      max = element.values.last;
+      min = element.values.first as int;
+      max = element.values.last as int;
     });
     return [min, max];
   }

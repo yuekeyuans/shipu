@@ -25,7 +25,7 @@ class MdxDb {
     return _db;
   }
 
-  initDb() async {
+  Future<Database> initDb() async {
     var ourDb = await openDatabase(filePath, version: 1);
     return ourDb;
   }

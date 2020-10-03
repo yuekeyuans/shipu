@@ -12,7 +12,7 @@ class WifiDirectObject {
     name = String.fromCharCodes(obj, cur, cur = cur + nameLen);
     var typeLen = obj[cur++];
     type = String.fromCharCodes(obj.getRange(cur, cur = cur + typeLen));
-    content = obj.getRange(cur, obj.length);
+    content = obj.getRange(cur, obj.length).toList();
   }
 
   List<int> toObj() {

@@ -95,7 +95,7 @@ class LifeStudyTable {
   int queryIndexOfDay({DateTime curDate}) {
     DateTime reference = DateTime.parse("20200916");
     int page = 1195;
-    curDate = curDate == null ? curDate = DateTime.now() : curDate;
+    curDate = curDate ?? DateTime.now();
     curDate = DateTime.parse(
         DateUtil.formatDate(curDate, format: DateFormats.y_mo_d));
     var inDays = curDate.difference(reference).inDays;

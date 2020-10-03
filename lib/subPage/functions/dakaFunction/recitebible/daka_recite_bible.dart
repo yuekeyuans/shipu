@@ -13,80 +13,66 @@ class DakaReciteBiblePage extends StatefulWidget {
 }
 
 class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
-  getVerseOfDay() async {
-    new Picker(
-        adapter: NumberPickerAdapter(data: [
-          NumberPickerColumn(
-              begin: 1,
-              end: 30,
-              initValue: ReciteBibleEntity.fromSp().verseOfDay)
-        ]),
-        hideHeader: true,
-        confirmText: "确定",
-        cancelText: "取消",
-        title: new Text("选择背经节数"),
-        onConfirm: (Picker picker, List value) {
-          setState(() {
-            ReciteBibleTable().deleteToday();
-            var entity = ReciteBibleEntity.fromSp();
-            entity.verseOfDay = picker.getSelectedValues().first;
-            entity.toSp();
-          });
-        }).showDialog(context);
-  }
-
-  getStrategy() async {
-    new Picker(
-        adapter: PickerDataAdapter<String>(pickerdata: delay_bible_strategy),
-        hideHeader: true,
-        confirmText: "确定",
-        cancelText: "取消",
-        title: new Text("未完成策略"),
-        onConfirm: (Picker picker, List value) {
+  getVerseOfDay() async => Picker(
+      adapter: NumberPickerAdapter(data: [NumberPickerColumn(begin: 1, end: 30, initValue: ReciteBibleEntity.fromSp().verseOfDay)]),
+      hideHeader: true,
+      confirmText: "确定",
+      cancelText: "取消",
+      title: Text("选择背经节数"),
+      onConfirm: (Picker picker, List value) {
+        setState(() {
           ReciteBibleTable().deleteToday();
           var entity = ReciteBibleEntity.fromSp();
-          entity.delayMode = picker.getSelectedValues().first;
+          entity.verseOfDay = picker.getSelectedValues().first as int;
           entity.toSp();
-          setState(() {});
-        }).showDialog(context);
-  }
+        });
+      }).showDialog(context);
+
+  getStrategy() async => Picker(
+      adapter: PickerDataAdapter<String>(pickerdata: delay_bible_strategy),
+      hideHeader: true,
+      confirmText: "确定",
+      cancelText: "取消",
+      title: Text("未完成策略"),
+      onConfirm: (Picker picker, List value) {
+        ReciteBibleTable().deleteToday();
+        var entity = ReciteBibleEntity.fromSp();
+        entity.delayMode = picker.getSelectedValues().first as String;
+        entity.toSp();
+        setState(() {});
+      }).showDialog(context);
 
   getCurrentBook() async {
     var books = await BookNameTable().queryBookNames();
-    new Picker(
+    await Picker(
         adapter: PickerDataAdapter<String>(pickerdata: books),
         hideHeader: true,
         confirmText: "确定",
         cancelText: "取消",
-        title: new Text("选择圣经卷"),
+        title: Text("选择圣经卷"),
         onConfirm: (Picker picker, List value) {
           var entity = ReciteBibleEntity.fromSp();
           if (entity.currentBook != picker.getSelectedValues().first) {
             entity.startDate = DateTime.now();
           }
           ReciteBibleTable().deleteToday();
-          entity.currentBook = picker.getSelectedValues().first;
+          entity.currentBook = picker.getSelectedValues().first as String;
           entity.toSp();
           setState(() {});
         }).showDialog(context);
   }
 
   getFontSize() {
-    new Picker(
-        adapter: NumberPickerAdapter(data: [
-          NumberPickerColumn(
-              begin: 10,
-              end: 40,
-              initValue: ReciteBibleEntity.fromSp().fontSize)
-        ]),
+    Picker(
+        adapter: NumberPickerAdapter(data: [NumberPickerColumn(begin: 10, end: 40, initValue: ReciteBibleEntity.fromSp().fontSize)]),
         hideHeader: true,
         confirmText: "确定",
         cancelText: "取消",
-        title: new Text("选择字体大小"),
+        title: Text("选择字体大小"),
         onConfirm: (Picker picker, List value) {
           setState(() {
             var entity = ReciteBibleEntity.fromSp();
-            entity.fontSize = picker.getSelectedValues().first;
+            entity.fontSize = picker.getSelectedValues().first as int;
             entity.toSp();
           });
         }).showDialog(context);
@@ -98,14 +84,7 @@ class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
       await showDialog(
           context: context,
           builder: (context) {
-            return AlertDialog(
-                title: Text("提示"),
-                content: Text("开启背经功能,选择背经的内容"),
-                actions: <Widget>[
-                  FlatButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text("确定"))
-                ]);
+            return AlertDialog(title: Text("提示"), content: Text("开启背经功能,选择背经的内容"), actions: <Widget>[FlatButton(onPressed: () => Navigator.pop(context), child: Text("确定"))]);
           });
       setState(() {
         var entity = ReciteBibleEntity.fromSp();
@@ -116,24 +95,21 @@ class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
       await showDialog(
           context: context,
           builder: (context) {
-            return AlertDialog(
-                title: Text("提示"),
-                content: Text("坚持来之不易,是否继续坚持?"),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text("放弃"),
-                    onPressed: () {
-                      setState(() {
-                        var entity = ReciteBibleEntity.fromSp();
-                        entity.isOn = value;
-                        entity.toSp();
-                        ReciteBibleTable().deleteToday();
-                      });
-                      pop();
-                    },
-                  ),
-                  FlatButton(onPressed: pop, child: Text("继续坚持"))
-                ]);
+            return AlertDialog(title: Text("提示"), content: Text("坚持来之不易,是否继续坚持?"), actions: <Widget>[
+              FlatButton(
+                child: Text("放弃"),
+                onPressed: () {
+                  setState(() {
+                    var entity = ReciteBibleEntity.fromSp();
+                    entity.isOn = value;
+                    entity.toSp();
+                    ReciteBibleTable().deleteToday();
+                  });
+                  pop();
+                },
+              ),
+              FlatButton(onPressed: pop, child: Text("继续坚持"))
+            ]);
           });
     }
   }
@@ -155,22 +131,10 @@ class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
       ];
       if (ReciteBibleEntity.fromSp().isOn) {
         lst.add(SettingsSection(title: "设置", tiles: [
-          SettingsTile(
-              title: "篇目",
-              subtitle: ReciteBibleEntity.fromSp().currentBook,
-              onTap: getCurrentBook),
-          SettingsTile(
-              title: "每天背经节数目",
-              subtitle: ReciteBibleEntity.fromSp().verseOfDay.toString(),
-              onTap: getVerseOfDay),
-          SettingsTile(
-              title: "没有完成策略",
-              subtitle: ReciteBibleEntity.fromSp().delayMode,
-              onTap: getStrategy),
-          SettingsTile(
-              title: "字体大小",
-              subtitle: ReciteBibleEntity.fromSp().fontSize.toString(),
-              onTap: getFontSize)
+          SettingsTile(title: "篇目", subtitle: ReciteBibleEntity.fromSp().currentBook, onTap: getCurrentBook),
+          SettingsTile(title: "每天背经节数目", subtitle: ReciteBibleEntity.fromSp().verseOfDay.toString(), onTap: getVerseOfDay),
+          SettingsTile(title: "没有完成策略", subtitle: ReciteBibleEntity.fromSp().delayMode, onTap: getStrategy),
+          SettingsTile(title: "字体大小", subtitle: ReciteBibleEntity.fromSp().fontSize.toString(), onTap: getFontSize)
         ]));
       }
       return lst;

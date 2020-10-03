@@ -21,19 +21,15 @@ class _SplashStringPageState extends State<SplashStringPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new WillPopScope(
+    return WillPopScope(
         onWillPop: () {
           pop("finished");
-          return new Future.value(true);
+          return Future.value(true);
         },
         child: Scaffold(
           appBar: AppBar(
             title: Text("启动页文字"),
-            actions: <Widget>[
-              GestureDetector(
-                  child: Icon(Icons.add), onTap: () => createString()),
-              Padding(padding: EdgeInsets.only(right: 10))
-            ],
+            actions: <Widget>[GestureDetector(child: Icon(Icons.add), onTap: () => createString()), Padding(padding: EdgeInsets.only(right: 10))],
           ),
           body: ListView.separated(
               itemBuilder: (context, index) {
@@ -49,14 +45,8 @@ class _SplashStringPageState extends State<SplashStringPage> {
                             entity.toSp();
                           },
                         ),
-                    onLongPress: entity.splashStrings.length > 1
-                        ? () => deleteOptions(index)
-                        : null,
-                    trailing: entity.splashString == str
-                        ? CircleAvatar(
-                            backgroundColor: Colors.grey,
-                            child: Icon(Icons.check, color: Colors.redAccent))
-                        : null);
+                    onLongPress: entity.splashStrings.length > 1 ? () => deleteOptions(index) : null,
+                    trailing: entity.splashString == str ? CircleAvatar(backgroundColor: Colors.grey, child: Icon(Icons.check, color: Colors.redAccent)) : null);
               },
               separatorBuilder: (context, index) {
                 return Divider();
@@ -76,16 +66,14 @@ class _SplashStringPageState extends State<SplashStringPage> {
               FlatButton(onPressed: () => pop("deleted"), child: Text("否")),
               FlatButton(
                   onPressed: () {
-                    var isSelected =
-                        entity.splashString == entity.splashStrings[index];
+                    var isSelected = entity.splashString == entity.splashStrings[index];
                     if (isSelected) {
                       setState(() {
                         entity.splashStrings.remove(entity.splashString);
                         entity.splashString = entity.splashStrings.first;
                       });
                     } else {
-                      setState(() => entity.splashStrings
-                          .remove(entity.splashStrings[index]));
+                      setState(() => entity.splashStrings.remove(entity.splashStrings[index]));
                     }
                     pop("accept");
                   },
@@ -102,17 +90,13 @@ class _SplashStringPageState extends State<SplashStringPage> {
         builder: (context) {
           return AlertDialog(
             title: Text("创建启动页文字"),
-            content: new TextField(
+            content: TextField(
                 keyboardType: TextInputType.multiline,
                 maxLines: 10, //不限制行数
                 onChanged: (v) => content = v),
             actions: <Widget>[
-              FlatButton(
-                  child: Text("取消"),
-                  onPressed: () => Navigator.pop(context, "cancel")),
-              FlatButton(
-                  child: Text("预览"),
-                  onPressed: () => routePush(SplashScreen(content: content))),
+              FlatButton(child: Text("取消"), onPressed: () => Navigator.pop(context, "cancel")),
+              FlatButton(child: Text("预览"), onPressed: () => routePush(SplashScreen(content: content))),
               FlatButton(
                   child: Text("确定"),
                   onPressed: () {

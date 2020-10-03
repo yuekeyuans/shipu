@@ -21,7 +21,7 @@ class ContentPageByType extends StatefulWidget {
   ContentPageByType({Key key, this.title, this.list}) : super(key: key);
 
   @override
-  _ContentPageByTypeState createState() => _ContentPageByTypeState(this.list);
+  _ContentPageByTypeState createState() => _ContentPageByTypeState(list);
 }
 
 class _ContentPageByTypeState extends State<ContentPageByType> {
@@ -36,9 +36,7 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
   var dicts = <ContentFileInfoTable>[];
 
   _ContentPageByTypeState(this.dicts) {
-    if (this.dicts == null) {
-      this.dicts = [];
-    }
+    dicts ??= [];
   }
 
   @override
@@ -67,7 +65,8 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
     createNode();
   }
 
-  createNode() {
+  // ignore: always_declare_return_types
+  createNode() async {
     _nodes = [];
     var nodeMap = {
       "字典文件": dicts,
@@ -76,13 +75,7 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
     };
 
     nodeMap.forEach((key, value) {
-      _nodes.add(Node(
-          key: key,
-          label: key,
-          icon: NodeIcon.fromIconData(Icons.folder_open),
-          children: value
-              .map((e) => Node(key: e.filepath, label: e.filename, data: e))
-              .toList()));
+      _nodes.add(Node(key: key, label: key, icon: NodeIcon.fromIconData(Icons.folder_open), children: value.map((e) => Node(key: e.filepath, label: e.filename, data: e)).toList()));
     });
 
     setState(() {
@@ -123,16 +116,13 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
     if (_file.filename.endsWith(".doc") || _file.filename.endsWith(".docx")) {
       routePush(DocViewer(_file.filepath)).then((value) => updateTable());
     } else if (_file.filename.endsWith(".dict")) {
-      routePush(MdxViewer(_file.filepath), RouterType.fade)
-          .then((value) => updateTable());
+      routePush(MdxViewer(_file.filepath), RouterType.fade).then((value) => updateTable());
     } else if (_file.filename.endsWith(".pdf")) {
       routePush(PdfViewer(_file.filepath)).then((value) => updateTable());
-    } else if (IMAGE_SUFFIX
-        .any((element) => _file.filepath.endsWith(element))) {
+    } else if (IMAGE_SUFFIX.any((element) => _file.filepath.endsWith(element))) {
       routePush(ImageViewer(_file.filepath)).then((value) => updateTable());
     } else {
-      routePush(ViewBookPage(), RouterType.material)
-          .then((value) => updateTable());
+      routePush(ViewBookPage(), RouterType.material).then((value) => updateTable());
     }
   }
 
@@ -141,10 +131,7 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
         context: context,
         builder: (context) => SimpleDialog(
               title: Text("操作"),
-              children: <Widget>[
-                ListTile(title: Text("分享"), onTap: () => shareIt(_file)),
-                ListTile(title: Text("删除"), onTap: () => deleteFile(_file))
-              ],
+              children: <Widget>[ListTile(title: Text("分享"), onTap: () => shareIt(_file)), ListTile(title: Text("删除"), onTap: () => deleteFile(_file))],
             ));
   }
 
@@ -178,27 +165,24 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
               Expanded(
                   child: TreeView(
                 controller: _treeViewController,
-                onExpansionChanged: (key, expanded) =>
-                    _expandNode(key, expanded),
+                onExpansionChanged: (key, expanded) => _expandNode(key, expanded),
                 onNodeDoubleTap: (key) {
                   debugPrint('double tap: $key');
                   setState(() {
                     _selectedNode = key;
-                    _treeViewController =
-                        _treeViewController.copyWith(selectedKey: key);
+                    _treeViewController = _treeViewController.copyWith(selectedKey: key);
                   });
                 },
                 onNodeLongPress: (key) {
-                  popupMenu(_treeViewController.getNode(key).data);
+                  popupMenu(_treeViewController.getNode(key).data as ContentFileInfoTable);
                 },
                 onNodeTap: (key) {
                   debugPrint('Selected: $key');
                   setState(() {
                     _selectedNode = key;
-                    _treeViewController =
-                        _treeViewController.copyWith(selectedKey: key);
+                    _treeViewController = _treeViewController.copyWith(selectedKey: key);
                   });
-                  open(_treeViewController.getNode(_selectedNode).data);
+                  open(_treeViewController.getNode(_selectedNode).data as ContentFileInfoTable);
                 },
                 theme: _treeViewTheme,
               ))
@@ -210,8 +194,7 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
     if (node != null) {
       List<Node> updated;
 
-      updated = _treeViewController.updateNode(
-          key, node.copyWith(expanded: expanded));
+      updated = _treeViewController.updateNode(key, node.copyWith(expanded: expanded));
 
       setState(() {
         _treeViewController = _treeViewController.copyWith(children: updated);

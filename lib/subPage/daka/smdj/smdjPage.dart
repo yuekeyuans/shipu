@@ -243,7 +243,7 @@ class _SmdjPageState extends State<SmdjPage> {
     }
 
 //总标题
-    Widget createTitle(index) {
+    Widget createTitle(int index) {
       return ListTile(
           title: Text(
         records[index].content,
@@ -254,7 +254,7 @@ class _SmdjPageState extends State<SmdjPage> {
     }
 
 //TODO:读经
-    Widget createReadingBible(index) {
+    Widget createReadingBible(int index) {
       return ListTile(
         title: Text(
           records[index].content,

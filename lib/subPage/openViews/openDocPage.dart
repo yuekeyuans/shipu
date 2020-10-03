@@ -17,8 +17,7 @@ class DocViewer extends StatefulWidget {
 class _DocViewerState extends State<DocViewer> {
   String docPath;
 
-  static const methodChannel =
-      MethodChannel('com.example.clock_in/converter');
+  static const methodChannel = MethodChannel('com.example.clock_in/converter');
 
   _DocViewerState(this.docPath);
 
@@ -38,7 +37,7 @@ class _DocViewerState extends State<DocViewer> {
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return  LoadingDialog(text: "文件转换中…");
+          return LoadingDialog(text: "文件转换中…");
         });
 
     //调用
@@ -60,8 +59,8 @@ class _DocViewerState extends State<DocViewer> {
         AlertDialog(
           content: Text("打开失败"),
           actions: <Widget>[
-             FlatButton(
-                child:  Text('确认'),
+            FlatButton(
+                child: Text('确认'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 })
@@ -91,9 +90,9 @@ class _DocViewerState extends State<DocViewer> {
           _webViewController = webViewController;
           updateWebViewPage();
         },
-        javascriptChannels: <JavascriptChannel>[
+        javascriptChannels: <JavascriptChannel>{
           // _toasterJavascriptChannel(context),
-        ].toSet(),
+        },
         onPageStarted: (String url) {
           print('Page started loading: $url');
         },
@@ -117,17 +116,17 @@ class _DocViewerState extends State<DocViewer> {
 class LoadingDialog extends Dialog {
   final String text;
 
-  LoadingDialog({Key key, @required this.text}) : super(key: key);
+  LoadingDialog({@required this.text, Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return  Material(
+    return Material(
       type: MaterialType.transparency,
-      child:  Center(
-        child:  SizedBox(
+      child: Center(
+        child: SizedBox(
           width: 120.0,
           height: 120.0,
-          child:  Container(
+          child: Container(
             decoration: ShapeDecoration(
               color: Color(0xffffffff),
               shape: RoundedRectangleBorder(
@@ -140,8 +139,8 @@ class LoadingDialog extends Dialog {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                 CircularProgressIndicator(),
-                 Padding(
+                CircularProgressIndicator(),
+                Padding(
                   padding: const EdgeInsets.only(
                     top: 20.0,
                   ),

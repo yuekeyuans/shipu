@@ -11,8 +11,7 @@ class WifiShareFunctionPage extends StatefulWidget {
   _WifiShareFunctionPageState createState() => _WifiShareFunctionPageState();
 }
 
-class _WifiShareFunctionPageState extends State<WifiShareFunctionPage>
-    with WidgetsBindingObserver {
+class _WifiShareFunctionPageState extends State<WifiShareFunctionPage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -56,13 +55,11 @@ class _WifiShareFunctionPageState extends State<WifiShareFunctionPage>
         _isHost = change.wifiP2pInfo.isGroupOwner;
         _deviceAddress = change.wifiP2pInfo.groupOwnerAddress;
       });
-      print(
-          "connectionChange: ${change.wifiP2pInfo.isGroupOwner}, Connected: ${change.networkInfo.isConnected}");
+      print("connectionChange: ${change.wifiP2pInfo.isGroupOwner}, Connected: ${change.networkInfo.isConnected}");
     }));
 
     _subscriptions.add(FlutterP2p.wifiEvents.thisDeviceChange.listen((change) {
-      print(
-          "deviceChange: ${change.deviceName} / ${change.deviceAddress} / ${change.primaryDeviceType} / ${change.secondaryDeviceType} ${change.isGroupOwner ? 'GO' : '-GO'}");
+      print("deviceChange: ${change.deviceName} / ${change.deviceAddress} / ${change.primaryDeviceType} / ${change.secondaryDeviceType} ${change.isGroupOwner ? 'GO' : '-GO'}");
     }));
 
     _subscriptions.add(FlutterP2p.wifiEvents.discoveryChange.listen((change) {
@@ -148,8 +145,7 @@ class _WifiShareFunctionPageState extends State<WifiShareFunctionPage>
 
   @override
   Widget build(BuildContext context) {
-    var connectState =
-        _isConnected ? "Connected: ${_isHost ? "主端" : "客户端"}" : "未连接";
+    var connectState = _isConnected ? "Connected: ${_isHost ? "主端" : "客户端"}" : "未连接";
     return Scaffold(
       appBar: AppBar(
         title: Text('wifi直连-' + connectState.toString()),
@@ -171,38 +167,30 @@ class _WifiShareFunctionPageState extends State<WifiShareFunctionPage>
     ];
 
     if (_isConnected && _isHost) {
-      lst.add(ListTile(
-          title: Text("打开端口 8888"), onTap: () => _openPortAndAccept(8888)));
+      lst.add(ListTile(title: Text("打开端口 8888"), onTap: () => _openPortAndAccept(8888)));
     }
 
     if (_isConnected) {
-      lst.add(ListTile(
-          title: Text("连接到端口 8888"), onTap: () => _connectToPort(8888)));
+      lst.add(ListTile(title: Text("连接到端口 8888"), onTap: () => _connectToPort(8888)));
     }
 
     if (_socket != null) {
-      lst.add(ListTile(
-          title: Text("发送 hello world"),
-          onTap: () => _socket.writeString("Hello ")));
+      lst.add(ListTile(title: Text("发送 hello world"), onTap: () => _socket.writeString("Hello ")));
     }
 
     if (_isConnected) {
-      lst.add(ListTile(
-          title: Text("关闭wifi 直连"), onTap: () => FlutterP2p.removeGroup()));
+      lst.add(ListTile(title: Text("关闭wifi 直连"), onTap: () => FlutterP2p.removeGroup()));
     }
 
     lst.add(Divider());
     lst.addAll(
-      this.devices.map((d) {
+      devices.map((d) {
         return ListTile(
           title: Text(d.deviceName),
           subtitle: Text(d.deviceAddress),
           onTap: () {
-            print(
-                "${_isConnected ? "Disconnect" : "Connect"} to device: $_deviceAddress");
-            return _isConnected
-                ? FlutterP2p.cancelConnect(d)
-                : FlutterP2p.connect(d);
+            print("${_isConnected ? "Disconnect" : "Connect"} to device: $_deviceAddress");
+            return _isConnected ? FlutterP2p.cancelConnect(d) : FlutterP2p.connect(d);
           },
         );
       }).toList(),

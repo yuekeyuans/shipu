@@ -1,5 +1,4 @@
 import 'package:da_ka/db/bible/bibleDb.dart';
-import 'package:da_ka/db/lifestudyDb/lifestudyTable.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
 import 'package:da_ka/db/lifestudyDb/LifeStudyDb.dart';
 import 'package:da_ka/mainDir/contentPage/contentPageEntity.dart';
@@ -76,11 +75,11 @@ Future<void> initVal() async {
     //文件是否加密发送
     await SpUtil.putBool("Encryption", false);
     //splash
-    SplashEntity().toSp();
+    await SplashEntity().toSp();
     //背经
     ReciteBibleEntity.instance().toSp();
     //主页面展示
-    ContentPageEntity().toSp();
+    await ContentPageEntity().toSp();
   }
 }
 

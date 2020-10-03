@@ -101,7 +101,9 @@ class ExpanderThemeData {
   /// replaced by the non-null parameters of the given icon theme. If the given
   /// expander theme is null, simply returns this theme.
   ExpanderThemeData merge(ExpanderThemeData other) {
-    if (other == null) return this;
+    if (other == null) {
+      return this;
+    }
     return copyWith(
       color: other.color,
       type: other.type,
@@ -119,17 +121,12 @@ class ExpanderThemeData {
 
   @override
   bool operator ==(Object other) {
-    if (other.runtimeType != runtimeType) return false;
-    return other is ExpanderThemeData &&
-        other.color == color &&
-        other.position == position &&
-        other.type == type &&
-        other.modifier == modifier &&
-        other.animated == animated &&
-        other.size == size;
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is ExpanderThemeData && other.color == color && other.position == position && other.type == type && other.modifier == modifier && other.animated == animated && other.size == size;
   }
 
   @override
-  int get hashCode =>
-      hashValues(color, position, type, size, modifier, animated);
+  int get hashCode => hashValues(color, position, type, size, modifier, animated);
 }

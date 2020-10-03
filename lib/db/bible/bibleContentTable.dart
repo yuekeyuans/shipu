@@ -11,40 +11,34 @@ class BibleContentTable {
   int flag;
   String content;
 
-  BibleContentTable(
-      {this.id,
-      this.bookIndex,
-      this.chapter,
-      this.section,
-      this.flag,
-      this.content});
+  BibleContentTable({this.id, this.bookIndex, this.chapter, this.section, this.flag, this.content});
 
   BibleContentTable.fromJson(Map<String, dynamic> json) {
-    id = json['_id'];
-    bookIndex = json['book_index'];
-    chapter = json['chapter'];
-    section = json['section'];
-    flag = json['flag'];
-    content = json["content"];
+    id = json['_id'] as int;
+    bookIndex = json['book_index'] as int;
+    chapter = json['chapter'] as int;
+    section = json['section'] as int;
+    flag = json['flag'] as int;
+    content = json["content"] as String;
   }
 
   BibleContentTable.fromSql(Map<String, dynamic> json) {
-    id = json['_id'];
-    bookIndex = json['book_index'];
-    chapter = json['chapter'];
-    section = json['section'];
-    flag = json['flag'];
-    content = json["content"];
+    id = json['_id'] as int;
+    bookIndex = json['book_index'] as int;
+    chapter = json['chapter'] as int;
+    section = json['section'] as int;
+    flag = json['flag'] as int;
+    content = json["content"] as String;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.id;
-    data['book_index'] = this.bookIndex;
-    data['chapter'] = this.chapter;
-    data['section'] = this.section;
-    data['flag'] = this.flag;
-    data['content'] = this.content;
+    final Map<String, dynamic> data =  <String, dynamic>{};
+    data['_id'] = id;
+    data['book_index'] = bookIndex;
+    data['chapter'] = chapter;
+    data['section'] = section;
+    data['flag'] = flag;
+    data['content'] = content;
     return data;
   }
 
@@ -53,14 +47,13 @@ class BibleContentTable {
     var result = await db.query(TABLENAME, where: "_id = ?", whereArgs: [id]);
     List<BibleContentTable> contents = [];
     result.forEach((item) => contents.add(BibleContentTable.fromSql(item)));
-    if (contents.length > 0) {
+    if (contents.isNotEmpty) {
       return contents.first;
     }
     return null;
   }
 
-  List<BibleContentTable> queryByReciteBibleTableRecord(
-      List<ReciteBibleTable> records) {
+  List<BibleContentTable> queryByReciteBibleTableRecord(List<ReciteBibleTable> records) {
     var lst = <BibleContentTable>[];
     records.forEach((element) async {
       lst.addAll((await queryByIds(element.ids)));
@@ -75,15 +68,14 @@ class BibleContentTable {
     result.forEach((element) {
       lst.add(BibleContentTable.fromJson(element));
     });
-    return lst.first;
+    return lst.first as BibleContentTable;
   }
 
   Future<List<BibleContentTable>> queryByIds(List<String> ids) async {
     var lst = <BibleContentTable>[];
     var db = await BibleDb().db;
 
-    var result =
-        await db.query(TABLENAME, where: "_id in (${listToString(ids)})");
+    var result = await db.query(TABLENAME, where: "_id in (${listToString(ids)})");
     result.forEach((element) {
       lst.add(BibleContentTable.fromJson(element));
     });
@@ -94,14 +86,11 @@ class BibleContentTable {
   Future<List<int>> queryMinMaxId(int bookId) async {
     var db = await BibleDb().db;
     int min, max;
-    var result = await db.query(TABLENAME,
-        columns: ["min(_id), max(_id)"],
-        where: "book_index = ?",
-        whereArgs: [bookId]);
+    var result = await db.query(TABLENAME, columns: ["min(_id), max(_id)"], where: "book_index = ?", whereArgs: [bookId]);
 
     result.forEach((element) {
-      min = element.values.first;
-      max = element.values.last;
+      min = element.values.first as int;
+      max = element.values.last as int;
     });
     return [min, max];
   }

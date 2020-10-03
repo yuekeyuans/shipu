@@ -11,7 +11,7 @@ class ImageViewer extends StatefulWidget {
   ImageViewer(this.imagePath);
 
   @override
-  _ImageViewerState createState() => _ImageViewerState(this.imagePath);
+  _ImageViewerState createState() => _ImageViewerState(imagePath);
 }
 
 class _ImageViewerState extends State<ImageViewer> {

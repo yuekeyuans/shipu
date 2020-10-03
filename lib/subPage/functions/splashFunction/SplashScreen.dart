@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 // ignore: must_be_immutable
 class SplashScreen extends StatefulWidget {
   var content = "";
-  SplashScreen({this.content});
+  SplashScreen({content});
   @override
-  _SplashScreenState createState() => _SplashScreenState(this.content);
+  _SplashScreenState createState() => _SplashScreenState(content);
 }
 
 class _SplashScreenState extends State<SplashScreen> {
@@ -14,13 +14,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   String content = "";
 
-  _SplashScreenState(this.content);
+  _SplashScreenState(content);
 
   @override
   void initState() {
     super.initState();
-    if (this.content == "" || this.content == null) {
-      this.content = splashEntity.splashString;
+    if (content == "" || content == null) {
+      content = splashEntity.splashString;
     }
   }
 
@@ -32,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
       child: Align(
         alignment: Alignment.center,
         child: Text(
-          this.content,
+          content,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: splashEntity.splashFontSize.toDouble(),
