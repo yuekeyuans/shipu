@@ -54,7 +54,7 @@ class MainActivity: FlutterActivity() {
           if (!out.exists()) out.createNewFile()
           val fis = FileInputStream(`in`)
           val fos = FileOutputStream(out)
-          var count: Int = 0;
+          var count = 0;
           val buffer = ByteArray(256 * 1024)
           while (fis.read(buffer).also { count = it } > 0) {
             fos.write(buffer, 0, count)
@@ -104,7 +104,6 @@ class MainActivity: FlutterActivity() {
 
         if(call.method.equals("avaliableSize")){
           val statFs = StatFs(Environment.getExternalStorageDirectory().path)
-          var blockSize = statFs.blockSizeLong
           var availableCount = statFs.availableBytes
           result.success(getUnit((availableCount).toFloat()))
         }

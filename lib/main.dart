@@ -26,20 +26,35 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final splashEntity = SplashEntity.fromSp();
+  final Brightness _brightness = Brightness.light;
 
   @override
   Widget build(BuildContext context) {
     var homePage = MainNavigator();
+    var splashEntity = SplashEntity.fromSp();
+
     return OKToast(
         position: ToastPosition.bottom,
         duration: Duration(seconds: 2),
         child: MaterialApp(
           title: '打卡',
-          theme: ThemeData(brightness: Brightness.light, primaryColor: Colors.white, accentColor: Colors.cyan[600], fontFamily: 'Montserrat'),
+          theme: ThemeData(
+            brightness: _brightness,
+            primaryColor: _brightness == Brightness.light ? Colors.white : null,
+            accentColor: Colors.cyan[600],
+            fontFamily: 'Montserrat',
+            appBarTheme: AppBarTheme(brightness: _brightness),
+          ),
           debugShowCheckedModeBanner: false,
           navigatorKey: navGK,
-          home: splashEntity.hasSplash ? Simple_splashscreen(context: context, gotoWidget: homePage, splashscreenWidget: SplashScreen(), timerInSeconds: splashEntity.splashTime) : homePage,
+          home: splashEntity.hasSplash
+              ? Simple_splashscreen(
+                  context: context,
+                  gotoWidget: homePage,
+                  splashscreenWidget: SplashScreen(),
+                  timerInSeconds: splashEntity.splashTime,
+                )
+              : homePage,
         ));
   }
 }

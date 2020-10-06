@@ -1,9 +1,8 @@
 import 'package:da_ka/subPage/functions/splashFunction/splahEntity.dart';
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
 class SplashScreen extends StatefulWidget {
-  var content = "";
+  final content = null;
   SplashScreen({content});
   @override
   _SplashScreenState createState() => _SplashScreenState(content);
@@ -11,17 +10,13 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   SplashEntity splashEntity = SplashEntity.fromSp();
-
-  String content = "";
-
+  String content;
   _SplashScreenState(content);
 
   @override
   void initState() {
     super.initState();
-    if (content == "" || content == null) {
-      content = splashEntity.splashString;
-    }
+    content = content ?? splashEntity.splashString;
   }
 
   @override
@@ -31,14 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
       padding: EdgeInsets.all(5),
       child: Align(
         alignment: Alignment.center,
-        child: Text(
-          content,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: splashEntity.splashFontSize.toDouble(),
-            fontFamily: 'kaiti',
-          ),
-        ),
+        child: Text(content, textAlign: TextAlign.center, style: TextStyle(fontSize: splashEntity.splashFontSize.toDouble(), fontFamily: 'kaiti')),
       ),
     ));
   }

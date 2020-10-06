@@ -23,16 +23,15 @@ class _MainNavigatorState extends State<MainNavigator> {
     return Scaffold(
         body: pages[_currentIndex],
         bottomNavigationBar: BottomNavigationBar(
-            items: [
-              BottomNavigationBarItem(icon: Icon(Icons.list), title: Text('内容')),
-              BottomNavigationBarItem(icon: Icon(Icons.check), title: Text('打卡')),
-              BottomNavigationBarItem(icon: Icon(Icons.settings), title: Text('功能')),
-            ],
-            currentIndex: _currentIndex,
-            onTap: (int i) => setState(() {
-                  _currentIndex = i;
-                }),
-            selectedItemColor: Colors.red,
-            showUnselectedLabels: true));
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.list), title: Text('内容')),
+            BottomNavigationBarItem(icon: Icon(Icons.check), title: Text('打卡')),
+            BottomNavigationBarItem(icon: Icon(Icons.settings), title: Text('功能')),
+          ],
+          currentIndex: _currentIndex,
+          onTap: (int i) => setState(() => _currentIndex = i),
+          selectedItemColor: Colors.red,
+          showUnselectedLabels: true,
+        ));
   }
 }

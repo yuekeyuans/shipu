@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:da_ka/subPage/mdxViews/mdxDict.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
-import '../../global.dart';
-import 'mdxEntry.dart';
-import 'mdxSqlite.dart';
+import 'package:da_ka/global.dart';
+import 'package:da_ka/subPage/mdxViews/mdxEntry.dart';
+import 'package:da_ka/subPage/mdxViews/mdxSqlite.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 class MdxViewer extends StatefulWidget {

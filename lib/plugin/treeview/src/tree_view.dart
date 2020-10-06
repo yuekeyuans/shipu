@@ -103,7 +103,13 @@ class TreeView extends InheritedWidget {
 
   @override
   bool updateShouldNotify(TreeView oldWidget) {
-    return oldWidget.controller.children != controller.children || oldWidget.onNodeTap != onNodeTap || oldWidget.onExpansionChanged != onExpansionChanged || oldWidget.theme != theme || oldWidget.supportParentDoubleTap != supportParentDoubleTap || oldWidget.allowParentSelect != allowParentSelect;
+    return oldWidget.controller.children != controller.children ||
+        oldWidget.onNodeTap != onNodeTap ||
+        oldWidget.onNodeLongPress != onNodeLongPress ||
+        oldWidget.onExpansionChanged != onExpansionChanged ||
+        oldWidget.theme != theme ||
+        oldWidget.supportParentDoubleTap != supportParentDoubleTap ||
+        oldWidget.allowParentSelect != allowParentSelect;
   }
 }
 

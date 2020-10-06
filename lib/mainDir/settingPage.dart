@@ -4,10 +4,8 @@ import 'package:da_ka/subPage/functions/dakaFunction/dakaFunctionPage.dart';
 import 'package:da_ka/subPage/functions/encriptionFunction/encriptionFunctionPage.dart';
 import 'package:da_ka/subPage/functions/isiloFunction/isiloFunction.dart';
 import 'package:da_ka/subPage/functions/splashFunction/splashFunction.dart';
-import 'package:da_ka/subPage/functions/wifiFunction/wifiFunctionPage.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
-
 import '../subPage/functions/backupFunction/backupFunctionPage.dart';
 import '../subPage/functions/scanFileFunction/scanFile.dart';
 import '../subPage/functions/storageFunction/storageFunctionPage.dart';
@@ -20,10 +18,9 @@ class FunctionPage extends StatefulWidget {
 class _FunctionPageState extends State<FunctionPage> {
   @override
   Widget build(BuildContext context) {
+    var wifi = Icons.wifi;
     return Scaffold(
-        appBar: PreferredSize(
-            child: AppBar(title: Text("设置")),
-            preferredSize: Size.fromHeight(APPBAR_HEIGHT)),
+        appBar: PreferredSize(child: AppBar(title: Text("设置")), preferredSize: Size.fromHeight(APPBAR_HEIGHT)),
         body: ListView(children: <Widget>[
           ListTile(
               title: Text("给别人分享这个软件"),
@@ -35,8 +32,7 @@ class _FunctionPageState extends State<FunctionPage> {
                       context: context,
                       barrierDismissible: true,
                       builder: (BuildContext context) {
-                        return AlertDialog(
-                            title: Text("说明"), content: Text("备份文件"));
+                        return AlertDialog(title: Text("说明"), content: Text("备份文件"));
                       }))),
           ListTile(
               title: Text("扫描文件夹"),
@@ -50,8 +46,7 @@ class _FunctionPageState extends State<FunctionPage> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: Text("说明"),
-                          content: Text(
-                              "扫描微信，QQ,浏览器等下载的文件，并将符合要求的文件列出。\n可以选择相应的文件，添加到程序目录中使用。"),
+                          content: Text("扫描微信，QQ,浏览器等下载的文件，并将符合要求的文件列出。\n可以选择相应的文件，添加到程序目录中使用。"),
                         );
                       }))),
           ListTile(
@@ -91,8 +86,8 @@ class _FunctionPageState extends State<FunctionPage> {
           ListTile(
             title: Text("分享"),
             enabled: false,
-            leading: Icon(Icons.wifi),
-            onTap: () => routePush(WifiShareFunctionPage()),
+            leading: Icon(wifi),
+            // onTap: () => routePush(WifiShareFunctionPage()),
           ),
           ListTile(
             title: Text("文件列表管理"),

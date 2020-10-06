@@ -8,6 +8,7 @@ import 'package:da_ka/subPage/openViews/openDocPage.dart';
 import 'package:da_ka/subPage/openViews/openImagePage.dart';
 import 'package:da_ka/subPage/openViews/openPdfPage.dart';
 import 'package:da_ka/subPage/viewBookPage.dart';
+import 'package:flustars/flustars.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
@@ -32,7 +33,6 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
   var lst = <ContentFileInfoTable>[];
   var docs = <ContentFileInfoTable>[];
   var pdfs = <ContentFileInfoTable>[];
-  //var images = <ContentFileInfoTable>[];
   var dicts = <ContentFileInfoTable>[];
 
   _ContentPageByTypeState(this.dicts) {
@@ -47,11 +47,37 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
       children: _nodes,
       selectedKey: _selectedNode,
     );
-
+    scanMainDir();
     queryData();
   }
 
+  void scanMainDir() async {
+    //根目录文件
+    var existFile = await ContentFileInfoTable().queryAll();
+    existFile.forEach((element) async {
+      if (!await File(element.filepath).exists()) {
+        await element.remove();
+      }
+    });
+    existFile = await ContentFileInfoTable().queryAll();
+    var directory = Directory(SpUtil.getString("MAIN_PATH"));
+    directory.list().forEach((e) {
+      if (e is File) {
+        var path = e.path;
+        if (!existFile.any((el) => el.filename == path.split("/").last)) {
+          if (suffix.any((element) => path.endsWith(element))) {
+            ContentFileInfoTable.fromPath(path).insert();
+          }
+        }
+      }
+    });
+  }
+
   Future<void> queryData() async {
+    lst = <ContentFileInfoTable>[];
+    docs = <ContentFileInfoTable>[];
+    pdfs = <ContentFileInfoTable>[];
+    dicts = <ContentFileInfoTable>[];
     lst = await ContentFileInfoTable().queryAll();
     for (var i in lst) {
       if (i.filename.endsWith(".dict")) {
@@ -67,7 +93,7 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
 
   // ignore: always_declare_return_types
   createNode() async {
-    _nodes = [];
+    _nodes = <Node>[];
     var nodeMap = {
       "字典文件": dicts,
       "pdf 文件": pdfs,
@@ -75,7 +101,13 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
     };
 
     nodeMap.forEach((key, value) {
-      _nodes.add(Node(key: key, label: key, icon: NodeIcon.fromIconData(Icons.folder_open), children: value.map((e) => Node(key: e.filepath, label: e.filename, data: e)).toList()));
+      var node = Node(
+        key: key,
+        label: key,
+        icon: NodeIcon.fromIconData(Icons.folder_open),
+        children: value.map((e) => Node(key: e.filepath, label: e.filename, data: e)).toList(),
+      );
+      _nodes.add(node);
     });
 
     setState(() {
@@ -87,7 +119,7 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
   }
 
   Future<void> updateTable() async {
-    lst = await ContentFileInfoTable().queryAll();
+    await queryData();
     setState(() {});
   }
 
@@ -129,10 +161,10 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
   popupMenu(ContentFileInfoTable _file) {
     showDialog(
         context: context,
-        builder: (context) => SimpleDialog(
-              title: Text("操作"),
-              children: <Widget>[ListTile(title: Text("分享"), onTap: () => shareIt(_file)), ListTile(title: Text("删除"), onTap: () => deleteFile(_file))],
-            ));
+        builder: (context) => SimpleDialog(title: Text("操作"), children: <Widget>[
+              ListTile(title: Text("分享"), onTap: () => shareIt(_file)),
+              ListTile(title: Text("删除"), onTap: () => deleteFile(_file)),
+            ]));
   }
 
   @override
@@ -167,22 +199,32 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
                 controller: _treeViewController,
                 onExpansionChanged: (key, expanded) => _expandNode(key, expanded),
                 onNodeDoubleTap: (key) {
-                  debugPrint('double tap: $key');
-                  setState(() {
-                    _selectedNode = key;
-                    _treeViewController = _treeViewController.copyWith(selectedKey: key);
-                  });
+                  var data = _treeViewController.getNode(key).data;
+                  if (data != null) {
+                    setState(() {
+                      _selectedNode = key;
+                      _treeViewController = _treeViewController.copyWith(selectedKey: key);
+                    });
+                  }
                 },
-                onNodeLongPress: (key) {
-                  popupMenu(_treeViewController.getNode(key).data as ContentFileInfoTable);
-                },
+                // onNodeLongPress: (key) {
+                // var data = _treeViewController.getNode(key).data;
+                // if (data != null) {
+                // popupMenu(data as ContentFileInfoTable);
+                // }
+                // },
                 onNodeTap: (key) {
-                  debugPrint('Selected: $key');
-                  setState(() {
-                    _selectedNode = key;
-                    _treeViewController = _treeViewController.copyWith(selectedKey: key);
-                  });
-                  open(_treeViewController.getNode(_selectedNode).data as ContentFileInfoTable);
+                  var data = _treeViewController.getNode(key).data;
+                  print(data);
+                  if (data != null) {
+                    setState(() {
+                      _selectedNode = key;
+                      _treeViewController = _treeViewController.copyWith(selectedKey: key);
+                    });
+                    print("1");
+                    open(data as ContentFileInfoTable);
+                    print("3");
+                  }
                 },
                 theme: _treeViewTheme,
               ))
@@ -193,9 +235,7 @@ class _ContentPageByTypeState extends State<ContentPageByType> {
     Node node = _treeViewController.getNode(key);
     if (node != null) {
       List<Node> updated;
-
       updated = _treeViewController.updateNode(key, node.copyWith(expanded: expanded));
-
       setState(() {
         _treeViewController = _treeViewController.copyWith(children: updated);
       });

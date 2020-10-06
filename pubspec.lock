@@ -162,13 +162,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.4"
-  fixnum:
-    dependency: transitive
-    description:
-      name: fixnum
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.10.11"
   flare_dart:
     dependency: transitive
     description:
@@ -216,13 +209,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.7.5"
-  flutter_p2p:
-    dependency: "direct main"
-    description:
-      name: flutter_p2p
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.1"
   flutter_picker:
     dependency: "direct main"
     description:
@@ -429,13 +415,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.13"
-  protobuf:
-    dependency: transitive
-    description:
-      name: protobuf
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.1"
   qr:
     dependency: transitive
     description:
