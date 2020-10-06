@@ -52,6 +52,8 @@ dependencies:
   wakelock: ^0.1.4+2
   scroll_to_index: ^1.0.6
   oktoast: ^2.1.7
+  sticky_and_expandable_list: ^0.2.3
+  dynamic_theme: ^1.0.0
 
 dev_dependencies:
   flutter_test:
