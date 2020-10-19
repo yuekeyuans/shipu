@@ -4,6 +4,7 @@ import 'package:da_ka/subPage/functions/dakaFunction/dakaFunctionPage.dart';
 import 'package:da_ka/subPage/functions/encriptionFunction/encriptionFunctionPage.dart';
 import 'package:da_ka/subPage/functions/isiloFunction/isiloFunction.dart';
 import 'package:da_ka/subPage/functions/splashFunction/splashFunction.dart';
+import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
 import '../subPage/functions/backupFunction/backupFunctionPage.dart';
@@ -131,6 +132,24 @@ class _FunctionPageState extends State<FunctionPage> {
               title: Text("存储管理"),
               leading: Icon(Icons.storage),
               onTap: () => routePush(StorageFunctionPage()),
+              trailing: GestureDetector(
+                  child: Icon(Icons.info),
+                  onTap: () => showDialog(
+                      context: context,
+                      barrierDismissible: true,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("说明"),
+                          content: Text("管理程序使用的存储空间。"),
+                        );
+                      }))),
+          ListTile(
+              enabled: true,
+              title: Text("模式设置"),
+              leading: Icon(Icons.storage),
+              onTap: () {
+                DynamicTheme.of(context).setBrightness(Theme.of(context).brightness == Brightness.dark ? Brightness.light : Brightness.dark);
+              },
               trailing: GestureDetector(
                   child: Icon(Icons.info),
                   onTap: () => showDialog(

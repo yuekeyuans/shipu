@@ -9,7 +9,7 @@ analyzer:
     omit_local_variable_types: ignore
     annotate_overrides: ignore
     prefer_single_quotes: ignore
-    use_function_type_syntax_for_parameters: ignore
+    # use_function_type_syntax_for_parameters: ignore
     unawaited_futures: ignore
     always_declare_return_types: ignore
     prefer_equal_for_default_values: ignore

@@ -65,7 +65,6 @@ class _IsiloFunctionPageState extends State<IsiloFunctionPage> {
 
   Future<void> isinstallIsilo() async {
     await channel.invokeMethod("isInstalled").then((value) {
-      print(value);
       if (value.toString().contains(packageName)) {
         setState(() {
           isNotInstalled = false;
@@ -80,10 +79,8 @@ class _IsiloFunctionPageState extends State<IsiloFunctionPage> {
 
   installIsilo() async {
     var dirName = SpUtil.getString("TEMP_PATH");
-    UtilFunction.copyFile(
-        await rootBundle.load("assets/apk/isilo.apk"), '$dirName/isilo.apk');
-    channel.invokeMethod("installIsilo", {"path": '$dirName/isilo.apk'}).then(
-        (value) => isinstallIsilo());
+    UtilFunction.copyFile(await rootBundle.load("assets/apk/isilo.apk"), '$dirName/isilo.apk');
+    channel.invokeMethod("installIsilo", {"path": '$dirName/isilo.apk'}).then((value) => isinstallIsilo());
   }
 
   invokeIsilo() {

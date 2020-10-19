@@ -17,8 +17,7 @@ class MainDb {
     var path = '$dir/$filename';
     if (_db == null) {
       if (!File(path).existsSync()) {
-        UtilFunction.copyFile(
-            await rootBundle.load("assets/db/$filename"), '$dir/$filename');
+        UtilFunction.copyFile(await rootBundle.load("assets/db/$filename"), '$dir/$filename');
       }
       _db = await openDatabase(path, version: 1);
     }

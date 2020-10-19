@@ -1,16 +1,5 @@
 name: da_ka
 description: A new Flutter project.
-
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 version: 1.0.0+1
 
 environment:
@@ -54,6 +43,7 @@ dependencies:
   oktoast: ^2.1.7
   sticky_and_expandable_list: ^0.2.3
   dynamic_theme: ^1.0.0
+  google_fonts: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -82,6 +72,7 @@ flutter:
     - assets/icon/icon.png
     - assets/icon/isilo.png
     - assets/apk/isilo.apk
+    - assets/pf0
 
   fonts:
     - family: Raleway
@@ -96,7 +87,6 @@ flutter:
       fonts:
         - asset: assets/fonts/cobsg/OpenSans-Regular.ttf
           weight: 500
-
     - family: kaiti
       fonts:
         - asset: assets/fonts/kaiti/simkai.ttf

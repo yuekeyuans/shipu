@@ -36,6 +36,12 @@ class _SmdjPageState extends State<SmdjPage> {
     update();
   }
 
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
+  }
+
   Future<void> update() async {
     //更新声音
     var e = DakaSettingsEntity.fromSp();
@@ -96,6 +102,11 @@ class _SmdjPageState extends State<SmdjPage> {
         });
   }
 
+  // 0 => 停止状态
+  // 1 => 播放状态
+  // 2 => 暂停状态
+  int playState = 0;
+
   //底部导航栏
   Future<void> showBottomSheetDialog() async {
     await showModalBottomSheet(
@@ -111,70 +122,100 @@ class _SmdjPageState extends State<SmdjPage> {
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                   //打卡
                   IconButton(icon: Icon(Icons.blur_on), onPressed: null),
-                  Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-                    // 播放音频
-                    isPlay
-                        ? IconButton(
-                            icon: Icon(Icons.stop),
-                            onPressed: () {
-                              stopMusic();
-                              setDialogState(() {});
-                            },
-                          )
-                        : IconButton(
-                            icon: Icon(Icons.headset),
-                            onPressed: () {
-                              autoPlay();
-                              setDialogState(() {});
-                            }),
-                    //后退
-                    todayDifference() >= 0
-                        ? IconButton(
-                            icon: Icon(Icons.arrow_back),
-                            onPressed: () {
-                              stopMusic();
-                              date = date.add(Duration(days: -1));
-                              update();
-                              setDialogState(() {});
-                            },
-                          )
-                        : IconButton(
-                            icon: Icon(Icons.adjust),
-                            onPressed: () {
-                              stopMusic();
-                              date = curDate;
-                              update();
-                              setDialogState(() {});
-                            }),
-                    //前进
-                    todayDifference() <= 0
-                        ? IconButton(
-                            icon: Icon(Icons.arrow_forward),
-                            onPressed: () {
-                              stopMusic();
-                              date = date.add(Duration(days: 1));
-                              setDialogState(() {});
-                              update();
-                            },
-                          )
-                        : IconButton(
-                            icon: Icon(Icons.adjust),
-                            onPressed: () {
-                              stopMusic();
-                              date = curDate;
-                              update();
-                              setDialogState(() {});
-                            }),
-                    //设置
-                    IconButton(
-                      icon: Icon(Icons.settings),
-                      onPressed: () {
-                        routePush(DakaSettings()).then((value) {
-                          update();
-                        });
-                      },
-                    ),
-                  ])
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      // 播放音频
+                      playState == 0 // 停止状态
+                          ? IconButton(
+                              icon: Icon(Icons.stop),
+                              onPressed: () {
+                                autoPlay();
+                                playState = 1;
+                                setDialogState(() {});
+                              },
+                            )
+                          : (playState == 1 //播放状态
+                              ? GestureDetector(
+                                  child: IconButton(
+                                      icon: Icon(Icons.play_arrow),
+                                      onPressed: () {
+                                        pauseMusic();
+                                        playState = 2;
+                                        setDialogState(() {});
+                                      }),
+                                  onLongPress: () {
+                                    stopMusic();
+                                    playState = 0;
+                                    setDialogState(() {});
+                                  },
+                                )
+                              : GestureDetector(
+                                  child: IconButton(
+                                      //暂停状态
+                                      icon: Icon(Icons.pause),
+                                      onPressed: () {
+                                        playMusic();
+                                        playState = 1;
+                                        setDialogState(() {});
+                                      }),
+                                  onLongPress: () {
+                                    stopMusic();
+                                    playState = 0;
+                                    setDialogState(() {});
+                                  },
+                                )),
+
+                      //后退
+                      todayDifference() >= 0
+                          ? IconButton(
+                              icon: Icon(Icons.arrow_back),
+                              onPressed: () {
+                                stopMusic();
+                                date = date.add(Duration(days: -1));
+                                update();
+                                setDialogState(() {});
+                              },
+                            )
+                          : IconButton(
+                              icon: Icon(Icons.adjust),
+                              onPressed: () {
+                                stopMusic();
+                                date = curDate;
+                                update();
+                                setDialogState(() {});
+                              }),
+                      //前进
+                      todayDifference() <= 0
+                          ? IconButton(
+                              icon: Icon(Icons.arrow_forward),
+                              onPressed: () {
+                                stopMusic();
+                                date = date.add(Duration(days: 1));
+                                setDialogState(() {});
+                                update();
+                              },
+                            )
+                          : IconButton(
+                              icon: Icon(Icons.adjust),
+                              onPressed: () {
+                                stopMusic();
+                                date = curDate;
+                                update();
+                                setDialogState(() {});
+                              }),
+                      //设置
+                      IconButton(
+                        icon: Icon(Icons.settings),
+                        onPressed: () {
+                          routePush(DakaSettings()).then((value) {
+                            update();
+                          });
+                        },
+                      ),
+                    ],
+                  )
                 ]));
           });
         });
@@ -194,35 +235,42 @@ class _SmdjPageState extends State<SmdjPage> {
       continuePlay = false;
     } else {
       await controller.scrollToIndex(currentPlayIndex);
-      await controller.highlight(currentPlayIndex, highlightDuration: Duration(days: 1));
-      await flutterTts.speak(records[currentPlayIndex].content);
+      controller.highlight(currentPlayIndex, highlightDuration: Duration(days: 1));
+      flutterTts.speak(records[currentPlayIndex].content);
       currentPlayIndex++;
+      print(currentPlayIndex);
     }
   }
 
-  Future<void> stopMusic() async {
+  stopMusic() async {
     await flutterTts.stop();
     isPlay = false;
     currentPlayIndex = 0;
-    continuePlay = true;
+    continuePlay = false;
+  }
+
+  pauseMusic() async {
+    await flutterTts.stop();
+    currentPlayIndex = currentPlayIndex == 0 ? 0 : currentPlayIndex - 1;
+    isPlay = false;
+    continuePlay = false;
   }
 
   //从头到尾播放，播放完成，暂停重置
-  Future<void> autoPlay() async {
+  autoPlay() async {
     isPlay = true;
-    currentPlayIndex = 0;
     continuePlay = true;
-    flutterTts.setCompletionHandler(() async {
+    flutterTts.setCompletionHandler(() {
       if (currentPlayIndex >= records.length) {
         isPlay = false;
         continuePlay = false;
         currentPlayIndex = 0;
       }
       if (continuePlay) {
-        await playMusic();
+        playMusic();
       }
     });
-    await playMusic();
+    playMusic();
   }
 
   /// 这是一个大类 TODO: 需要在之后被重新拆分,但是现在由于代码比较混乱，就先不动

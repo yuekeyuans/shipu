@@ -2,7 +2,7 @@ import 'package:flustars/flustars.dart';
 
 class ContentPageEntity {
   ContentPageEntity();
-  ContentPageEntityType listType = ContentPageEntityType.list;
+  ContentPageEntityType listType = ContentPageEntityType.type;
 
   ContentPageEntity.fromSp() {
     listType = ContentPageEntityType.values[SpUtil.getInt("ContentPageEntity_listType")];

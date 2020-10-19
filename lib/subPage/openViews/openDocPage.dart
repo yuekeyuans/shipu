@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:nav_router/nav_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 //TODO: 这个文件先编辑到这里，之后会使用破解包和去除水印等操作。
@@ -33,7 +34,7 @@ class _DocViewerState extends State<DocViewer> {
       return;
     }
 
-    await showDialog(
+    showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
@@ -45,26 +46,18 @@ class _DocViewerState extends State<DocViewer> {
     //查询
     Timer.periodic(Duration(seconds: 1), (timer) async {
       methodChannel.invokeMethod("convertProcess").then((value) {
-        print(value);
         if (value is String && value == "true") {
           timer.cancel();
-          Navigator.pop(context);
+          pop();
           setState(() => updateWebViewPage());
         }
       });
-      print(timer.tick);
-      if (timer.tick > 60) {
+      if (timer.tick > 120) {
         timer.cancel();
         Navigator.pop(context);
         AlertDialog(
           content: Text("打开失败"),
-          actions: <Widget>[
-            FlatButton(
-                child: Text('确认'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                })
-          ],
+          actions: <Widget>[FlatButton(child: Text('确认'), onPressed: pop)],
         );
         setState(() {});
       }
@@ -121,36 +114,30 @@ class LoadingDialog extends Dialog {
   @override
   Widget build(BuildContext context) {
     return Material(
-      type: MaterialType.transparency,
-      child: Center(
-        child: SizedBox(
-          width: 120.0,
-          height: 120.0,
-          child: Container(
-            decoration: ShapeDecoration(
-              color: Color(0xffffffff),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(8.0),
-                ),
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                CircularProgressIndicator(),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 20.0,
-                  ),
-                  child: Text(text),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+        type: MaterialType.transparency,
+        child: Center(
+            child: SizedBox(
+                width: 120.0,
+                height: 120.0,
+                child: Container(
+                    decoration: ShapeDecoration(
+                      color: Color(0xffffffff),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8.0),
+                        ),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        CircularProgressIndicator(),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Text(text),
+                        )
+                      ],
+                    )))));
   }
 }

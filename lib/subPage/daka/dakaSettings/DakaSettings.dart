@@ -43,10 +43,7 @@ class _DakaSettingsState extends State<DakaSettings> {
                       child: Text("确定"))
                 ],
                 content: Wrap(children: <Widget>[
-                  Text(
-                    "设置字体大小倍数为: ${(DakaSettingsEntity.fromSp().baseFont * 100).toInt()}%",
-                    textScaleFactor: DakaSettingsEntity.fromSp().baseFont
-                  ),
+                  Text("设置字体大小倍数为: ${(DakaSettingsEntity.fromSp().baseFont * 100).toInt()}%", textScaleFactor: DakaSettingsEntity.fromSp().baseFont),
                   Slider(
                       value: DakaSettingsEntity.fromSp().baseFont,
                       max: 3.0,
@@ -76,17 +73,19 @@ class _DakaSettingsState extends State<DakaSettings> {
                 title: Text("播放速度"),
                 actions: <Widget>[
                   FlatButton(
-                      onPressed: () {pop();setState(() {});},
+                      onPressed: () {
+                        pop();
+                        setState(() {});
+                      },
                       child: Text("确定"))
                 ],
                 content: Wrap(children: <Widget>[
-                  Text(
-                      "设置播放速度为: ${(DakaSettingsEntity.fromSp().speechRate * 100).toInt()}%"),
+                  Text("设置播放速度为: ${(DakaSettingsEntity.fromSp().speechRate * 100).toInt()}%"),
                   Slider(
                       value: DakaSettingsEntity.fromSp().speechRate,
                       max: rateRange.max,
-                      min: 0.2,
-                      divisions: 28,
+                      min: rateRange.min,
+                      divisions: 300,
                       onChanged: (v) {
                         setSpeechRateState(() {
                           entity.speechRate = v;
@@ -117,8 +116,7 @@ class _DakaSettingsState extends State<DakaSettings> {
                       child: Text("确定"))
                 ],
                 content: Wrap(children: <Widget>[
-                  Text(
-                      "设置音量为: ${(DakaSettingsEntity.fromSp().volumn * 100).toInt()}%"),
+                  Text("设置音量为: ${(DakaSettingsEntity.fromSp().volumn * 100).toInt()}%"),
                   Slider(
                       value: DakaSettingsEntity.fromSp().volumn,
                       max: 1.0,
@@ -154,8 +152,7 @@ class _DakaSettingsState extends State<DakaSettings> {
                       child: Text("确定"))
                 ],
                 content: Wrap(children: <Widget>[
-                  Text(
-                      "设置音调为: ${(DakaSettingsEntity.fromSp().pitch * 100).toInt()}%"),
+                  Text("设置音调为: ${(DakaSettingsEntity.fromSp().pitch * 100).toInt()}%"),
                   Slider(
                       value: DakaSettingsEntity.fromSp().pitch,
                       max: 2.0,
@@ -181,29 +178,16 @@ class _DakaSettingsState extends State<DakaSettings> {
           SettingsSection(title: "文字设置", tiles: [
             SettingsTile(
               title: "放大倍数",
-              trailing: Text(
-                  "${(DakaSettingsEntity.fromSp().baseFont * 100).toInt()}%"),
+              trailing: Text("${(DakaSettingsEntity.fromSp().baseFont * 100).toInt()}%"),
               onTap: fontSizeDialog,
             )
           ]),
           SettingsSection(
             title: "语音设置",
             tiles: [
-              SettingsTile(
-                  title: "音量",
-                  trailing: Text(
-                      "${(DakaSettingsEntity.fromSp().volumn * 100).toInt()}%"),
-                  onTap: volumn),
-              SettingsTile(
-                  title: "速度",
-                  trailing: Text(
-                      "${(DakaSettingsEntity.fromSp().speechRate * 100).toInt()}%"),
-                  onTap: speedRate),
-              SettingsTile(
-                  title: "音调",
-                  trailing: Text(
-                      "${(DakaSettingsEntity.fromSp().pitch * 100).toInt()}%"),
-                  onTap: pitch),
+              SettingsTile(title: "音量", trailing: Text("${(DakaSettingsEntity.fromSp().volumn * 100).toInt()}%"), onTap: volumn),
+              SettingsTile(title: "速度", trailing: Text("${(DakaSettingsEntity.fromSp().speechRate * 100).toInt()}%"), onTap: speedRate),
+              SettingsTile(title: "音调", trailing: Text("${(DakaSettingsEntity.fromSp().pitch * 100).toInt()}%"), onTap: pitch),
             ],
           )
         ],

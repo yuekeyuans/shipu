@@ -16,9 +16,9 @@ class DakaSettingsEntity {
 
   DakaSettingsEntity.fromSp() {
     baseFont = SpUtil.getDouble("DakaSettingsEntity_baseFont", defValue: 1.0);
-    speechRate = SpUtil.getDouble("DakaSettingsEntity_speechRate");
-    volumn = SpUtil.getDouble("DakaSettingsEntity_volumn");
-    pitch = SpUtil.getDouble("DakaSettingsEntity_pitch");
+    speechRate = SpUtil.getDouble("DakaSettingsEntity_speechRate", defValue: 0.5);
+    volumn = SpUtil.getDouble("DakaSettingsEntity_volumn", defValue: 1.0);
+    pitch = SpUtil.getDouble("DakaSettingsEntity_pitch", defValue: 1.0);
   }
 
   toSp() {

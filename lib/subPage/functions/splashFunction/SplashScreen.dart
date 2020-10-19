@@ -26,7 +26,11 @@ class _SplashScreenState extends State<SplashScreen> {
       padding: EdgeInsets.all(5),
       child: Align(
         alignment: Alignment.center,
-        child: Text(content, textAlign: TextAlign.center, style: TextStyle(fontSize: splashEntity.splashFontSize.toDouble(), fontFamily: 'kaiti')),
+        child: Text(
+          content,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: splashEntity.splashFontSize.toDouble(), fontFamily: 'kaiti'),
+        ),
       ),
     ));
   }
