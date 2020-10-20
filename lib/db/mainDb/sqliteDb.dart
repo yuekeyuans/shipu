@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:da_ka/subPage/functions/utilsFunction/UtilFunction.dart';
 
 class MainDb {
   static final MainDb _instance = MainDb.internal();

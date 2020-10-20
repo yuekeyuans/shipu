@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:da_ka/subPage/functions/utilsFunction/UtilFunction.dart';
+import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:sqflite/sqflite.dart';

@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:da_ka/db/mainDb/contentFileInfoTable.dart';
 import 'package:da_ka/global.dart';
-import 'package:da_ka/subPage/mdxViews/mdxView.dart';
-import 'package:da_ka/subPage/openViews/openDocPage.dart';
-import 'package:da_ka/subPage/openViews/openImagePage.dart';
-import 'package:da_ka/subPage/openViews/openPdfPage.dart';
-import 'package:da_ka/subPage/viewBookPage.dart';
+import 'package:da_ka/views/mdxViews/mdxView.dart';
+import 'package:da_ka/views/openViews/openDocPage.dart';
+import 'package:da_ka/views/openViews/openImagePage.dart';
+import 'package:da_ka/views/openViews/openPdfPage.dart';
+import 'package:da_ka/views/viewBookPage.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -50,7 +50,7 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
       } else if (i.filename.endsWith(".pdf")) {
         fileSection[1].items.add(i);
       } else if (i.filename.endsWith(".doc") || i.filename.endsWith(".docx")) {
-        fileSection[1].items.add(i);
+        fileSection[2].items.add(i);
       }
     }
     setState(() {});

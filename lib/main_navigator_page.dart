@@ -1,6 +1,6 @@
-import 'package:da_ka/mainDir/checkInPage.dart';
+import 'package:da_ka/mainDir/dailyWork/functions.dart';
 import 'package:da_ka/mainDir/contentPage/contentPage.dart';
-import 'package:da_ka/mainDir/settingPage.dart';
+import 'package:da_ka/mainDir/functions/functionsPage.dart';
 import 'package:flutter/material.dart';
 
 class MainNavigator extends StatefulWidget {
@@ -24,8 +24,8 @@ class _MainNavigatorState extends State<MainNavigator> {
         body: pages[_currentIndex],
         bottomNavigationBar: BottomNavigationBar(
           items: [
-            BottomNavigationBarItem(icon: Icon(Icons.list), title: Text('内容')),
-            BottomNavigationBarItem(icon: Icon(Icons.check), title: Text('打卡')),
+            BottomNavigationBarItem(icon: Icon(Icons.work), title: Text('文件')),
+            BottomNavigationBarItem(icon: Icon(Icons.list), title: Text('日常')),
             BottomNavigationBarItem(icon: Icon(Icons.settings), title: Text('功能')),
           ],
           currentIndex: _currentIndex,

@@ -5,9 +5,6 @@ import 'package:da_ka/db/mainDb/sqliteDb.dart';
 import 'package:da_ka/db/lifestudyDb/LifeStudyDb.dart';
 import 'package:da_ka/mainDir/contentPage/contentPageEntity.dart';
 import 'package:da_ka/main_navigator_page.dart';
-import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
-import 'package:da_ka/subPage/functions/splashFunction/splahEntity.dart';
-import 'package:da_ka/subPage/functions/utilsFunction/UtilFunction.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +13,14 @@ import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:simple_splashscreen/simple_splashscreen.dart';
-import 'package:da_ka/subPage/functions/splashFunction/SplashScreen.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:sp_util/sp_util.dart';
 import 'package:wakelock/wakelock.dart';
+
+import 'mainDir/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
+import 'mainDir/functions/splashFunction/SplashScreen.dart';
+import 'mainDir/functions/splashFunction/splahEntity.dart';
+import 'mainDir/functions/utilsFunction/UtilFunction.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

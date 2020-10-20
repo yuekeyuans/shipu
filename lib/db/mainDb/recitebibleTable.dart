@@ -2,7 +2,7 @@ import 'package:common_utils/common_utils.dart';
 import 'package:da_ka/db/bible/bibleContentTable.dart';
 import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
-import 'package:da_ka/subPage/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
+import 'package:da_ka/mainDir/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:sqflite/sqflite.dart';
 
 //该表存在于 clock_in.db
