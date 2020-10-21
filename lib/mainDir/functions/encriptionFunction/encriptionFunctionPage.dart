@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:da_ka/global.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flustars/flustars.dart';
@@ -47,42 +48,45 @@ class _EncryptionFunctionPageState extends State<EncryptionFunctionPage> {
   }
 
   Future<String> encodeFileByPath(String path) async {
-    var file = await FilePicker.getFile(
+    FilePickerResult result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
       type: FileType.custom,
       allowedExtensions: suffix,
     );
-    if (file == null) {
+    if (result == null) {
       return "";
     }
-    var decodeFilePath =
-        SpUtil.getString("ENCRYPTION_PATH") + "/" + file.path.split("/").last;
+    File file = File(result.files.single.path);
+    var decodeFilePath = SpUtil.getString("ENCRYPTION_PATH") + "/" + file.path.split("/").last;
     channel.invokeMethod("encode", {"src": file.path, "dest": decodeFilePath});
     return "";
   }
 
   Future<void> encodeFile() async {
-    var file = await FilePicker.getFile(
+    var result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
       type: FileType.custom,
       allowedExtensions: suffix,
     );
-    if (file == null) {
+    if (result == null) {
       return;
     }
-    var decodeFilePath =
-        SpUtil.getString("ENCRYPTION_PATH") + "/" + file.path.split("/").last;
+    var file = File(result.files.single.path);
+    var decodeFilePath = SpUtil.getString("ENCRYPTION_PATH") + "/" + file.path.split("/").last;
     channel.invokeMethod("encode", {"src": file.path, "dest": decodeFilePath});
   }
 
   Future<void> decodeFile() async {
-    var file = await FilePicker.getFile(
+    var result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
       type: FileType.custom,
       allowedExtensions: suffix,
     );
-    if (file == null) {
+    if (result == null) {
       return;
     }
-    var decodeFilePath =
-        SpUtil.getString("DECRYPTION_PATH") + "/" + file.path.split("/").last;
+    var file = File(result.files.single.path);
+    var decodeFilePath = SpUtil.getString("DECRYPTION_PATH") + "/" + file.path.split("/").last;
     channel.invokeMethod("decode", {"src": file.path, "dest": decodeFilePath});
   }
 }

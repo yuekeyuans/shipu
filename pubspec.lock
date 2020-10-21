@@ -134,20 +134,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.4"
-  flare_dart:
-    dependency: transitive
-    description:
-      name: flare_dart
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.3.4"
-  flare_flutter:
-    dependency: transitive
-    description:
-      name: flare_flutter
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.8.3"
   flustars:
     dependency: "direct main"
     description:
@@ -167,13 +153,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.6"
-  flutter_keyboard_visibility:
-    dependency: transitive
-    description:
-      name: flutter_keyboard_visibility
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.7.0"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -233,27 +212,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.2"
-  google_fonts:
-    dependency: "direct main"
-    description:
-      name: google_fonts
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.1.0"
-  http:
-    dependency: transitive
-    description:
-      name: http
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.12.2"
-  http_parser:
-    dependency: transitive
-    description:
-      name: http_parser
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.1.4"
   image:
     dependency: transitive
     description:
@@ -408,13 +366,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.6"
-  search_widget:
-    dependency: "direct main"
-    description:
-      name: search_widget
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.2"
   settings_ui:
     dependency: "direct main"
     description:
@@ -518,13 +469,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.9.5"
-  status_alert:
-    dependency: "direct main"
-    description:
-      name: status_alert
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.2"
   sticky_and_expandable_list:
     dependency: "direct main"
     description:
@@ -632,4 +576,4 @@ packages:
     version: "2.2.1"
 sdks:
   dart: ">=2.9.0-14.0.dev <3.0.0"
-  flutter: ">=1.17.0 <2.0.0"
+  flutter: ">=1.12.13+hotfix.5 <2.0.0"
