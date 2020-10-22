@@ -43,7 +43,7 @@ dependencies:
   oktoast: ^2.1.7
   sticky_and_expandable_list: ^0.2.3
   dynamic_theme: ^1.0.0
-  # google_fonts: ^1.1.0
+  flutter_svg: ^0.19.1
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +71,7 @@ flutter:
     - assets/db/lifestudy.zip
     - assets/icon/icon.png
     - assets/icon/isilo.png
+    - assets/icon/kuaichuan.svg
     - assets/apk/isilo.apk
     - assets/apk/fastTransport.apk
     - assets/pf0

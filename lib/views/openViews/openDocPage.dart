@@ -1,9 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:da_ka/global.dart';
+import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
+import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
+import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nav_router/nav_router.dart';
+import 'package:share_extend/share_extend.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 //TODO: 这个文件先编辑到这里，之后会使用破解包和去除水印等操作。
@@ -17,20 +22,49 @@ class DocViewer extends StatefulWidget {
 
 class _DocViewerState extends State<DocViewer> {
   String docPath;
+  String sharePath;
+  String docHtmlPath;
+  String title;
 
   static const methodChannel = MethodChannel('com.example.clock_in/converter');
 
-  _DocViewerState(this.docPath);
+  _DocViewerState(this.docPath) {
+    sharePath = docPath;
+    //改名
+    var titles = docPath.split("/").last.split(".");
+    titles.removeLast();
+    title = titles.join(".");
+  }
 
   @override
   void initState() {
     super.initState();
-    updateChannel();
+    preProcessFile();
+  }
+
+  Future<void> preProcessFile() async {
+    var splitted = docPath.split("/");
+    splitted.insert(splitted.length - 1, "temp");
+    docHtmlPath = "${splitted.join("/")}.html";
+    UtilFunction.isEncode(docPath).then((value) async {
+      if (value is bool) {
+        if (value == true) {
+          var splitted = docPath.split("/");
+          splitted.insert(splitted.length - 1, "temp");
+          docPath = splitted.join("/");
+          await UtilFunction.decodeFile(sharePath, docPath);
+        }
+      }
+      updateChannel();
+    });
   }
 
   updateChannel() async {
-    if (await File(docPath + ".html").exists()) {
+    if (await File(docHtmlPath).exists()) {
       setState(() {});
+      if (_webViewController != null) {
+        updateWebViewPage();
+      }
       return;
     }
 
@@ -42,14 +76,15 @@ class _DocViewerState extends State<DocViewer> {
         });
 
     //调用
-    methodChannel.invokeMethod("convertToHtml", {"path": docPath});
+    methodChannel.invokeMethod("convertToHtml", {"fromPath": docPath, "toPath": docHtmlPath});
     //查询
     Timer.periodic(Duration(seconds: 1), (timer) async {
-      methodChannel.invokeMethod("convertProcess").then((value) {
+      methodChannel.invokeMethod("convertProcess").then((value) async {
         if (value is String && value == "true") {
           timer.cancel();
           pop();
-          setState(() => updateWebViewPage());
+          await updateWebViewPage();
+          setState(() {});
         }
       });
       if (timer.tick > 120) {
@@ -66,7 +101,19 @@ class _DocViewerState extends State<DocViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: getWebView());
+    return Scaffold(
+      appBar: PreferredSize(
+        child: AppBar(
+          title: Text(title),
+          actions: <Widget>[
+            IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(sharePath, "file")),
+            IconButton(icon: Icon(Icons.menu), onPressed: () => routePush(DakaSettings()).then((value) => scalePage())),
+          ],
+        ),
+        preferredSize: Size.fromHeight(APPBAR_HEIGHT),
+      ),
+      body: getWebView(),
+    );
   }
 
   WebView view;
@@ -76,21 +123,16 @@ class _DocViewerState extends State<DocViewer> {
       return view;
     } else {
       view = WebView(
-        // initialUrl: 'https://flutter.cn',
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (WebViewController webViewController) async {
           Completer<WebViewController>().complete(webViewController);
           _webViewController = webViewController;
           updateWebViewPage();
         },
-        javascriptChannels: <JavascriptChannel>{
-          // _toasterJavascriptChannel(context),
-        },
-        onPageStarted: (String url) {
-          print('Page started loading: $url');
-        },
+        javascriptChannels: <JavascriptChannel>{},
+        onPageStarted: (String url) {},
         onPageFinished: (String url) {
-          print('Page finished loading: $url');
+          scalePage();
         },
         gestureNavigationEnabled: true,
       );
@@ -99,10 +141,15 @@ class _DocViewerState extends State<DocViewer> {
   }
 
   updateWebViewPage() async {
-    var filePath = docPath + ".html";
-    if (await File(filePath).exists()) {
-      _webViewController.loadUrl(Uri.file(filePath).toString());
+    if (await File(docHtmlPath).exists()) {
+      _webViewController.loadUrl(Uri.file(docHtmlPath).toString());
+      scalePage();
     }
+  }
+
+  void scalePage() {
+    var factor = DakaSettingsEntity.fromSp().baseFont;
+    _webViewController.evaluateJavascript("document.body.style.zoom=$factor");
   }
 }
 
@@ -122,11 +169,7 @@ class LoadingDialog extends Dialog {
                 child: Container(
                     decoration: ShapeDecoration(
                       color: Color(0xffffffff),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8.0),
-                        ),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

@@ -21,13 +21,12 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.experimental.xor
 
 class MainActivity : FlutterActivity() {
-  val ENCODE_TEXT = "encryption_type1"
-
+  private val ENCODE_TEXT = "encryption_type1"
   private val CHANNEL_CONVERTER = "com.example.clock_in/converter"
-  private val CHANNEL_ISILO = "com.example.clock_in/isilo"
-  private val CHANNEL_WIFI = "com.example.clock_in/wifi"
+  private val CHANNEL_APP = "com.example.clock_in/app"
   private val CHANNEL_ENCODE = "com.example.clock_in/encription"
   private val CHANNEL_CLEAN = "com.example.clock_in/clean"
   private val CHANNEL_COPY_APP = "com.example.clock_in/copyApp"
@@ -53,7 +52,7 @@ class MainActivity : FlutterActivity() {
           if (!out.exists()) out.createNewFile()
           val fis = FileInputStream(`in`)
           val fos = FileOutputStream(out)
-          var count = 0
+          var count :Int
           val buffer = ByteArray(256 * 1024)
           while (fis.read(buffer).also { count = it } > 0) {
             fos.write(buffer, 0, count)
@@ -117,14 +116,15 @@ class MainActivity : FlutterActivity() {
             val input = inFile.inputStream()
             var simpleEncode = ENCODE_TEXT.toByteArray()
             var byte = ByteArray(simpleEncode.size)
-            if (input.read(byte, 0, simpleEncode.size).toString() == simpleEncode.toString()) {
+            input.read(byte, 0, simpleEncode.size).toString()
+            if (byte.contentEquals(simpleEncode)) {
               return true
             }
           }
           return false
         }
 
-        fun encodeFile(src: String?, dest: String?, magic: Int): Boolean {
+        fun encodeFile(src: String?, dest: String?, magic: Byte): Boolean {
           val inFile = File(src)
           val outFile = File(dest)
           if (!inFile.exists()) return false
@@ -140,12 +140,18 @@ class MainActivity : FlutterActivity() {
           var simpleEncode = ENCODE_TEXT.toByteArray()
           output.write(simpleEncode)
           output.write(Int.MAX_VALUE)
-          output.write(magic)
+          output.write(magic.toInt())
           output.write(Int.MAX_VALUE)
-          var data: Int = input.read()
-          while (data > -1) {
-            output.write((data xor magic))
-            data = input.read()
+
+          var c = -1
+          val buffer = ByteArray(1024 * 1000)
+          while ({ c = input.read(buffer);c }() > 0) {
+            var i = 0
+            while(i < c){
+              buffer[i]  = buffer[i] xor magic
+              i++
+            }
+            output.write(buffer.copyOfRange(0, c))
           }
 
           input.close()
@@ -167,17 +173,24 @@ class MainActivity : FlutterActivity() {
           val output = outFile.outputStream()
           var simpleEncode = ENCODE_TEXT.toByteArray()
           var byte = ByteArray(simpleEncode.size)
-          if (input.read(byte, 0, simpleEncode.size).toString() != simpleEncode.toString()) {
+          input.read(byte, 0, simpleEncode.size).toString()
+          if (!byte.contentEquals(simpleEncode)) {
             return false
           }
           input.read()
           val magic = input.read()
           input.read()
 
-          var data: Int = input.read()
-          while (data > -1) {
-            output.write((data xor magic))
-            data = input.read()
+          var c = -1
+          val buffer = ByteArray(1024 * 1024)
+          var magics = magic.toByte()
+          while ({ c = input.read(buffer);c }() > 0) {
+            var i = 0
+            while(i < c){
+              buffer[i]  = buffer[i] xor magics
+              i++
+            }
+            output.write(buffer.copyOfRange(0, c))
           }
           input.close()
           output.flush()
@@ -186,24 +199,31 @@ class MainActivity : FlutterActivity() {
         }
 
         var name = call.method
-        if (name.equals("encode") || name.equals("decode")) {
-          val src = call.argument<String>("src")
-          val dest = call.argument<String>("dest")
-          if (name.equals("encode")) {
-            var magic = Random().nextInt()
-            if (call.hasArgument("magic")) {
-              magic = call.argument<Int>("magic")!!
+        when {
+            name.equals("encode") -> {
+              val src = call.argument<String>("src")
+              val dest = call.argument<String>("dest")
+              var magic = Random().nextInt().toByte().toInt()
+              if (call.hasArgument("magic")) {
+                magic = call.argument<Int>("magic")!!
+              }
+              encodeFile(src, dest, magic.toByte())
             }
-            encodeFile(src, dest, magic)
-          } else {
-            decodeFile(src, dest)
-          }
-          result.success("success")
+            name.equals("decode") -> {
+              val src = call.argument<String>("src")
+              val dest = call.argument<String>("dest")
+              decodeFile(src, dest)
+            }
+            name.equals("isEncoded") -> {
+              val path = call.argument<String>("src");
+              result.success(checkIsEncoded(path!!))
+            }
+          else -> {}
         }
       }
     })
     //  程序安装获取信息的channel
-    MethodChannel(flutterView, CHANNEL_ISILO).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
+    MethodChannel(flutterView, CHANNEL_APP).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
       run {
         // 获取app 信息
         fun getInstalledApps(): ArrayList<String>? {
@@ -216,7 +236,7 @@ class MainActivity : FlutterActivity() {
         }
         // 启动程序
         fun startApp() {
-          startActivity(this.packageManager.getLaunchIntentForPackage(appPackage))
+          startActivity(this.packageManager.getLaunchIntentForPackage(appPackage!!))
         }
 
         // 安装程序
@@ -276,17 +296,18 @@ class MainActivity : FlutterActivity() {
         val method = call.method
         if (method.equals("convertToHtml")) {
           this.isConvertFinish = false
-          val path = call.argument<String>("path")
-          if (path != null) {
+          val fromPath = call.argument<String>("fromPath")
+          val toPath = call.argument<String>("toPath")
+          if (fromPath != null) {
             Thread {
-              val file = File(path)
+              val file = File(fromPath)
               if (!file.exists()) {
                     result.error("0", "file not fond", "cant find the file")
               }
-              val stream = FileInputStream(path)
+              val stream = FileInputStream(fromPath)
               val document = Document(stream)
               stream.close()
-              document.save(path + ".html", SaveFormat.HTML)
+              document.save(toPath, SaveFormat.HTML)
               this.isConvertFinish = true
             }.start()
             result.success("true")

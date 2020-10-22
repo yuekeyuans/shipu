@@ -4,6 +4,7 @@ import 'package:archive/archive_io.dart';
 import 'package:flutter/services.dart';
 
 class UtilFunction {
+  static MethodChannel channel = MethodChannel("com.example.clock_in/encription");
   static zip(Directory src, Directory dest) {
     // Zip a directory to out.zip using the zipDirectory convenience method
     // var encoder = ZipFileEncoder();
@@ -39,5 +40,24 @@ class UtilFunction {
       return File(path).writeAsBytesSync(buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
     };
     return writeToFile(bytes, dest);
+  }
+
+  //判断文件是否加密
+  static Future isEncode(String path) async {
+    return channel.invokeMethod("isEncoded", {"src": path});
+  }
+
+  //加密文件
+  static void encodeFile(String fromPath, String toPath) async {
+    if (File(fromPath).existsSync()) {
+      return channel.invokeMethod("encode", {"src": fromPath, "dest": toPath});
+    }
+  }
+
+  //解密文件
+  static void decodeFile(String fromPath, String toPath) async {
+    if (File(fromPath).existsSync()) {
+      channel.invokeMethod("decode", {"src": fromPath, "dest": toPath});
+    }
   }
 }

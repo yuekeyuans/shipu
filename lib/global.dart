@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 const subPath = [
+  "/bluetooth",
   "/Download",
+  "/Download/WeiXin",
   "/tencent/MicroMsg/Download",
   "/tencent/MicroMsg/WeiXin",
   "/tencent/QQFile_recv",
@@ -18,7 +20,13 @@ const MAIN_DIR = "/zhuhuifu";
 
 const ISILO_DIR = "/documents/iSilo/";
 
-const ISILO_DELETE_FILES = ["iSiloDisplaySample.pdb", "iSiloDisplaySample.zip", "iSiloManualAnd.pdb", "license.txt", "readme.txt"];
+const ISILO_DELETE_FILES = [
+  "iSiloDisplaySample.pdb",
+  "iSiloDisplaySample.zip",
+  "iSiloManualAnd.pdb",
+  "license.txt",
+  "readme.txt",
+];
 
 const APPBAR_HEIGHT = 35.0;
 

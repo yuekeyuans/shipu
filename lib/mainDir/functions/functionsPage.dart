@@ -1,14 +1,16 @@
 import 'package:da_ka/global.dart';
-import 'package:da_ka/mainDir/functions/apkInstall/apkInstallFunctionPage.dart';
+import 'package:da_ka/mainDir/functions/apkInstall/apkClockInFunctionPage.dart';
+import 'package:da_ka/mainDir/functions/apkInstall/apkIsiloFunctionPage.dart';
+import 'package:da_ka/mainDir/functions/apkInstall/apkKuaichuanFunctionPage.dart';
+import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 import 'contentManageFunction/contentManageFunctionPage.dart';
-import 'dakaFunction/dakaFunctionPage.dart';
-import 'encriptionFunction/encriptionFunctionPage.dart';
 import 'scanFileFunction/scanFile.dart';
 import 'splashFunction/splashFunction.dart';
 import 'storageFunction/storageFunctionPage.dart';
@@ -76,16 +78,19 @@ class _FunctionPageState extends State<FunctionPage> {
               leading: Icon(Icons.storage),
               onTap: () => routePush(StorageFunctionPage()),
             ),
+            SettingsTile(
+              title: "阅读设置",
+              leading: Icon(Icons.remove_red_eye),
+              onTap: () => routePush(DakaSettings()),
+            ),
           ],
         ),
         SettingsSection(
           title: "其他软件管理",
           tiles: [
-            SettingsTile(
-              title: "软件管理",
-              leading: Icon(Icons.android),
-              onTap: () => routePush(ApkFunctionInstallPage()),
-            ),
+            SettingsTile(title: "isilo", leading: Image.asset("assets/icon/isilo.png", scale: 1.5), onTap: () => routePush(ApkIsiloFunctionPage())),
+            SettingsTile(title: "快传", leading: SvgPicture.asset("assets/icon/kuaichuan.svg", width: 30, height: 30), onTap: () => routePush(ApkKuaichuanFunctionPage())),
+            SettingsTile(title: "clock in", leading: Image.asset("assets/icon/icon.png", scale: 8), onTap: () => routePush(ApkClockInFunctionPage())),
           ],
         )
       ],

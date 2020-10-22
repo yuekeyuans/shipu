@@ -1,12 +1,9 @@
-import 'package:da_ka/db/mainDb/recitebibleTable.dart';
-import 'package:da_ka/db/mainDb/ynybJyTable.dart';
-import 'package:da_ka/db/mainDb/ynybXyTable.dart';
 import 'package:da_ka/global.dart';
 import 'package:da_ka/mainDir/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'package:da_ka/views/daka/bibleOneYearNewTestment/ynybXyPage.dart';
 import 'package:da_ka/views/daka/bibleOneYearOldTestment/ynybJyPage.dart';
 import 'package:da_ka/views/daka/reciteBible/ReciteBiblePage.dart';
-import 'package:da_ka/views/daka/smdj/smdjPage.dart';
+import 'package:da_ka/views/smdj/smdjPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:nav_router/nav_router.dart';

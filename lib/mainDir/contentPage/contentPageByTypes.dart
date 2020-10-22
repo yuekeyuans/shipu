@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:da_ka/db/mainDb/contentFileInfoTable.dart';
 import 'package:da_ka/global.dart';
-import 'package:da_ka/views/mdxViews/mdxView.dart';
+import 'package:da_ka/views/openViews/mdxView.dart';
 import 'package:da_ka/views/openViews/openDocPage.dart';
 import 'package:da_ka/views/openViews/openImagePage.dart';
 import 'package:da_ka/views/openViews/openPdfPage.dart';

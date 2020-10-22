@@ -46,9 +46,9 @@ class _DakaSettingsState extends State<DakaSettings> {
                   Text("设置字体大小倍数为: ${(DakaSettingsEntity.fromSp().baseFont * 100).toInt()}%", textScaleFactor: DakaSettingsEntity.fromSp().baseFont),
                   Slider(
                       value: DakaSettingsEntity.fromSp().baseFont,
-                      max: 3.0,
+                      max: 3.5,
                       min: 0.5,
-                      divisions: 25,
+                      divisions: 300,
                       onChanged: (v) {
                         setSpeechRateState(() {
                           entity.baseFont = v;

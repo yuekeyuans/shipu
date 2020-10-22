@@ -1,21 +1,19 @@
 import 'dart:io';
 
 import 'package:da_ka/global.dart';
-import 'package:da_ka/mainDir/functions/apkInstall/scanPdbFunction.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nav_router/nav_router.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:share_extend/share_extend.dart';
 
-class ApkFunctionInstallPage extends StatefulWidget {
+class ApkKuaichuanFunctionPage extends StatefulWidget {
   @override
-  _ApkFunctionInstallPageState createState() => _ApkFunctionInstallPageState();
+  _ApkKuaichuanFunctionPageState createState() => _ApkKuaichuanFunctionPageState();
 }
 
-class _ApkFunctionInstallPageState extends State<ApkFunctionInstallPage> {
+class _ApkKuaichuanFunctionPageState extends State<ApkKuaichuanFunctionPage> {
   MethodChannel copyAppChannel;
   MethodChannel installApkChannel;
   var basePath = SpUtil.getString("TEMP_PATH");
@@ -28,7 +26,7 @@ class _ApkFunctionInstallPageState extends State<ApkFunctionInstallPage> {
   void initState() {
     super.initState();
     copyAppChannel = MethodChannel("com.example.clock_in/copyApp");
-    installApkChannel = const MethodChannel("com.example.clock_in/isilo");
+    installApkChannel = const MethodChannel("com.example.clock_in/app");
     isInstalled();
   }
 
@@ -40,29 +38,29 @@ class _ApkFunctionInstallPageState extends State<ApkFunctionInstallPage> {
         appBar: AppBar(title: Text("软件管理")),
         body: SettingsList(
           sections: [
-            SettingsSection(
-              title: "isilo",
-              tiles: [
-                SettingsTile(title: "islo 安装", enabled: !isIsiloInstalled, onTap: installIsilo),
-                SettingsTile(title: "isilo 启动", enabled: isIsiloInstalled, onTap: invokeIsilo),
-                SettingsTile(title: "isilo 文件扫描", enabled: isIsiloInstalled, onTap: () => routePush(ScanPdbFunction())),
-              ],
-            ),
+            // SettingsSection(
+            // title: "isilo",
+            // tiles: [
+            // SettingsTile(title: "islo 安装", enabled: !isIsiloInstalled, onTap: installIsilo),
+            // SettingsTile(title: "isilo 启动", enabled: isIsiloInstalled, onTap: invokeIsilo),
+            // SettingsTile(title: "isilo 文件扫描", enabled: isIsiloInstalled, onTap: () => routePush(ScanPdbFunction())),
+            // ],
+            // ),
             SettingsSection(
               title: "快传",
               tiles: [
                 SettingsTile(title: "快传安装", enabled: !isKuaichuanInstalled, onTap: installKuaichuan),
                 SettingsTile(title: "快传启动", enabled: isKuaichuanInstalled, onTap: invokeKuaichuan),
-                //SettingsTile(title: "快传文件预备", enabled: isKuaichuanInstalled),
+                SettingsTile(title: "快传文件预备", enabled: isKuaichuanInstalled),
               ],
             ),
-            SettingsSection(
-              title: "clock_in",
-              tiles: [
-                SettingsTile(title: "软件备份", enabled: !isClockInBackUp, onTap: copyClockInFromPhone),
-                SettingsTile(title: "发送软件", enabled: isClockInBackUp, onTap: () => shareClockIn(basePath + "/" + appName)),
-              ],
-            )
+            // SettingsSection(
+            // title: "clock_in",
+            // tiles: [
+            // SettingsTile(title: "软件备份", enabled: !isClockInBackUp, onTap: copyClockInFromPhone),
+            // SettingsTile(title: "发送软件", enabled: isClockInBackUp, onTap: () => shareClockIn(basePath + "/" + appName)),
+            // ],
+            // )
           ],
         ));
   }
