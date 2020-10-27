@@ -15,7 +15,19 @@ class MdxEntry {
 
   static const TABLENAME = "entry";
 
-  MdxEntry({id, sortId, tagId, entry, text, mkdown, html, visiable, createdate, lastUpdateDate, lastViewDate});
+  MdxEntry({
+    this.id,
+    this.sortId,
+    this.tagId,
+    this.entry,
+    this.text,
+    this.mkdown,
+    this.html,
+    this.visiable,
+    this.createdate,
+    this.lastUpdateDate,
+    this.lastViewDate,
+  });
 
   MdxEntry.fromJson(Map<String, dynamic> json) {
     id = json['id'] as String;
@@ -123,12 +135,91 @@ class MdxEntry {
     var result = await db.query(
       TABLENAME,
       columns: ["id", "sortId", "tagId", "entry", "visiable"],
-      where: "tagId = ?", 
+      where: "tagId = ?",
       whereArgs: [tag],
     );
     result.forEach((item) {
       list.add(MdxEntry.fromSql(item));
     });
     return list;
+  }
+
+  MdxEntry copyWith({
+    String id,
+    int sortId,
+    String tagId,
+    String entry,
+    String text,
+    String mkdown,
+    String html,
+    String visiable,
+    String createdate,
+    String lastUpdateDate,
+    String lastViewDate,
+  }) {
+    return MdxEntry(
+      id: id ?? this.id,
+      sortId: sortId ?? this.sortId,
+      tagId: tagId ?? this.tagId,
+      entry: entry ?? this.entry,
+      text: text ?? this.text,
+      mkdown: mkdown ?? this.mkdown,
+      html: html ?? this.html,
+      visiable: visiable ?? this.visiable,
+      createdate: createdate ?? this.createdate,
+      lastUpdateDate: lastUpdateDate ?? this.lastUpdateDate,
+      lastViewDate: lastViewDate ?? this.lastViewDate,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'sortId': sortId,
+      'tagId': tagId,
+      'entry': entry,
+      'text': text,
+      'mkdown': mkdown,
+      'html': html,
+      'visiable': visiable,
+      'createdate': createdate,
+      'lastUpdateDate': lastUpdateDate,
+      'lastViewDate': lastViewDate,
+    };
+  }
+
+  factory MdxEntry.fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return MdxEntry(
+      id: map['id'] as String,
+      sortId: map['sortId'] as int,
+      tagId: map['tagId'] as String,
+      entry: map['entry'] as String,
+      text: map['text'] as String,
+      mkdown: map['mkdown'] as String,
+      html: map['html'] as String,
+      visiable: map['visiable'] as String,
+      createdate: map['createdate'] as String,
+      lastUpdateDate: map['lastUpdateDate'] as String,
+      lastViewDate: map['lastViewDate'] as String,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'MdxEntry(id: $id, sortId: $sortId, tagId: $tagId, entry: $entry, text: $text, mkdown: $mkdown, html: $html, visiable: $visiable, createdate: $createdate, lastUpdateDate: $lastUpdateDate, lastViewDate: $lastViewDate)';
+  }
+
+  @override
+  bool operator ==(Object o) {
+    if (identical(this, o)) return true;
+
+    return o is MdxEntry && o.id == id && o.sortId == sortId && o.tagId == tagId && o.entry == entry && o.text == text && o.mkdown == mkdown && o.html == html && o.visiable == visiable && o.createdate == createdate && o.lastUpdateDate == lastUpdateDate && o.lastViewDate == lastViewDate;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^ sortId.hashCode ^ tagId.hashCode ^ entry.hashCode ^ text.hashCode ^ mkdown.hashCode ^ html.hashCode ^ visiable.hashCode ^ createdate.hashCode ^ lastUpdateDate.hashCode ^ lastViewDate.hashCode;
   }
 }

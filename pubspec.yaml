@@ -8,6 +8,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  syncfusion_localizations: ^18.3.42
 
   cupertino_icons: ^1.0.0
   simple_splashscreen: ^0.1.3

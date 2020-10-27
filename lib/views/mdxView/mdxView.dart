@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
 import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
-import 'package:da_ka/views/mdxView/mdxViewIndex.dart';
+import 'package:da_ka/views/mdxView/MdxViewIndexNext.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:share_extend/share_extend.dart';
@@ -45,7 +45,7 @@ class _MdxViewerState extends State<MdxViewer> {
   @override
   void initState() {
     super.initState();
-    // if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+    viewIndex = MdxViewIndex(onItemClick, widget.mdxPath);
     prepare();
     updateInfo();
   }
@@ -94,7 +94,6 @@ class _MdxViewerState extends State<MdxViewer> {
   }
 
   Future<void> updateInfo() async {
-    viewIndex = MdxViewIndex(onItemClick);
     var e = DakaSettingsEntity.fromSp();
     fontSize = 16.0 * e.baseFont;
     await flutterTts.setLanguage("zh-hant");
@@ -116,7 +115,6 @@ class _MdxViewerState extends State<MdxViewer> {
       html = (await entry.load()).html;
     }
     var uri = Uri.dataFromString(parseHtml(html), mimeType: 'text/html', encoding: Encoding.getByName('utf-8'));
-    print("run3333333333333333 here");
     _controller.future.then((value) => value.loadUrl(uri.toString()));
   }
 
@@ -245,36 +243,14 @@ class _MdxViewerState extends State<MdxViewer> {
     ));
   }
 
-  void onItemClick(MdxEntry e) {
-    entry = e;
+  Future<void> onItemClick(MdxEntry e) async {
+    entry = await MdxEntry(id: e.id).load();
     updatePage();
     Navigator.of(context).pop();
   }
 
   Widget buildDataList1() {
-    // return MdxViewIndex(onItemClick);
-    return SingleChildScrollView(child: viewIndex);
-  }
-
-  //生成数据内容
-  Expanded buildDataList() {
-    return Expanded(
-        child: ListView.separated(
-            itemBuilder: (context, index) {
-              return ListTile(
-                dense: true,
-                contentPadding: EdgeInsets.fromLTRB(5.0, 0, 0, 0),
-                isThreeLine: false,
-                title: Text(entries[index].entry),
-                onTap: () {
-                  entry = entries[index];
-                  updatePage();
-                  Navigator.of(context).pop();
-                },
-              );
-            },
-            separatorBuilder: (context, index) => Divider(height: 1),
-            itemCount: entries.length));
+    return viewIndex;
   }
 
   String parseHtml(String html) {

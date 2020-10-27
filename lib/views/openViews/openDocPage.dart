@@ -6,6 +6,7 @@ import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
 import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:share_extend/share_extend.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -24,6 +25,9 @@ class _DocViewerState extends State<DocViewer> {
   String sharePath;
   String docHtmlPath;
   String title;
+  String content = "";
+  List<String> contents;
+  FlutterTts flutterTts = FlutterTts();
 
   _DocViewerState(this.docPath) {
     sharePath = docPath;
@@ -37,6 +41,21 @@ class _DocViewerState extends State<DocViewer> {
   void initState() {
     super.initState();
     preProcessFile();
+    updateInfo();
+  }
+
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
+  }
+
+  Future<void> updateInfo() async {
+    var e = DakaSettingsEntity.fromSp();
+    await flutterTts.setLanguage("zh-hant");
+    await flutterTts.setVolume(e.volumn);
+    await flutterTts.setPitch(e.pitch);
+    await flutterTts.setSpeechRate(e.speechRate);
   }
 
   Future<void> preProcessFile() async {
@@ -58,6 +77,8 @@ class _DocViewerState extends State<DocViewer> {
 
   updateChannel() async {
     if (await File(docHtmlPath).exists()) {
+      content = await UtilFunction.convertHtmlToText(docHtmlPath);
+      contents = content.split("。");
       setState(() {});
       if (_webViewController != null) {
         updateWebViewPage();
@@ -81,6 +102,8 @@ class _DocViewerState extends State<DocViewer> {
         timer.cancel();
         pop();
         await updateWebViewPage();
+        content = await UtilFunction.convertHtmlToText(docHtmlPath);
+        contents = content.split("。");
         setState(() {});
       }
 
@@ -103,15 +126,7 @@ class _DocViewerState extends State<DocViewer> {
         child: AppBar(
           title: Text(title),
           actions: <Widget>[
-            IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(sharePath, "file")),
-            IconButton(icon: Icon(Icons.menu), onPressed: () => routePush(DakaSettings()).then((value) => scalePage())),
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () async {
-                print(docHtmlPath);
-                print(await UtilFunction.convertHtmlToText(docHtmlPath));
-              },
-            )
+            IconButton(icon: Icon(Icons.menu), onPressed: () => showBottomSheetDialog(context)),
           ],
         ),
         preferredSize: Size.fromHeight(APPBAR_HEIGHT),
@@ -155,6 +170,69 @@ class _DocViewerState extends State<DocViewer> {
   void scalePage() {
     var factor = DakaSettingsEntity.fromSp().baseFont;
     _webViewController.evaluateJavascript("document.body.style.zoom=$factor");
+  }
+
+  //底部导航栏
+  void showBottomSheetDialog(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setDialogState) {
+            return Container(
+                // height: 40,
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+              IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(sharePath, "file")),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  // 播放音频
+                  playState == 0 // 停止状态
+                      ? IconButton(icon: Icon(Icons.stop), onPressed: () => play(setDialogState))
+                      : IconButton(icon: Icon(Icons.play_arrow), onPressed: () => pause(setDialogState)),
+                  //设置
+                  IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => updateInfo())),
+                ],
+              )
+            ]));
+          });
+        });
+  }
+
+  int playState = 0;
+  int currentIndex = 0;
+  bool hasInitHandler = false;
+  void play(StateSetter setDialogState) {
+    if (!hasInitHandler) {
+      hasInitHandler = true;
+      flutterTts.setCompletionHandler(() {
+        if (contents.length <= currentIndex) {
+          pause(setDialogState);
+        } else {
+          play(setDialogState);
+        }
+      });
+    }
+
+    if (contents.length > currentIndex) {
+      flutterTts.speak(contents[currentIndex]);
+      playState = 1;
+      currentIndex = currentIndex + 1;
+      setDialogState(() {});
+    } else {
+      currentIndex = 0;
+      playState = 0;
+      setDialogState(() {});
+      flutterTts.stop();
+    }
+  }
+
+  void pause(StateSetter setDialogState) {
+    flutterTts.stop();
+    hasInitHandler = false;
+    playState = 0;
+    currentIndex = currentIndex == 0 ? 0 : currentIndex - 1;
+    setDialogState(() {});
   }
 }
 

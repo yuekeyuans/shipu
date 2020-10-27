@@ -5,7 +5,7 @@ import 'package:flustars/flustars.dart';
 import "package:flutter/material.dart";
 import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
-import '../../../global.dart';
+import 'package:da_ka/global.dart';
 
 class ScanFilesPage extends StatefulWidget {
   @override

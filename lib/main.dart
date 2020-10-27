@@ -20,6 +20,8 @@ import 'mainDir/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart
 import 'mainDir/functions/splashFunction/SplashScreen.dart';
 import 'mainDir/functions/splashFunction/splahEntity.dart';
 import 'mainDir/functions/utilsFunction/UtilFunction.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +49,15 @@ class MyApp extends StatelessWidget {
                 ),
             themedWidgetBuilder: (context, theme) {
               return MaterialApp(
+                  localizationsDelegates: [
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    SfGlobalLocalizations.delegate,
+                  ],
+                  supportedLocales: [
+                    const Locale('zh'),
+                  ],
+                  locale: const Locale('zh'),
                   title: '打卡',
                   theme: theme,
                   debugShowCheckedModeBanner: false,

@@ -5,7 +5,6 @@ import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
 import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
 import "package:flutter/material.dart";
 import 'package:da_ka/global.dart';
-import 'package:flutter_full_pdf_viewer/full_pdf_viewer_scaffold.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:share_extend/share_extend.dart';
@@ -26,6 +25,7 @@ class _PdfViewerState extends State<PdfViewer> {
   String title;
   FlutterTts flutterTts = FlutterTts();
   String content = "";
+  List<String> contents = [];
   String contentTextPath = "";
   final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
 
@@ -70,7 +70,14 @@ class _PdfViewerState extends State<PdfViewer> {
       setState(() => ready = true);
 
       content = await UtilFunction.convertPdfToText(pdfPath, contentTextPath);
+      contents = content.split("。");
     });
+  }
+
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
   }
 
   @override
@@ -81,7 +88,6 @@ class _PdfViewerState extends State<PdfViewer> {
           child: AppBar(
             title: Text(title),
             actions: <Widget>[
-              IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(sharePath, "file")),
               IconButton(icon: Icon(Icons.menu), onPressed: () => showBottomSheetDialog(context)),
             ],
           )),
@@ -90,22 +96,8 @@ class _PdfViewerState extends State<PdfViewer> {
         key: _pdfViewerKey,
       ),
     );
-    return PDFViewerScaffold(
-        primary: true,
-        appBar: PreferredSize(
-            preferredSize: Size.fromHeight(APPBAR_HEIGHT),
-            child: AppBar(
-              title: Text(title),
-              actions: <Widget>[
-                IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(sharePath, "file")),
-                IconButton(icon: Icon(Icons.menu), onPressed: () => showBottomSheetDialog(context)),
-              ],
-            )),
-        path: pdfPath);
-    // return blank;
   }
 
-  int playState = 0;
   //底部导航栏
   void showBottomSheetDialog(BuildContext context) {
     showModalBottomSheet(
@@ -115,34 +107,17 @@ class _PdfViewerState extends State<PdfViewer> {
             return Container(
                 // height: 40,
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+              IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(sharePath, "file")),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   // 播放音频
                   playState == 0 // 停止状态
-                      ? IconButton(
-                          icon: Icon(Icons.stop),
-                          onPressed: () async {
-                            flutterTts.speak(content);
-                            playState = 1;
-                            flutterTts.setCompletionHandler(() {
-                              playState = 0;
-                              setDialogState(() {});
-                            });
-                            setDialogState(() {});
-                          },
-                        )
-                      : GestureDetector(
-                          child: IconButton(
-                              icon: Icon(Icons.play_arrow),
-                              onPressed: () {
-                                flutterTts.stop();
-                                playState = 0;
-                                setDialogState(() {});
-                              }),
-                        ),
-
+                      ? IconButton(icon: Icon(Icons.stop), onPressed: () => play(setDialogState))
+                      : IconButton(icon: Icon(Icons.play_arrow), onPressed: () => pause(setDialogState)),
+                  //bookMark
+                  IconButton(icon: Icon(Icons.bookmark), onPressed: () => _pdfViewerKey.currentState?.openBookmarkView()),
                   //设置
                   IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => updateInfo())),
                 ],
@@ -150,5 +125,41 @@ class _PdfViewerState extends State<PdfViewer> {
             ]));
           });
         });
+  }
+
+  int playState = 0;
+  int currentIndex = 0;
+  bool hasInitHandler = false;
+  void play(StateSetter setDialogState) {
+    if (!hasInitHandler) {
+      hasInitHandler = true;
+      flutterTts.setCompletionHandler(() {
+        if (contents.length <= currentIndex) {
+          pause(setDialogState);
+        } else {
+          play(setDialogState);
+        }
+      });
+    }
+
+    if (contents.length > currentIndex) {
+      flutterTts.speak(contents[currentIndex]);
+      playState = 1;
+      currentIndex = currentIndex + 1;
+      setDialogState(() {});
+    } else {
+      currentIndex = 0;
+      playState = 0;
+      setDialogState(() {});
+      flutterTts.stop();
+    }
+  }
+
+  void pause(StateSetter setDialogState) {
+    flutterTts.stop();
+    hasInitHandler = false;
+    playState = 0;
+    currentIndex = currentIndex == 0 ? 0 : currentIndex - 1;
+    setDialogState(() {});
   }
 }
