@@ -10,7 +10,7 @@ const subPath = [
   "/Android/data/com.tencent.mm/MicroMsg/Download",
 ];
 
-const suffix = [".dict", ".png", ".pdf", ".doc", ".docx"];
+const suffix = [".dict", ".pdf", ".doc", ".docx"];
 
 const PDB_SUFFIX = [".pdb"];
 

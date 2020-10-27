@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
 import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
+import 'package:da_ka/views/mdxView/mdxViewIndex.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:share_extend/share_extend.dart';
@@ -19,17 +20,10 @@ class MdxViewer extends StatefulWidget {
   final String mdxPath;
 
   @override
-  _MdxViewerState createState() => _MdxViewerState(mdxPath);
+  _MdxViewerState createState() => _MdxViewerState();
 }
 
 class _MdxViewerState extends State<MdxViewer> {
-  _MdxViewerState(this.mdxPath) {
-    sharePath = mdxPath;
-    var titles = mdxPath.split("/").last.split(".");
-    titles.removeLast();
-    title = titles.join(".");
-  }
-
   String dictHtml = "";
   List<MdxEntry> entries = [];
   MdxEntry entry;
@@ -40,21 +34,30 @@ class _MdxViewerState extends State<MdxViewer> {
   String searchText;
   String title;
   WebView view;
+  MdxViewIndex viewIndex;
   bool ready = false;
   final TextEditingController speechTextController = TextEditingController();
   final _controller = Completer<WebViewController>();
   final _scaffoldkey = GlobalKey<ScaffoldState>();
 
+  _MdxViewerState();
+
   @override
   void initState() {
     super.initState();
+    // if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
     prepare();
-
     updateInfo();
-    flutterTts.setLanguage("zh-CN");
   }
 
   prepare() {
+    flutterTts.setLanguage("zh-CN");
+    mdxPath = widget.mdxPath;
+    sharePath = mdxPath;
+    var titles = mdxPath.split("/").last.split(".");
+    titles.removeLast();
+    title = titles.join(".");
+
     UtilFunction.isEncode(mdxPath).then((value) async {
       if ((value is bool) && (value == true)) {
         List<String> splitted = mdxPath.split("/");
@@ -71,32 +74,27 @@ class _MdxViewerState extends State<MdxViewer> {
 
   @override
   Widget build(BuildContext context) {
+    var mdxView = Scaffold(
+      key: _scaffoldkey,
+      appBar: PreferredSize(
+        child: AppBar(title: Text(title), actions: [IconButton(icon: Icon(Icons.add), onPressed: showBottomSheetDialog)]),
+        preferredSize: Size.fromHeight(APPBAR_HEIGHT),
+      ),
+      body: getWebView(),
+      drawer: buildDrawer(),
+    );
+
     var blank = Scaffold(
       appBar: PreferredSize(
         child: AppBar(title: Text(title)),
         preferredSize: Size.fromHeight(APPBAR_HEIGHT),
       ),
     );
-    var mdxView = Scaffold(
-      key: _scaffoldkey,
-      appBar: PreferredSize(
-        child: AppBar(
-          title: Text(title),
-          actions: [
-            IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(sharePath, "file")),
-            IconButton(icon: Icon(Icons.add), onPressed: showBottomSheetDialog),
-            SizedBox(width: 10.0),
-          ],
-        ),
-        preferredSize: Size.fromHeight(APPBAR_HEIGHT),
-      ),
-      body: getWebView(),
-      drawer: buildDrawer(),
-    );
     return ready ? mdxView : blank;
   }
 
   Future<void> updateInfo() async {
+    viewIndex = MdxViewIndex(onItemClick);
     var e = DakaSettingsEntity.fromSp();
     fontSize = 16.0 * e.baseFont;
     await flutterTts.setLanguage("zh-hant");
@@ -118,6 +116,7 @@ class _MdxViewerState extends State<MdxViewer> {
       html = (await entry.load()).html;
     }
     var uri = Uri.dataFromString(parseHtml(html), mimeType: 'text/html', encoding: Encoding.getByName('utf-8'));
+    print("run3333333333333333 here");
     _controller.future.then((value) => value.loadUrl(uri.toString()));
   }
 
@@ -131,8 +130,8 @@ class _MdxViewerState extends State<MdxViewer> {
             return Container(
                 height: 40,
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                  //打卡
-                  IconButton(icon: Icon(Icons.menu), onPressed: () => _scaffoldkey.currentState.openDrawer()),
+                  // IconButton(icon: Icon(Icons.menu), onPressed: () => _scaffoldkey.currentState.openDrawer()),
+                  IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(sharePath, "file")),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -160,9 +159,6 @@ class _MdxViewerState extends State<MdxViewer> {
                                     setDialogState(() {});
                                   }),
                             ),
-
-                      //设置
-                      IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => updateInfo())),
                       //home
                       IconButton(
                         icon: Icon(Icons.home),
@@ -170,7 +166,8 @@ class _MdxViewerState extends State<MdxViewer> {
                           entry = null;
                           updatePage();
                         },
-                      )
+                      ), //设置
+                      IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => updateInfo())),
                     ],
                   )
                 ]));
@@ -190,14 +187,11 @@ class _MdxViewerState extends State<MdxViewer> {
         },
         javascriptChannels: <JavascriptChannel>{},
         navigationDelegate: (NavigationRequest request) {
-          print(request.url);
           if (request.url.startsWith('entry:')) {
-            print(request.url);
             var url = request.url;
             var id = (url.split("#")[0]).split("/").last;
             setState(() async {
               entry = await MdxEntry().queryFromId(id);
-              print(entry.toJson());
               updatePage();
             });
             return NavigationDecision.prevent;
@@ -241,27 +235,46 @@ class _MdxViewerState extends State<MdxViewer> {
     var notificationTop = MediaQuery.of(context).padding.top;
     return Drawer(
         child: Padding(
-            padding: EdgeInsets.only(top: notificationTop + 5, left: 6, right: 6),
-            child: Column(children: [
-              getFSearchBox(),
-              Expanded(
-                  child: ListView.separated(
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          dense: true,
-                          contentPadding: EdgeInsets.fromLTRB(5.0, 0, 0, 0),
-                          isThreeLine: false,
-                          title: Text(entries[index].entry),
-                          onTap: () {
-                            entry = entries[index];
-                            updatePage();
-                            Navigator.of(context).pop();
-                          },
-                        );
-                      },
-                      separatorBuilder: (context, index) => Divider(height: 1),
-                      itemCount: entries.length))
-            ])));
+      padding: EdgeInsets.only(top: notificationTop + 5, left: 4, right: 0),
+      // child: Column(children: [
+      //   // getFSearchBox(),
+      //   //buildDataList(),
+      //   buidDataList1(),
+      // ]),
+      child: buildDataList1(),
+    ));
+  }
+
+  void onItemClick(MdxEntry e) {
+    entry = e;
+    updatePage();
+    Navigator.of(context).pop();
+  }
+
+  Widget buildDataList1() {
+    // return MdxViewIndex(onItemClick);
+    return SingleChildScrollView(child: viewIndex);
+  }
+
+  //生成数据内容
+  Expanded buildDataList() {
+    return Expanded(
+        child: ListView.separated(
+            itemBuilder: (context, index) {
+              return ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.fromLTRB(5.0, 0, 0, 0),
+                isThreeLine: false,
+                title: Text(entries[index].entry),
+                onTap: () {
+                  entry = entries[index];
+                  updatePage();
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+            separatorBuilder: (context, index) => Divider(height: 1),
+            itemCount: entries.length));
   }
 
   String parseHtml(String html) {

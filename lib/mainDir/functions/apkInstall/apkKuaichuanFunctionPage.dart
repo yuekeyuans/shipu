@@ -32,20 +32,10 @@ class _ApkKuaichuanFunctionPageState extends State<ApkKuaichuanFunctionPage> {
 
   @override
   Widget build(BuildContext context) {
-    var isClockInBackUp = File(basePath + "/$appName").existsSync();
-
     return Scaffold(
         appBar: AppBar(title: Text("软件管理")),
         body: SettingsList(
           sections: [
-            // SettingsSection(
-            // title: "isilo",
-            // tiles: [
-            // SettingsTile(title: "islo 安装", enabled: !isIsiloInstalled, onTap: installIsilo),
-            // SettingsTile(title: "isilo 启动", enabled: isIsiloInstalled, onTap: invokeIsilo),
-            // SettingsTile(title: "isilo 文件扫描", enabled: isIsiloInstalled, onTap: () => routePush(ScanPdbFunction())),
-            // ],
-            // ),
             SettingsSection(
               title: "快传",
               tiles: [
@@ -54,13 +44,6 @@ class _ApkKuaichuanFunctionPageState extends State<ApkKuaichuanFunctionPage> {
                 SettingsTile(title: "快传文件预备", enabled: isKuaichuanInstalled),
               ],
             ),
-            // SettingsSection(
-            // title: "clock_in",
-            // tiles: [
-            // SettingsTile(title: "软件备份", enabled: !isClockInBackUp, onTap: copyClockInFromPhone),
-            // SettingsTile(title: "发送软件", enabled: isClockInBackUp, onTap: () => shareClockIn(basePath + "/" + appName)),
-            // ],
-            // )
           ],
         ));
   }
@@ -110,7 +93,7 @@ class _ApkKuaichuanFunctionPageState extends State<ApkKuaichuanFunctionPage> {
     installApkChannel.invokeMethod("installIsilo", {"path": '$dirName/$apk'}).then((value) => isInstalled());
   }
 
-// 启动 快传
+  // 启动 快传
   invokeKuaichuan() {
     installApkChannel.invokeMethod("startApp", {"package": kuaichuanPackageName});
   }

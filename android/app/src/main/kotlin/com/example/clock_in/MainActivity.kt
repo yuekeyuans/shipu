@@ -11,17 +11,23 @@ import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.aspose.words.Document
 import com.aspose.words.SaveFormat
-import com.example.clock_in.BuildConfig.*
-import io.flutter.Log
-import io.flutter.app.FlutterActivity
-import io.flutter.plugin.common.MethodChannel
+import com.example.clock_in.BuildConfig.APPLICATION_ID
+//import io.flutter.Log
+
 import io.flutter.plugins.GeneratedPluginRegistrant
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
+//import io.flutter.plugin.common.MethodChannel
+//import io.flutter.plugins.GeneratedPluginRegistrant
+import org.jsoup.Jsoup
+import java.io.*
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.experimental.xor
+
+import androidx.annotation.NonNull;
+import io.flutter.Log
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugin.common.MethodChannel;
 
 class MainActivity : FlutterActivity() {
   private val ENCODE_TEXT = "encryption_type1"
@@ -36,13 +42,10 @@ class MainActivity : FlutterActivity() {
   private var appPackage: String? = ""
   private val Tag = "com.example.clock_in"
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-
-    super.onCreate(savedInstanceState)
-    GeneratedPluginRegistrant.registerWith(this)
-
+  override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+    GeneratedPluginRegistrant.registerWith(flutterEngine);
     // 拷贝apk 文件
-    MethodChannel(flutterView, CHANNEL_COPY_APP).setMethodCallHandler { call, result ->
+    MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL_COPY_APP).setMethodCallHandler { call, result ->
       run {
         fun backupApp(path: String, outname: String, basePath: String) {
           val `in` = File(path)
@@ -87,7 +90,7 @@ class MainActivity : FlutterActivity() {
       }
     }
     // 获取存储大小
-    MethodChannel(flutterView, CHANNEL_CLEAN).setMethodCallHandler { call, result ->
+    MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL_CLEAN).setMethodCallHandler { call, result ->
       run {
         val units = arrayOf("B", "KB", "MB", "GB", "TB")
         fun getUnit(s: Float): String {
@@ -108,7 +111,7 @@ class MainActivity : FlutterActivity() {
       }
     }
     // 文件加密使用程序
-    MethodChannel(flutterView, CHANNEL_ENCODE).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
+    MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL_ENCODE).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
       run {
         fun checkIsEncoded(src: String): Boolean {
           val inFile = File(src)
@@ -147,8 +150,8 @@ class MainActivity : FlutterActivity() {
           val buffer = ByteArray(1024 * 1000)
           while ({ c = input.read(buffer);c }() > 0) {
             var i = 0
-            while(i < c){
-              buffer[i]  = buffer[i] xor magic
+            while (i < c) {
+              buffer[i] = buffer[i] xor magic
               i++
             }
             output.write(buffer.copyOfRange(0, c))
@@ -159,6 +162,7 @@ class MainActivity : FlutterActivity() {
           output.close()
           return true
         }
+
         fun decodeFile(src: String?, dest: String?): Boolean {
           val inFile = File(src)
           val outFile = File(dest)
@@ -186,8 +190,8 @@ class MainActivity : FlutterActivity() {
           var magics = magic.toByte()
           while ({ c = input.read(buffer);c }() > 0) {
             var i = 0
-            while(i < c){
-              buffer[i]  = buffer[i] xor magics
+            while (i < c) {
+              buffer[i] = buffer[i] xor magics
               i++
             }
             output.write(buffer.copyOfRange(0, c))
@@ -200,30 +204,31 @@ class MainActivity : FlutterActivity() {
 
         var name = call.method
         when {
-            name.equals("encode") -> {
-              val src = call.argument<String>("src")
-              val dest = call.argument<String>("dest")
-              var magic = Random().nextInt().toByte().toInt()
-              if (call.hasArgument("magic")) {
-                magic = call.argument<Int>("magic")!!
-              }
-              encodeFile(src, dest, magic.toByte())
+          name.equals("encode") -> {
+            val src = call.argument<String>("src")
+            val dest = call.argument<String>("dest")
+            var magic = Random().nextInt().toByte().toInt()
+            if (call.hasArgument("magic")) {
+              magic = call.argument<Int>("magic")!!
             }
-            name.equals("decode") -> {
-              val src = call.argument<String>("src")
-              val dest = call.argument<String>("dest")
-              decodeFile(src, dest)
-            }
-            name.equals("isEncoded") -> {
-              val path = call.argument<String>("src");
-              result.success(checkIsEncoded(path!!))
-            }
-          else -> {}
+            encodeFile(src, dest, magic.toByte())
+          }
+          name.equals("decode") -> {
+            val src = call.argument<String>("src")
+            val dest = call.argument<String>("dest")
+            decodeFile(src, dest)
+          }
+          name.equals("isEncoded") -> {
+            val path = call.argument<String>("src");
+            result.success(checkIsEncoded(path!!))
+          }
+          else -> {
+          }
         }
       }
     })
     //  程序安装获取信息的channel
-    MethodChannel(flutterView, CHANNEL_APP).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
+    MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL_APP).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
       run {
         // 获取app 信息
         fun getInstalledApps(): ArrayList<String>? {
@@ -234,6 +239,7 @@ class MainActivity : FlutterActivity() {
           }
           return res
         }
+
         // 启动程序
         fun startApp() {
           startActivity(this.packageManager.getLaunchIntentForPackage(appPackage!!))
@@ -291,36 +297,65 @@ class MainActivity : FlutterActivity() {
       }
     })
     // 转换文件的 channel
-    MethodChannel(flutterView, CHANNEL_CONVERTER).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
+    MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL_CONVERTER).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
       run {
-        val method = call.method
-        if (method.equals("convertToHtml")) {
+
+        fun htmlConvertToText(src: String?) {
+          var html = File(src).readText()
+          val text: String? = Jsoup.parse(html).text()
+          var outFile = File(src + ".txt")
+          outFile.createNewFile()
+          outFile.writeText(text!!)
+          result.success(text)
+        }
+
+
+        fun docConvertToHtml(fromPath: String?, toPath: String?) {
           this.isConvertFinish = false
-          val fromPath = call.argument<String>("fromPath")
-          val toPath = call.argument<String>("toPath")
           if (fromPath != null) {
             Thread {
               val file = File(fromPath)
               if (!file.exists()) {
-                    result.error("0", "file not fond", "cant find the file")
+                result.error("0", "file not fond", "cant find the file")
               }
               val stream = FileInputStream(fromPath)
               val document = Document(stream)
-              stream.close()
               document.save(toPath, SaveFormat.HTML)
+              stream.close()
               this.isConvertFinish = true
             }.start()
             result.success("true")
           }
-        } else if (call.method.equals("convertProcess")) {
-            if (this.isConvertFinish) {
-              isConvertFinish = false
-              result.success("true")
-            } else {
-              result.success("false")
-            }
+        }
+
+        fun docConvertProcess() = if (this.isConvertFinish) {
+          isConvertFinish = false
+          result.success(true)
         } else {
-          result.notImplemented()
+          result.success(false)
+        }
+
+        val method = call.method
+        when {
+          method.equals("convertDocToHtml") -> {
+            val fromPath = call.argument<String>("fromPath")
+            val toPath = call.argument<String>("toPath")
+            docConvertToHtml(fromPath, toPath);
+          }
+          method.equals("convertDocToHtmlProcess") -> {
+            docConvertProcess()
+          }
+          method.equals("htmlConvertToText") -> {
+            htmlConvertToText(call.argument<String>("src"))
+          }
+//          method.equals("pdfConvertToText")->{
+//            val fromPath = call.argument<String>("fromPath")
+//            val toPath = call.argument<String>("toPath")
+//            convertPdfToText(fromPath, toPath);
+//          }
+          else -> {
+            result.notImplemented()
+          }
         }
       }
     })

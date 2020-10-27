@@ -34,8 +34,6 @@ class _ApkIsiloFunctionPageState extends State<ApkIsiloFunctionPage> {
 
   @override
   Widget build(BuildContext context) {
-    var isClockInBackUp = File(basePath + "/$appName").existsSync();
-
     return Scaffold(
         appBar: AppBar(title: Text("软件管理")),
         body: SettingsList(
@@ -48,21 +46,6 @@ class _ApkIsiloFunctionPageState extends State<ApkIsiloFunctionPage> {
                 SettingsTile(title: "isilo 文件扫描", enabled: isIsiloInstalled, onTap: () => routePush(ScanPdbFunction())),
               ],
             ),
-            // SettingsSection(
-            // title: "快传",
-            // tiles: [
-            // SettingsTile(title: "快传安装", enabled: !isKuaichuanInstalled, onTap: installKuaichuan),
-            // SettingsTile(title: "快传启动", enabled: isKuaichuanInstalled, onTap: invokeKuaichuan),
-            //SettingsTile(title: "快传文件预备", enabled: isKuaichuanInstalled),
-            // ],
-            // ),
-            // SettingsSection(
-            // title: "clock_in",
-            // tiles: [
-            // SettingsTile(title: "软件备份", enabled: !isClockInBackUp, onTap: copyClockInFromPhone),
-            // SettingsTile(title: "发送软件", enabled: isClockInBackUp, onTap: () => shareClockIn(basePath + "/" + appName)),
-            // ],
-            // )
           ],
         ));
   }

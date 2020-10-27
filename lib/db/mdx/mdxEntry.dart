@@ -116,4 +116,19 @@ class MdxEntry {
     }
     return null;
   }
+
+  Future<List<MdxEntry>> queryIndexesByTag(String tag) async {
+    final List<MdxEntry> list = [];
+    var db = await MdxDb().db;
+    var result = await db.query(
+      TABLENAME,
+      columns: ["id", "sortId", "tagId", "entry", "visiable"],
+      where: "tagId = ?", 
+      whereArgs: [tag],
+    );
+    result.forEach((item) {
+      list.add(MdxEntry.fromSql(item));
+    });
+    return list;
+  }
 }

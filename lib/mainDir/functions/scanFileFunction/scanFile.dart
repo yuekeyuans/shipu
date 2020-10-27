@@ -5,7 +5,6 @@ import 'package:flustars/flustars.dart';
 import "package:flutter/material.dart";
 import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:path_provider/path_provider.dart';
 import '../../../global.dart';
 
 class ScanFilesPage extends StatefulWidget {
@@ -16,6 +15,8 @@ class ScanFilesPage extends StatefulWidget {
 class _ScanFilesPageState extends State<ScanFilesPage> {
   var basePath = "";
   BuildContext ctx;
+  bool isAllFileSearch = false;
+  bool isLoading = true;
   List<ContentFileInfoTable> existFile = [];
   List<String> files = <String>[];
   List<bool> selected = <bool>[];
@@ -23,6 +24,7 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
   @override
   void initState() {
     loadData();
+
     super.initState();
   }
 
@@ -47,7 +49,6 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
           //判断文件是否加密
           if (SpUtil.getBool("Encryption")) {
             UtilFunction.encodeFile(files[i], filePath);
-            print("文件已加密移动");
           } else {
             File(files[i]).copySync(filePath);
             ContentFileInfoTable.fromPath(filePath).insert();
@@ -62,26 +63,67 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
     }
   }
 
-  void loadData() async {
-    basePath = (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
+  Future<void> loadData() async {
     existFile = await ContentFileInfoTable().queryAll();
+    files = <String>[];
+    isAllFileSearch ? loadGlobal(SpUtil.getString("GLOBAL_PATH")) : loadLocal();
+    // setState(() {});
+  }
 
+  int fileCount = 0;
+  int lastFileCount = 0;
+  void loadGlobal(String path) {
+    var directory = Directory(path);
+    directory.list().forEach((e) {
+      if (e is File) {
+        for (var sfx in suffix) {
+          if (e.path.endsWith(sfx)) {
+            if (isExistPath(e.path) && SpUtil.getBool("scanFile_show_add")) {
+              continue;
+            }
+            files.add(e.path);
+            //降低刷新频率
+            if (files.length - 10 > fileCount) {
+              fileCount = files.length;
+              setState(() {});
+            }
+          }
+        }
+      } else if (e is Directory) {
+        loadGlobal(e.path);
+      }
+    });
+  }
+
+  void loadLocal() {
+    basePath = SpUtil.getString("GLOBAL_PATH");
     for (var sp in subPath) {
       var directory = Directory(basePath + sp);
-      if (!await directory.exists()) {
+      if (!directory.existsSync()) {
         continue;
       }
-
       directory.list().forEach((e) {
         if (e is File) {
           for (var sfx in suffix) {
             if (e.path.endsWith(sfx)) {
+              if (isExistPath(e.path) && SpUtil.getBool("scanFile_show_add")) {
+                continue;
+              }
               setState(() => files.add(e.path));
             }
           }
         }
       });
     }
+  }
+
+  Future<void> searchAllSelected(String index) async {
+    if (index == 'searchAll') {
+      isAllFileSearch = !isAllFileSearch;
+    } else if (index == "showAdded") {
+      await SpUtil.putBool("scanFile_show_add", !SpUtil.getBool("scanFile_show_add"));
+    }
+    loadData();
   }
 
   bool isExistPath(String path) {
@@ -102,7 +144,32 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text("扫描文件")),
+      appBar: AppBar(
+        title: Row(children: [Text("扫描文件 (${files.length})")]),
+        actions: [
+          PopupMenuButton(
+            onSelected: searchAllSelected,
+            offset: Offset(0, kMinInteractiveDimension),
+            itemBuilder: (BuildContext context) {
+              return <PopupMenuEntry<String>>[
+                PopupMenuItem(
+                  value: 'searchAll',
+                  child: ListTile(
+                    leading: Icon(Icons.all_inclusive),
+                    title: isAllFileSearch ? Text("全盘扫描") : Text("扫描传输文件夹"),
+                  ),
+                ),
+                PopupMenuDivider(height: 1.0),
+                CheckedPopupMenuItem(
+                  value: "showAdded",
+                  checked: SpUtil.getBool("scanFile_show_add"),
+                  child: Text("隐藏已添加文件"),
+                ),
+              ];
+            },
+          )
+        ],
+      ),
       body: ListView.separated(
           itemBuilder: (context, index) {
             return CheckboxListTile(
@@ -123,10 +190,10 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
           itemCount: files.length),
       bottomNavigationBar: BottomNavigationBar(
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.cancel), title: Text('取消')),
-          BottomNavigationBarItem(icon: Icon(Icons.select_all), title: Text('全选')),
-          BottomNavigationBarItem(icon: Icon(Icons.tab_unselected), title: Text('反选')),
-          BottomNavigationBarItem(icon: Icon(Icons.check), title: Text('确定')),
+          BottomNavigationBarItem(icon: Icon(Icons.cancel), label: '取消'),
+          BottomNavigationBarItem(icon: Icon(Icons.select_all), label: '全选'),
+          BottomNavigationBarItem(icon: Icon(Icons.tab_unselected), label: '反选'),
+          BottomNavigationBarItem(icon: Icon(Icons.check), label: '确定'),
         ],
         currentIndex: 0,
         onTap: onBarSelected,

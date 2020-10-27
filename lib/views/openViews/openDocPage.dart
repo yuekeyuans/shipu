@@ -6,7 +6,6 @@ import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
 import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:share_extend/share_extend.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -25,8 +24,6 @@ class _DocViewerState extends State<DocViewer> {
   String sharePath;
   String docHtmlPath;
   String title;
-
-  static const methodChannel = MethodChannel('com.example.clock_in/converter');
 
   _DocViewerState(this.docPath) {
     sharePath = docPath;
@@ -76,20 +73,20 @@ class _DocViewerState extends State<DocViewer> {
         });
 
     //调用
-    methodChannel.invokeMethod("convertToHtml", {"fromPath": docPath, "toPath": docHtmlPath});
+    UtilFunction.convertDocToHtml(docPath, docHtmlPath);
     //查询
     Timer.periodic(Duration(seconds: 1), (timer) async {
-      methodChannel.invokeMethod("convertProcess").then((value) async {
-        if (value is String && value == "true") {
-          timer.cancel();
-          pop();
-          await updateWebViewPage();
-          setState(() {});
-        }
-      });
+      var isOk = await UtilFunction.convertDocToHtmlProcess();
+      if (isOk) {
+        timer.cancel();
+        pop();
+        await updateWebViewPage();
+        setState(() {});
+      }
+
       if (timer.tick > 120) {
         timer.cancel();
-        Navigator.pop(context);
+        pop();
         AlertDialog(
           content: Text("打开失败"),
           actions: <Widget>[FlatButton(child: Text('确认'), onPressed: pop)],
@@ -101,19 +98,27 @@ class _DocViewerState extends State<DocViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    var docView = Scaffold(
       appBar: PreferredSize(
         child: AppBar(
           title: Text(title),
           actions: <Widget>[
             IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(sharePath, "file")),
             IconButton(icon: Icon(Icons.menu), onPressed: () => routePush(DakaSettings()).then((value) => scalePage())),
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () async {
+                print(docHtmlPath);
+                print(await UtilFunction.convertHtmlToText(docHtmlPath));
+              },
+            )
           ],
         ),
         preferredSize: Size.fromHeight(APPBAR_HEIGHT),
       ),
       body: getWebView(),
     );
+    return docView;
   }
 
   WebView view;

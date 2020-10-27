@@ -2,6 +2,7 @@ import 'package:da_ka/global.dart';
 import 'package:da_ka/mainDir/functions/apkInstall/apkClockInFunctionPage.dart';
 import 'package:da_ka/mainDir/functions/apkInstall/apkIsiloFunctionPage.dart';
 import 'package:da_ka/mainDir/functions/apkInstall/apkKuaichuanFunctionPage.dart';
+import 'package:da_ka/mainDir/functions/test/testTreeView.dart';
 import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flustars/flustars.dart';
@@ -10,7 +11,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:settings_ui/settings_ui.dart';
 
-import 'contentManageFunction/contentManageFunctionPage.dart';
 import 'scanFileFunction/scanFile.dart';
 import 'splashFunction/splashFunction.dart';
 import 'storageFunction/storageFunctionPage.dart';
@@ -69,11 +69,6 @@ class _FunctionPageState extends State<FunctionPage> {
               onTap: () => routePush(SplashFunctionPage()),
             ),
             SettingsTile(
-              title: "文件列表管理",
-              leading: Icon(Icons.list),
-              onTap: () => routePush(ContentManageFunctionPage()),
-            ),
-            SettingsTile(
               title: "存储管理",
               leading: Icon(Icons.storage),
               onTap: () => routePush(StorageFunctionPage()),
@@ -92,7 +87,11 @@ class _FunctionPageState extends State<FunctionPage> {
             SettingsTile(title: "快传", leading: SvgPicture.asset("assets/icon/kuaichuan.svg", width: 30, height: 30), onTap: () => routePush(ApkKuaichuanFunctionPage())),
             SettingsTile(title: "clock in", leading: Image.asset("assets/icon/icon.png", scale: 8), onTap: () => routePush(ApkClockInFunctionPage())),
           ],
-        )
+        ),
+        SettingsSection(
+          title: "测试项目",
+          tiles: [SettingsTile(title: "测试树", leading: Icon(Icons.text_fields), onTap: () => routePush(TestTreeView()))],
+        ),
       ],
     );
   }

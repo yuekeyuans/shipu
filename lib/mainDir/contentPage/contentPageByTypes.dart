@@ -2,12 +2,11 @@ import 'dart:io';
 
 import 'package:da_ka/db/mainDb/contentFileInfoTable.dart';
 import 'package:da_ka/global.dart';
-import 'package:da_ka/views/openViews/mdxView.dart';
+import 'package:da_ka/views/mdxView/mdxView.dart';
 import 'package:da_ka/views/openViews/openDocPage.dart';
 import 'package:da_ka/views/openViews/openImagePage.dart';
 import 'package:da_ka/views/openViews/openPdfPage.dart';
 import 'package:da_ka/views/viewBookPage.dart';
-import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:nav_router/nav_router.dart';
@@ -29,7 +28,7 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
   }
 
   void queryData() async {
-    await scanMainDir();
+    await ContentFileInfoTable.scanMainDir();
     fileSection = [];
     fileSection.add(FileSection()
       ..header = "字典文件"
@@ -54,28 +53,6 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
       }
     }
     setState(() {});
-  }
-
-  void scanMainDir() async {
-    //根目录文件
-    var existFile = await ContentFileInfoTable().queryAll();
-    existFile.forEach((element) async {
-      if (!await File(element.filepath).exists()) {
-        await element.remove();
-      }
-    });
-    existFile = await ContentFileInfoTable().queryAll();
-    var directory = Directory(SpUtil.getString("MAIN_PATH"));
-    await directory.list().forEach((e) async {
-      if (e is File) {
-        var path = e.path;
-        if (!existFile.any((el) => el.filename == path.split("/").last)) {
-          if (suffix.any((element) => path.endsWith(element))) {
-            await ContentFileInfoTable.fromPath(path).insert();
-          }
-        }
-      }
-    });
   }
 
   Future<void> deleteFile(ContentFileInfoTable _file) async {

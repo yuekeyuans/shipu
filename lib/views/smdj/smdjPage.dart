@@ -511,7 +511,15 @@ class _SmdjPageState extends State<SmdjPage> {
   Widget build(BuildContext context) {
     var time = DateUtil.formatDate(date, format: DateFormats.zh_mo_d);
     return Scaffold(
-        appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text("生命读经-$time"), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))])),
-        body: Scrollbar(child: ListView(controller: controller, scrollDirection: Axis.vertical, children: records.map((e) => wrapScrollWidget(records.indexOf(e))).toList())));
+      appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text("生命读经-$time"), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))])),
+      body: Scrollbar(
+        child: ListView(
+          shrinkWrap: true,
+          controller: controller,
+          scrollDirection: Axis.vertical,
+          children: records.map((e) => wrapScrollWidget(records.indexOf(e))).toList(),
+        ),
+      ),
+    );
   }
 }

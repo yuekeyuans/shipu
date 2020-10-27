@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:da_ka/db/bible/bibleDb.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
 import 'package:da_ka/db/lifestudyDb/LifeStudyDb.dart';
-import 'package:da_ka/mainDir/contentPage/contentPageEntity.dart';
 import 'package:da_ka/main_navigator_page.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flustars/flustars.dart';
@@ -108,8 +107,8 @@ Future<void> initVal() async {
     await SplashEntity().toSp();
     //背经
     ReciteBibleEntity.instance().toSp();
-    //主页面展示
-    await ContentPageEntity().toSp();
+    //扫描文件显示已添加文件
+    await SpUtil.putBool("scanFile_show_add", true);
   }
 }
 

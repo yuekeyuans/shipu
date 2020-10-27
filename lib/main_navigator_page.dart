@@ -24,9 +24,9 @@ class _MainNavigatorState extends State<MainNavigator> {
         body: pages[_currentIndex],
         bottomNavigationBar: BottomNavigationBar(
           items: [
-            BottomNavigationBarItem(icon: Icon(Icons.work), title: Text('文件')),
-            BottomNavigationBarItem(icon: Icon(Icons.list), title: Text('日常')),
-            BottomNavigationBarItem(icon: Icon(Icons.settings), title: Text('功能')),
+            BottomNavigationBarItem(icon: Icon(Icons.work), label: '文件'),
+            BottomNavigationBarItem(icon: Icon(Icons.list), label: '日常'),
+            BottomNavigationBarItem(icon: Icon(Icons.settings), label: '功能'),
           ],
           currentIndex: _currentIndex,
           onTap: (int i) => setState(() => _currentIndex = i),

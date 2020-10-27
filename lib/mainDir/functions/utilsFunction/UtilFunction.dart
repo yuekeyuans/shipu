@@ -2,9 +2,11 @@ import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:archive/archive_io.dart';
 import 'package:flutter/services.dart';
+import 'package:pdf_text/pdf_text.dart';
 
 class UtilFunction {
-  static MethodChannel channel = MethodChannel("com.example.clock_in/encription");
+  static MethodChannel encriptionChannel = MethodChannel("com.example.clock_in/encription");
+  static MethodChannel convertChannel = MethodChannel("com.example.clock_in/converter");
   static zip(Directory src, Directory dest) {
     // Zip a directory to out.zip using the zipDirectory convenience method
     // var encoder = ZipFileEncoder();
@@ -44,20 +46,58 @@ class UtilFunction {
 
   //判断文件是否加密
   static Future isEncode(String path) async {
-    return channel.invokeMethod("isEncoded", {"src": path});
+    return encriptionChannel.invokeMethod("isEncoded", {"src": path});
   }
 
   //加密文件
   static void encodeFile(String fromPath, String toPath) async {
     if (File(fromPath).existsSync()) {
-      return channel.invokeMethod("encode", {"src": fromPath, "dest": toPath});
+      return encriptionChannel.invokeMethod("encode", {"src": fromPath, "dest": toPath});
     }
   }
 
   //解密文件
   static void decodeFile(String fromPath, String toPath) async {
     if (File(fromPath).existsSync()) {
-      channel.invokeMethod("decode", {"src": fromPath, "dest": toPath});
+      encriptionChannel.invokeMethod("decode", {"src": fromPath, "dest": toPath});
     }
+  }
+
+  //doc 转 html
+  static Future<void> convertDocToHtml(String fromPath, String toPath) async {
+    convertChannel.invokeMethod("convertDocToHtml", {"fromPath": fromPath, "toPath": toPath});
+  }
+
+  //doc 转 html 进度
+  static Future<bool> convertDocToHtmlProcess() async {
+    bool ok = false;
+    await convertChannel.invokeMethod("convertDocToHtmlProcess").then((value) {
+      if (value is bool) ok = value;
+    });
+    return ok;
+  }
+
+  //html 转 text
+  static Future<String> convertHtmlToText(String src) async {
+    String text = "";
+    await convertChannel.invokeMethod("htmlConvertToText", {"src": src}).then((value) => text = value.toString());
+    return text;
+  }
+
+  //pdf 转 text
+  static Future<String> convertPdfToText(String fromPath, String toPath) async {
+    var value = "";
+    if (File(toPath).existsSync()) {
+      return File(toPath).readAsStringSync();
+    }
+    File(toPath).createSync();
+    PDFDoc doc = await PDFDoc.fromPath(fromPath);
+    int len = doc.pages.length;
+    for (int i = 1; i <= len; i++) {
+      var text = await doc.pageAt(i).text;
+      value += text;
+      File(toPath).writeAsStringSync(text, mode: FileMode.append);
+    }
+    return value;
   }
 }
