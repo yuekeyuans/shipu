@@ -15,16 +15,19 @@ import 'package:oktoast/oktoast.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:share_extend/share_extend.dart';
 
-class SmdjPage extends StatefulWidget {
+class SmdjViewer extends StatefulWidget {
+  final int book;
+  final int chapter;
+  SmdjViewer(this.book, this.chapter);
+
   @override
-  _SmdjPageState createState() => _SmdjPageState();
+  _SmdjViewerState createState() => _SmdjViewerState();
 }
 
-class _SmdjPageState extends State<SmdjPage> {
+class _SmdjViewerState extends State<SmdjViewer> {
   double baseScaleFactor = 1.0;
 
   AutoScrollController controller;
-  DateTime date = DateTime.parse(DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
   FlutterTts flutterTts = FlutterTts();
   List<LifeStudyRecord> records = [];
 
@@ -48,7 +51,7 @@ class _SmdjPageState extends State<SmdjPage> {
     await flutterTts.setVolume(e.volumn);
     await flutterTts.setPitch(e.pitch);
     await flutterTts.setSpeechRate(e.speechRate);
-    records = await LifeStudyTable().queryArticleByDate(date);
+    records = await LifeStudyTable().queryChapter(bookIndex: widget.book, chapter: widget.chapter);
     baseScaleFactor = DakaSettingsEntity.fromSp().baseFont;
     setState(() {});
   }
@@ -138,28 +141,6 @@ class _SmdjPageState extends State<SmdjPage> {
                               icon: Icon(Icons.play_arrow),
                               onPressed: () => pause(setDialogState),
                             ),
-                      //后退
-                      todayDifference >= 0
-                          ? IconButton(
-                              icon: Icon(Icons.arrow_back),
-                              onPressed: () => prevDay(setDialogState),
-                            )
-                          : IconButton(
-                              icon: Icon(Icons.adjust),
-                              onPressed: () => toToday(setDialogState),
-                            ),
-                      //前进
-                      todayDifference <= 0
-                          ? IconButton(
-                              icon: Icon(Icons.arrow_forward),
-                              onPressed: () => nextDay(setDialogState),
-                            )
-                          : IconButton(
-                              icon: Icon(Icons.adjust),
-                              onPressed: () => toToday(setDialogState),
-                            ),
-
-                      IconButton(icon: Icon(Icons.view_list_sharp), onPressed: () => routePush(SmdjIndexPage())),
                       //设置
                       IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => update())),
                     ],
@@ -252,37 +233,6 @@ class _SmdjPageState extends State<SmdjPage> {
         );
       },
     );
-  }
-
-//////////////////////////
-  ///前进后退返回
-//////////////////////////
-
-  DateTime get curDate => DateTime.parse(DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
-  int get todayDifference => curDate.difference(date).inDays;
-
-  void toToday(StateSetter setDialogState) {
-    pause(setDialogState);
-    currentIndex = 0;
-    date = curDate;
-    update();
-    setDialogState(() {});
-  }
-
-  void prevDay(StateSetter setDialogState) {
-    pause(setDialogState);
-    currentIndex = 0;
-    date = date.add(Duration(days: -1));
-    update();
-    setDialogState(() {});
-  }
-
-  void nextDay(StateSetter setDialogState) {
-    pause(setDialogState);
-    currentIndex = 0;
-    date = date.add(Duration(days: 1));
-    update();
-    setDialogState(() {});
   }
 
 //////////////////////////
@@ -573,9 +523,9 @@ class _SmdjPageState extends State<SmdjPage> {
 
   @override
   Widget build(BuildContext context) {
-    var time = DateUtil.formatDate(date, format: DateFormats.zh_mo_d);
+    String name = records.isEmpty ? "" : records[0].content;
     return Scaffold(
-        appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text("生命读经-$time"), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))])),
+        appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text(name), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))])),
         body: Scrollbar(
           child: Container(
             color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,

@@ -6,7 +6,7 @@ import 'package:da_ka/views/mdxView/mdxView.dart';
 import 'package:da_ka/views/openViews/openDocPage.dart';
 import 'package:da_ka/views/openViews/openImagePage.dart';
 import 'package:da_ka/views/openViews/openPdfPage.dart';
-import 'package:da_ka/views/viewBookPage.dart';
+import 'package:da_ka/views/smdj/smdjIndexPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -27,6 +27,7 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
     "assets/icon/dict.svg",
     "assets/icon/pdf.svg",
     "assets/icon/word.svg",
+    "assets/icon/bundle.svg",
   ];
   @override
   void initState() {
@@ -36,6 +37,8 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
 
   void queryData() async {
     await ContentFileInfoTable.scanMainDir();
+    var smdjFile = ContentFileInfoTable(id: -1, filepath: "生命读经", filename: "生命读经");
+
     fileSection = [];
     fileSection.add(FileSection()
       ..header = "字典文件"
@@ -49,6 +52,13 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
       ..header = "word 文件"
       ..items = []
       ..expanded = false);
+    fileSection.add(FileSection()
+      ..header = "集成文件"
+      ..items = []
+      ..expanded = true);
+
+    fileSection[3].items.add(smdjFile);
+
     var lst = await ContentFileInfoTable().queryAll();
     for (var i in lst) {
       if (i.filename.endsWith(".dict")) {
@@ -81,6 +91,13 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
   }
 
   void openFile(ContentFileInfoTable _file) {
+    //特殊文件
+    if (_file.id < 0) {
+      if (_file.id == -1) {
+        routePush(SmdjIndexPage());
+      }
+      return;
+    }
     _file.updateLastOpenTime();
     if (_file.filename.endsWith(".doc") || _file.filename.endsWith(".docx")) {
       routePush(DocViewer(_file.filepath)).then((value) => queryData());
@@ -90,8 +107,6 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
       routePush(PdfViewer(_file.filepath)).then((value) => queryData());
     } else if (IMAGE_SUFFIX.any((element) => _file.filepath.endsWith(element))) {
       routePush(ImageViewer(_file.filepath)).then((value) => queryData());
-    } else {
-      routePush(ViewBookPage(), RouterType.material).then((value) => queryData());
     }
   }
 
@@ -117,15 +132,12 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
               actionExtentRatio: 0.25,
               child: Container(
                   child: ListTile(
-                leading: SvgPicture.asset(
-                  icons[sectionIndex],
-                  width: 32,
-                  height: 32,
-                  color: Colors.grey,
-                ),
-                title: Text(item.filename),
-                onTap: () => openFile(item),
-              )),
+                      leading: SvgPicture.asset(icons[sectionIndex], width: 32, height: 32, color: Theme.of(context).disabledColor),
+                      title: Text(item.filename ?? "顶顶顶顶顶"),
+                      onTap: () {
+                        print(item);
+                        openFile(item);
+                      })),
               secondaryActions: <Widget>[
                 IconSlideAction(caption: '删除', color: Colors.redAccent, icon: Icons.delete, onTap: () => deleteFile(item)),
                 IconSlideAction(caption: '分享', color: Colors.blue, icon: Icons.share, onTap: () => shareIt(item)),
@@ -139,7 +151,7 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
     FileSection section = fileSection[sectionIndex];
     return InkWell(
         child: Container(
-            color: Colors.grey,
+            color: Theme.of(context).cardColor,
             height: 40,
             padding: EdgeInsets.only(left: 20),
             alignment: Alignment.centerLeft,

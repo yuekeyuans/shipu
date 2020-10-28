@@ -14,7 +14,7 @@ class ContentFileInfoTable {
 
   static const String TABLENAME = "contentfileinfo";
 
-  ContentFileInfoTable({id, filepath, filename, inserttime, lastopentime});
+  ContentFileInfoTable({this.id, this.filepath, this.filename, this.inserttime, this.lastopentime});
 
   ContentFileInfoTable.fromPath(String path) {
     filepath = path;

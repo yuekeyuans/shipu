@@ -24,7 +24,6 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
   @override
   void initState() {
     loadData();
-
     super.initState();
   }
 
