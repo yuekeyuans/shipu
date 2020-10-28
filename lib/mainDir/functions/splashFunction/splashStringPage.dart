@@ -1,3 +1,4 @@
+import 'package:da_ka/global.dart';
 import 'package:da_ka/mainDir/functions/splashFunction/splahEntity.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
@@ -27,32 +28,34 @@ class _SplashStringPageState extends State<SplashStringPage> {
           return Future.value(true);
         },
         child: Scaffold(
-          appBar: AppBar(
-            title: Text("启动页文字"),
-            actions: <Widget>[GestureDetector(child: Icon(Icons.add), onTap: () => createString()), Padding(padding: EdgeInsets.only(right: 10))],
-          ),
-          body: ListView.separated(
-              itemBuilder: (context, index) {
-                var str = entity.splashStrings[index];
-                return ListTile(
-                    title: Text(
-                      str,
-                      textAlign: TextAlign.center,
-                    ),
-                    onTap: () => setState(
-                          () {
-                            entity.splashString = str;
-                            entity.toSp();
-                          },
+            appBar: AppBar(
+              title: Text("启动页文字"),
+              actions: <Widget>[GestureDetector(child: Icon(Icons.add), onTap: () => createString()), Padding(padding: EdgeInsets.only(right: 10))],
+            ),
+            body: Container(
+              color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
+              child: ListView.separated(
+                  itemBuilder: (context, index) {
+                    var str = entity.splashStrings[index];
+                    return ListTile(
+                        title: Text(
+                          str,
+                          textAlign: TextAlign.center,
                         ),
-                    onLongPress: entity.splashStrings.length > 1 ? () => deleteOptions(index) : null,
-                    trailing: entity.splashString == str ? CircleAvatar(backgroundColor: Colors.grey, child: Icon(Icons.check, color: Colors.redAccent)) : null);
-              },
-              separatorBuilder: (context, index) {
-                return Divider();
-              },
-              itemCount: entity.splashStrings.length),
-        ));
+                        onTap: () => setState(
+                              () {
+                                entity.splashString = str;
+                                entity.toSp();
+                              },
+                            ),
+                        onLongPress: entity.splashStrings.length > 1 ? () => deleteOptions(index) : null,
+                        trailing: entity.splashString == str ? CircleAvatar(backgroundColor: Colors.grey, child: Icon(Icons.check, color: Colors.redAccent)) : null);
+                  },
+                  separatorBuilder: (context, index) {
+                    return Divider();
+                  },
+                  itemCount: entity.splashStrings.length),
+            )));
   }
 
   void deleteOptions(int index) {
@@ -84,7 +87,7 @@ class _SplashStringPageState extends State<SplashStringPage> {
   }
 
   void createString() {
-    var content = "";
+    String tempContent = "";
     showDialog(
         context: context,
         builder: (context) {
@@ -93,16 +96,16 @@ class _SplashStringPageState extends State<SplashStringPage> {
             content: TextField(
                 keyboardType: TextInputType.multiline,
                 maxLines: 10, //不限制行数
-                onChanged: (v) => content = v),
+                onChanged: (v) => tempContent = v),
             actions: <Widget>[
               FlatButton(child: Text("取消"), onPressed: () => Navigator.pop(context, "cancel")),
-              FlatButton(child: Text("预览"), onPressed: () => routePush(SplashScreen(content: content))),
+              FlatButton(child: Text("预览"), onPressed: () => routePush(SplashScreen(content: tempContent))),
               FlatButton(
                   child: Text("确定"),
                   onPressed: () {
                     setState(() {
-                      entity.addString(content);
-                      entity.splashString = content;
+                      entity.addString(tempContent);
+                      entity.splashString = tempContent;
                       entity.toSp();
                     });
                     Navigator.pop(context, "yes");

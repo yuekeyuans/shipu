@@ -2,14 +2,17 @@ import 'package:common_utils/common_utils.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyRecord.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyTable.dart';
 import 'package:da_ka/global.dart';
+import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
 import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:share_extend/share_extend.dart';
 
 class SmdjPage extends StatefulWidget {
   @override
@@ -18,13 +21,8 @@ class SmdjPage extends StatefulWidget {
 
 class _SmdjPageState extends State<SmdjPage> {
   double baseScaleFactor = 1.0;
-  //播放音频
-  bool continuePlay = true;
-  bool isPlay = false;
 
   AutoScrollController controller;
-  int counter = 30;
-  var currentPlayIndex = 0;
   DateTime date = DateTime.parse(DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
   FlutterTts flutterTts = FlutterTts();
   List<LifeStudyRecord> records = [];
@@ -66,15 +64,12 @@ class _SmdjPageState extends State<SmdjPage> {
 
   Widget wrapOperationWidget(int index) {
     return Container(
+        color: (records[index].mark == "" || records[index].mark == null) ? Colors.transparent : UtilFunction.stringToColor(records[index].mark),
         child: Column(children: <Widget>[
-      SizedBox(height: 5.0),
-      GestureDetector(
-          child: createWidget(index),
-          onLongPress: () {
-            longPressParagraph(index);
-          }),
-      SizedBox(height: 5.0)
-    ]));
+          SizedBox(height: 5.0),
+          GestureDetector(child: createWidget(index), onLongPress: () => longPressParagraph(index)),
+          SizedBox(height: 5.0),
+        ]));
   }
 
   //长按效果
@@ -92,128 +87,78 @@ class _SmdjPageState extends State<SmdjPage> {
                   showToast("复制成功");
                 }),
             ListTile(
+              dense: true,
+              title: Text("分享"),
+              onTap: () {
+                pop();
+                ShareExtend.share(records[index].content, "text");
+              },
+            ),
+            ListTile(
+                dense: true,
+                title: records[index].mark == "" ? Text("标记") : Text("取消标记"),
+                onTap: () {
+                  pop();
+                  markIt(records[index]);
+                }),
+            ListTile(
                 dense: true,
                 title: Text("朗读"),
                 onTap: () {
                   pop();
-                  playCurrentParagraph(index);
+                  play(setState);
                 })
           ]);
         });
   }
-
-  // 0 => 停止状态
-  // 1 => 播放状态
-  // 2 => 暂停状态
-  int playState = 0;
 
   //底部导航栏
   Future<void> showBottomSheetDialog() async {
     await showModalBottomSheet(
         context: context,
         builder: (context) {
-          var curDate = DateTime.parse(DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
           return StatefulBuilder(builder: (context, setDialogState) {
-            int Function() todayDifference = () {
-              return curDate.difference(date).inDays;
-            };
             return Container(
                 height: 40,
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                   //打卡
-                  IconButton(icon: Icon(Icons.blur_on), onPressed: null),
+                  IconButton(icon: Icon(Icons.list), onPressed: showOutline),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       // 播放音频
-                      playState == 0 // 停止状态
+                      playState == 0
                           ? IconButton(
                               icon: Icon(Icons.stop),
-                              onPressed: () {
-                                autoPlay();
-                                playState = 1;
-                                setDialogState(() {});
-                              },
+                              onPressed: () => play(setDialogState),
                             )
-                          : (playState == 1 //播放状态
-                              ? GestureDetector(
-                                  child: IconButton(
-                                      icon: Icon(Icons.play_arrow),
-                                      onPressed: () {
-                                        pauseMusic();
-                                        playState = 2;
-                                        setDialogState(() {});
-                                      }),
-                                  onLongPress: () {
-                                    stopMusic();
-                                    playState = 0;
-                                    setDialogState(() {});
-                                  },
-                                )
-                              : GestureDetector(
-                                  child: IconButton(
-                                      //暂停状态
-                                      icon: Icon(Icons.pause),
-                                      onPressed: () {
-                                        playMusic();
-                                        playState = 1;
-                                        setDialogState(() {});
-                                      }),
-                                  onLongPress: () {
-                                    stopMusic();
-                                    playState = 0;
-                                    setDialogState(() {});
-                                  },
-                                )),
-
+                          : IconButton(
+                              icon: Icon(Icons.play_arrow),
+                              onPressed: () => pause(setDialogState),
+                            ),
                       //后退
-                      todayDifference() >= 0
+                      todayDifference >= 0
                           ? IconButton(
                               icon: Icon(Icons.arrow_back),
-                              onPressed: () {
-                                stopMusic();
-                                date = date.add(Duration(days: -1));
-                                update();
-                                setDialogState(() {});
-                              },
+                              onPressed: () => prevDay(setDialogState),
                             )
                           : IconButton(
                               icon: Icon(Icons.adjust),
-                              onPressed: () {
-                                stopMusic();
-                                date = curDate;
-                                update();
-                                setDialogState(() {});
-                              }),
+                              onPressed: () => toToday(setDialogState),
+                            ),
                       //前进
-                      todayDifference() <= 0
+                      todayDifference <= 0
                           ? IconButton(
                               icon: Icon(Icons.arrow_forward),
-                              onPressed: () {
-                                stopMusic();
-                                date = date.add(Duration(days: 1));
-                                setDialogState(() {});
-                                update();
-                              },
+                              onPressed: () => nextDay(setDialogState),
                             )
                           : IconButton(
                               icon: Icon(Icons.adjust),
-                              onPressed: () {
-                                stopMusic();
-                                date = curDate;
-                                update();
-                                setDialogState(() {});
-                              }),
+                              onPressed: () => toToday(setDialogState),
+                            ),
                       //设置
-                      IconButton(
-                        icon: Icon(Icons.settings),
-                        onPressed: () {
-                          routePush(DakaSettings()).then((value) {
-                            update();
-                          });
-                        },
-                      ),
+                      IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => update())),
                     ],
                   )
                 ]));
@@ -221,58 +166,165 @@ class _SmdjPageState extends State<SmdjPage> {
         });
   }
 
-  Future<void> playCurrentParagraph(int index) async {
-    currentPlayIndex = index;
-    continuePlay = false;
-    await flutterTts.stop();
-    await playMusic();
+//////////////////////////
+  ///功能处理
+//////////////////////////
+  ///
+  ///
+  List<Widget> get outline {
+    var widgets = <Widget>[];
+    records.forEach((element) {
+      if (UtilFunction.isNumeric(element.flag)) {
+        var index = records.indexOf(element);
+        widgets.add(InkWell(
+            child: createWidget(index),
+            onTap: () {
+              controller.scrollToIndex(index, preferPosition: AutoScrollPosition.begin);
+              pop();
+            }));
+      }
+    });
+    return widgets;
   }
 
-  //在这里定义函数，可以直接更新页面
-  Future<void> playMusic() async {
-    if (currentPlayIndex == records.length) {
-      currentPlayIndex = 0;
-      continuePlay = false;
+// 纲目
+  void showOutline() {
+    pop();
+    showModalBottomSheet(
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+              child: Column(
+            children: outline,
+          ));
+        },
+        context: context);
+  }
+
+  //标记
+
+  Future<void> markIt(LifeStudyRecord record) async {
+    var info = record.mark;
+    bool isMarked = record.mark == "";
+    print(record.mark);
+    if (isMarked) {
+      openColorDialog(
+          "Main Color picker",
+          MaterialColorPicker(
+              allowShades: false,
+              onMainColorChange: (color) => setState(
+                    () => info = UtilFunction.colorToString(color),
+                  )), submit: () async {
+        print(info);
+        await record.setMarked(info);
+        setState(() {});
+      });
     } else {
-      await controller.scrollToIndex(currentPlayIndex);
-      controller.highlight(currentPlayIndex, highlightDuration: Duration(days: 1));
-      flutterTts.speak(records[currentPlayIndex].content);
-      currentPlayIndex++;
-      print(currentPlayIndex);
+      await record.setMarked("");
+      setState(() {});
     }
   }
 
-  stopMusic() async {
-    await flutterTts.stop();
-    isPlay = false;
-    currentPlayIndex = 0;
-    continuePlay = false;
+  //颜色对话框
+  void openColorDialog(String title, Widget content, {Function submit}) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          contentPadding: const EdgeInsets.all(6.0),
+          title: Text(title),
+          content: content,
+          actions: [
+            FlatButton(
+              child: Text('CANCEL'),
+              onPressed: Navigator.of(context).pop,
+            ),
+            FlatButton(
+              child: Text('SUBMIT'),
+              onPressed: () {
+                submit();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  pauseMusic() async {
-    await flutterTts.stop();
-    currentPlayIndex = currentPlayIndex == 0 ? 0 : currentPlayIndex - 1;
-    isPlay = false;
-    continuePlay = false;
+//////////////////////////
+  ///前进后退返回
+//////////////////////////
+
+  DateTime get curDate => DateTime.parse(DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
+  int get todayDifference => curDate.difference(date).inDays;
+
+  void toToday(StateSetter setDialogState) {
+    pause(setDialogState);
+    currentIndex = 0;
+    date = curDate;
+    update();
+    setDialogState(() {});
   }
 
-  //从头到尾播放，播放完成，暂停重置
-  autoPlay() async {
-    isPlay = true;
-    continuePlay = true;
-    flutterTts.setCompletionHandler(() {
-      if (currentPlayIndex >= records.length) {
-        isPlay = false;
-        continuePlay = false;
-        currentPlayIndex = 0;
-      }
-      if (continuePlay) {
-        playMusic();
-      }
-    });
-    playMusic();
+  void prevDay(StateSetter setDialogState) {
+    pause(setDialogState);
+    currentIndex = 0;
+    date = date.add(Duration(days: -1));
+    update();
+    setDialogState(() {});
   }
 
+  void nextDay(StateSetter setDialogState) {
+    pause(setDialogState);
+    currentIndex = 0;
+    date = date.add(Duration(days: 1));
+    update();
+    setDialogState(() {});
+  }
+
+//////////////////////////
+  ///音频
+//////////////////////////
+  int playState = 0;
+  int currentIndex = 0;
+  bool hasInitHandler = false;
+  void play(StateSetter setDialogState) {
+    if (!hasInitHandler) {
+      hasInitHandler = true;
+      flutterTts.setCompletionHandler(() {
+        if (records.length <= currentIndex) {
+          pause(setDialogState);
+        } else {
+          play(setDialogState);
+        }
+      });
+    }
+
+    if (records.length > currentIndex) {
+      flutterTts.speak(records[currentIndex].content);
+      controller.scrollToIndex(currentIndex, preferPosition: AutoScrollPosition.begin);
+      playState = 1;
+      currentIndex = currentIndex + 1;
+      setDialogState(() {});
+    } else {
+      currentIndex = 0;
+      playState = 0;
+      setDialogState(() {});
+      flutterTts.stop();
+    }
+  }
+
+  void pause(StateSetter setDialogState) {
+    flutterTts.stop();
+    hasInitHandler = false;
+    playState = 0;
+    currentIndex = currentIndex == 0 ? 0 : currentIndex - 1;
+    setDialogState(() {});
+  }
+
+//////////////////////////
+  /// 文本处理
+//////////////////////////
   /// 这是一个大类 TODO: 需要在之后被重新拆分,但是现在由于代码比较混乱，就先不动
   Widget createWidget(int index) {
     //缩进文本
@@ -294,7 +346,7 @@ class _SmdjPageState extends State<SmdjPage> {
     Widget createTitle(int index) {
       return ListTile(
           title: Text(
-        records[index].content,
+        records[index].content ?? "",
         style: TextStyle(fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
         textScaleFactor: baseScaleFactor + 0.2,
@@ -320,35 +372,44 @@ class _SmdjPageState extends State<SmdjPage> {
 //TODO: h1
     Widget createH1(int index) {
       return ListTile(
-        title: Text(records[index].content),
+        title: Text(
+          records[index].content,
+          textScaleFactor: baseScaleFactor,
+        ),
       );
     }
 
 //TODO: h2
     Widget createH2(int index) {
       return ListTile(
-        title: Text(records[index].content),
+        title: Text(
+          records[index].content,
+          textScaleFactor: baseScaleFactor,
+        ),
       );
     }
 
 //TODO: h3
     Widget createH3(int index) {
       return ListTile(
-        title: Text(records[index].content),
+        title: Text(
+          records[index].content,
+          textScaleFactor: baseScaleFactor,
+        ),
       );
     }
 
 //1
     Widget createHL1(int index) {
       return Container(
-          decoration: BoxDecoration(color: Colors.grey[200]),
+          // decoration: BoxDecoration(color: Colors.grey[200]),
           child: ListTile(
-            title: Text(
-              records[index].content,
-              style: TextStyle(color: Colors.black),
-              textScaleFactor: baseScaleFactor + 0.2,
-            ),
-          ));
+        title: Text(
+          records[index].content,
+          style: TextStyle(fontWeight: FontWeight.bold),
+          textScaleFactor: baseScaleFactor + 0.4,
+        ),
+      ));
     }
 
 //2
@@ -357,7 +418,7 @@ class _SmdjPageState extends State<SmdjPage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              records[index].content,
+              indent(records[index].content, 1),
               style: TextStyle(fontWeight: FontWeight.bold),
               textScaleFactor: baseScaleFactor + 0.1,
             ),
@@ -370,7 +431,7 @@ class _SmdjPageState extends State<SmdjPage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              records[index].content,
+              indent(records[index].content, 2),
               style: TextStyle(fontWeight: FontWeight.bold),
               textScaleFactor: baseScaleFactor + 0.05,
             ),
@@ -383,7 +444,7 @@ class _SmdjPageState extends State<SmdjPage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              indent(records[index].content, 1),
+              indent(records[index].content, 2.5),
               style: TextStyle(fontWeight: FontWeight.bold),
               textScaleFactor: baseScaleFactor + 0.05,
             ),
@@ -396,7 +457,7 @@ class _SmdjPageState extends State<SmdjPage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              indent(records[index].content, 1),
+              indent(records[index].content, 3),
               style: TextStyle(fontWeight: FontWeight.normal),
               textScaleFactor: baseScaleFactor + 0.05,
             ),
@@ -409,7 +470,7 @@ class _SmdjPageState extends State<SmdjPage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              indent(records[index].content, 1),
+              indent(records[index].content, 3.5),
               style: TextStyle(fontWeight: FontWeight.normal),
               textScaleFactor: baseScaleFactor,
             ),
@@ -422,7 +483,7 @@ class _SmdjPageState extends State<SmdjPage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              indent(records[index].content, 1.5),
+              indent(records[index].content, 4),
               style: TextStyle(fontWeight: FontWeight.normal),
               textScaleFactor: baseScaleFactor - 0.05,
             ),
@@ -435,7 +496,7 @@ class _SmdjPageState extends State<SmdjPage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              indent(records[index].content, 1.5),
+              indent(records[index].content, 4.5),
               style: TextStyle(fontWeight: FontWeight.normal),
               textScaleFactor: baseScaleFactor - 0.1,
             ),
@@ -448,7 +509,7 @@ class _SmdjPageState extends State<SmdjPage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              indent(records[index].content, 2),
+              indent(records[index].content, 5),
               style: TextStyle(fontWeight: FontWeight.normal),
               textScaleFactor: baseScaleFactor - 0.1,
             ),
@@ -461,7 +522,7 @@ class _SmdjPageState extends State<SmdjPage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              indent(records[index].content, 2),
+              indent(records[index].content, 5.5),
               style: TextStyle(fontWeight: FontWeight.w200),
               textScaleFactor: baseScaleFactor - 0.15,
             ),
@@ -511,15 +572,17 @@ class _SmdjPageState extends State<SmdjPage> {
   Widget build(BuildContext context) {
     var time = DateUtil.formatDate(date, format: DateFormats.zh_mo_d);
     return Scaffold(
-      appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text("生命读经-$time"), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))])),
-      body: Scrollbar(
-        child: ListView(
-          shrinkWrap: true,
-          controller: controller,
-          scrollDirection: Axis.vertical,
-          children: records.map((e) => wrapScrollWidget(records.indexOf(e))).toList(),
-        ),
-      ),
-    );
+        appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text("生命读经-$time"), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))])),
+        body: Scrollbar(
+          child: Container(
+            color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
+            child: ListView(
+              shrinkWrap: true,
+              controller: controller,
+              scrollDirection: Axis.vertical,
+              children: records.map((e) => wrapScrollWidget(records.indexOf(e))).toList(),
+            ),
+          ),
+        ));
   }
 }

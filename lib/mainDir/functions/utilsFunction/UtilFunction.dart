@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:archive/archive.dart';
 import 'package:archive/archive_io.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf_text/pdf_text.dart';
 
@@ -18,6 +20,7 @@ class UtilFunction {
     // encoder.close();
   }
 
+  //解密
   static unzip(List<int> bytes, String path) {
     // Decode the Zip file
     final archive = ZipDecoder().decodeBytes(bytes);
@@ -99,5 +102,34 @@ class UtilFunction {
       File(toPath).writeAsStringSync(text, mode: FileMode.append);
     }
     return value;
+  }
+
+  //判断数字
+  static bool isNumeric(String s) {
+    if (s == null) {
+      return false;
+    }
+    return double.tryParse(s) != null;
+  }
+
+  static Color stringToColor(String color) {
+    if (color.length != 8) {
+      return Colors.grey;
+    }
+
+    var a = int.parse(color[0] + color[1], radix: 16);
+    var r = int.parse(color[2] + color[3], radix: 16);
+    var g = int.parse(color[4] + color[5], radix: 16);
+    var b = int.parse(color[5] + color[7], radix: 16);
+    return Color.fromARGB(a, r, g, b);
+  }
+
+  static String colorToString(Color color) {
+    var a = color.alpha.toRadixString(16).padLeft(2, "0");
+    var r = color.red.toRadixString(16).padLeft(2, "0");
+    var g = color.green.toRadixString(16).padLeft(2, "0");
+    var b = color.blue.toRadixString(16).padLeft(2, "0");
+    var c = a + r + g + b;
+    return c;
   }
 }

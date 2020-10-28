@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:da_ka/global.dart';
-import 'package:da_ka/mainDir/functions/apkInstall/scanPdbFunction.dart';
+import 'package:da_ka/mainDir/functions/scanFileFunction/scanPdbFunction.dart';
+import 'package:da_ka/mainDir/functions/apkInstall/managePdbFunction.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +45,7 @@ class _ApkIsiloFunctionPageState extends State<ApkIsiloFunctionPage> {
                 SettingsTile(title: "islo 安装", enabled: !isIsiloInstalled, onTap: installIsilo),
                 SettingsTile(title: "isilo 启动", enabled: isIsiloInstalled, onTap: invokeIsilo),
                 SettingsTile(title: "isilo 文件扫描", enabled: isIsiloInstalled, onTap: () => routePush(ScanPdbFunction())),
+                SettingsTile(title: "分享/管理已添加文件", enabled: isIsiloInstalled, onTap: () => routePush(ManagePdbFunction())),
               ],
             ),
           ],

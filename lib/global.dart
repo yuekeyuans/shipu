@@ -35,6 +35,7 @@ const Color mainTextTitleColor = Color(0xff366471);
 const Color mainTextNormalColor = Color(0xff3e6a77);
 const Color mainTextSubColor = Color(0xff6c909b);
 const Color mainShadowColor = Color(0x4d3754AA);
+const Color backgroundGray = Color(0xFFEFEFF4);
 
 const MDX_BOTTOM_HEIGHT = 25.0;
 const MDX_ICON_COLOR = Color.fromARGB(100, 0, 0, 0);

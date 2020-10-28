@@ -71,15 +71,13 @@ class LifeStudyTable {
   };
 
   //查找文章
-  Future<List<LifeStudyRecord>> queryChapter(
-      {int bookIndex = 1, int chapter = 1}) async {
+  Future<List<LifeStudyRecord>> queryChapter({int bookIndex = 1, int chapter = 1}) async {
     String sql = """
       select * from outline where outline.book_index = ? and outline.chapter = ? union 
       select * from content where content.book_index = ? and content.chapter = ? order by section
     """;
     var db = await LifeStudyDb().db;
-    var result =
-        await db.rawQuery(sql, [bookIndex, chapter, bookIndex, chapter]);
+    var result = await db.rawQuery(sql, [bookIndex, chapter, bookIndex, chapter]);
     return result.map((e) => LifeStudyRecord.fromJson(e)).toList();
   }
 
@@ -87,8 +85,7 @@ class LifeStudyTable {
   Future<List<LifeStudyRecord>> queryArticleByDate(DateTime date) async {
     var index = queryIndexOfDay(curDate: date);
     var bookAndChapter = queryBookAndChapterByIndex(index);
-    return await queryChapter(
-        bookIndex: bookAndChapter.first, chapter: bookAndChapter.last);
+    return await queryChapter(bookIndex: bookAndChapter.first, chapter: bookAndChapter.last);
   }
 
   // 使用某一天的日期推测其他的卷
@@ -96,8 +93,7 @@ class LifeStudyTable {
     DateTime reference = DateTime.parse("20200916");
     int page = 1195;
     curDate = curDate ?? DateTime.now();
-    curDate = DateTime.parse(
-        DateUtil.formatDate(curDate, format: DateFormats.y_mo_d));
+    curDate = DateTime.parse(DateUtil.formatDate(curDate, format: DateFormats.y_mo_d));
     var inDays = curDate.difference(reference).inDays;
     return (page + inDays - 1) % 1984 + 1;
   }

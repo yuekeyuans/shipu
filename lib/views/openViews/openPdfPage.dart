@@ -91,10 +91,12 @@ class _PdfViewerState extends State<PdfViewer> {
               IconButton(icon: Icon(Icons.menu), onPressed: () => showBottomSheetDialog(context)),
             ],
           )),
-      body: SfPdfViewer.file(
-        File(pdfPath),
-        key: _pdfViewerKey,
-      ),
+      body: Container(
+          color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
+          child: SfPdfViewer.file(
+            File(pdfPath),
+            key: _pdfViewerKey,
+          )),
     );
   }
 

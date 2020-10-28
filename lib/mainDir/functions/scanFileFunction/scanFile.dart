@@ -67,13 +67,14 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
     existFile = await ContentFileInfoTable().queryAll();
     files = <String>[];
     isAllFileSearch ? loadGlobal(SpUtil.getString("GLOBAL_PATH")) : loadLocal();
-    // setState(() {});
   }
 
   int fileCount = 0;
   int lastFileCount = 0;
+  String zhuhuifuPath = SpUtil.getString("MAIN_PATH");
   void loadGlobal(String path) {
     var directory = Directory(path);
+    bool shouldUpdate = false;
     directory.list().forEach((e) {
       if (e is File) {
         for (var sfx in suffix) {
@@ -82,15 +83,15 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
               continue;
             }
             files.add(e.path);
-            //降低刷新频率
-            if (files.length - 10 > fileCount) {
-              fileCount = files.length;
-              setState(() {});
-            }
+            shouldUpdate = true;
           }
         }
-      } else if (e is Directory) {
+      } else if (e is Directory && !e.path.contains(zhuhuifuPath)) {
         loadGlobal(e.path);
+      }
+    }).then((value) {
+      if (shouldUpdate) {
+        setState(() {});
       }
     });
   }
@@ -102,6 +103,7 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
       if (!directory.existsSync()) {
         continue;
       }
+      bool shouldUpdate = false;
       directory.list().forEach((e) {
         if (e is File) {
           for (var sfx in suffix) {
@@ -109,9 +111,14 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
               if (isExistPath(e.path) && SpUtil.getBool("scanFile_show_add")) {
                 continue;
               }
-              setState(() => files.add(e.path));
+              files.add(e.path);
+              shouldUpdate = true;
             }
           }
+        }
+      }).then((value) {
+        if (shouldUpdate) {
+          setState(() {});
         }
       });
     }
@@ -156,7 +163,7 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
                   value: 'searchAll',
                   child: ListTile(
                     leading: Icon(Icons.all_inclusive),
-                    title: isAllFileSearch ? Text("全盘扫描") : Text("扫描传输文件夹"),
+                    title: isAllFileSearch ? Text("扫描传输文件夹") : Text("全盘扫描"),
                   ),
                 ),
                 PopupMenuDivider(height: 1.0),
@@ -170,24 +177,26 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
           )
         ],
       ),
-      body: ListView.separated(
-          itemBuilder: (context, index) {
-            return CheckboxListTile(
-              value: isExistPath(files[index]) ? true : selected[index],
-              onChanged: isExistPath(files[index]) ? null : (isCheck) => setState(() => selected[index] = isCheck),
-              activeColor: Colors.red,
-              title: Text(files[index].split("/").last),
-              subtitle: Text(files[index]),
-              isThreeLine: false,
-              dense: false,
-              selected: isExistPath(files[index]) ? true : selected[index],
-              controlAffinity: ListTileControlAffinity.platform,
-            );
-          },
-          separatorBuilder: (context, index) {
-            return Divider();
-          },
-          itemCount: files.length),
+      body: Container(
+          color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
+          child: ListView.separated(
+              itemBuilder: (context, index) {
+                return CheckboxListTile(
+                  value: isExistPath(files[index]) ? true : selected[index],
+                  onChanged: isExistPath(files[index]) ? null : (isCheck) => setState(() => selected[index] = isCheck),
+                  activeColor: Colors.red,
+                  title: Text(files[index].split("/").last),
+                  subtitle: Text(files[index]),
+                  isThreeLine: false,
+                  dense: false,
+                  selected: isExistPath(files[index]) ? true : selected[index],
+                  controlAffinity: ListTileControlAffinity.platform,
+                );
+              },
+              separatorBuilder: (context, index) {
+                return Divider();
+              },
+              itemCount: files.length)),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.cancel), label: '取消'),

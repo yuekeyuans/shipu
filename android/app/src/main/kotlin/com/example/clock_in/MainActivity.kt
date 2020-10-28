@@ -3,7 +3,6 @@ package com.example.clock_in
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.os.Environment
 import android.os.StatFs
 import android.provider.Settings
@@ -12,11 +11,8 @@ import androidx.core.content.FileProvider
 import com.aspose.words.Document
 import com.aspose.words.SaveFormat
 import com.example.clock_in.BuildConfig.APPLICATION_ID
-//import io.flutter.Log
 
 import io.flutter.plugins.GeneratedPluginRegistrant
-//import io.flutter.plugin.common.MethodChannel
-//import io.flutter.plugins.GeneratedPluginRegistrant
 import org.jsoup.Jsoup
 import java.io.*
 import java.util.*

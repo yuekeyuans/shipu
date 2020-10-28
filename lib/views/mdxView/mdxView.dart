@@ -5,6 +5,7 @@ import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
 import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
 import 'package:da_ka/views/mdxView/MdxViewIndexNext.dart';
+import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:share_extend/share_extend.dart';
@@ -25,16 +26,15 @@ class MdxViewer extends StatefulWidget {
 
 class _MdxViewerState extends State<MdxViewer> {
   String dictHtml = "";
-  List<MdxEntry> entries = [];
   MdxEntry entry;
   FlutterTts flutterTts = FlutterTts();
+  List<String> contents;
   double fontSize = 16.0;
   String mdxPath;
   String sharePath;
   String searchText;
   String title;
   WebView view;
-  MdxViewIndex viewIndex;
   bool ready = false;
   final TextEditingController speechTextController = TextEditingController();
   final _controller = Completer<WebViewController>();
@@ -45,11 +45,42 @@ class _MdxViewerState extends State<MdxViewer> {
   @override
   void initState() {
     super.initState();
-    viewIndex = MdxViewIndex(onItemClick, widget.mdxPath);
+    //初始化一下
+    MdxViewIndex(onItemClick, widget.mdxPath);
     prepare();
     updateInfo();
   }
 
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var mdxView = Scaffold(
+      key: _scaffoldkey,
+      appBar: PreferredSize(
+        child: AppBar(title: Text(title), actions: [IconButton(icon: Icon(Icons.add), onPressed: showBottomSheetDialog)]),
+        preferredSize: Size.fromHeight(APPBAR_HEIGHT),
+      ),
+      body: Container(color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black, child: getWebView()),
+      drawer: buildDrawer(),
+    );
+
+    var blank = Scaffold(
+      appBar: PreferredSize(
+        child: AppBar(title: Text(title)),
+        preferredSize: Size.fromHeight(APPBAR_HEIGHT),
+      ),
+    );
+    return ready ? mdxView : blank;
+  }
+
+/////////////////////////////////////////////////////////////
+  ///初始化和更新
+/////////////////////////////////////////////////////////////
   prepare() {
     flutterTts.setLanguage("zh-CN");
     mdxPath = widget.mdxPath;
@@ -72,27 +103,6 @@ class _MdxViewerState extends State<MdxViewer> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    var mdxView = Scaffold(
-      key: _scaffoldkey,
-      appBar: PreferredSize(
-        child: AppBar(title: Text(title), actions: [IconButton(icon: Icon(Icons.add), onPressed: showBottomSheetDialog)]),
-        preferredSize: Size.fromHeight(APPBAR_HEIGHT),
-      ),
-      body: getWebView(),
-      drawer: buildDrawer(),
-    );
-
-    var blank = Scaffold(
-      appBar: PreferredSize(
-        child: AppBar(title: Text(title)),
-        preferredSize: Size.fromHeight(APPBAR_HEIGHT),
-      ),
-    );
-    return ready ? mdxView : blank;
-  }
-
   Future<void> updateInfo() async {
     var e = DakaSettingsEntity.fromSp();
     fontSize = 16.0 * e.baseFont;
@@ -101,25 +111,34 @@ class _MdxViewerState extends State<MdxViewer> {
     await flutterTts.setPitch(e.pitch);
     await flutterTts.setSpeechRate(e.speechRate);
 
-    entries = await MdxEntry().queryIndexesBySearch(searchText);
     dictHtml = await MdxDict().queryHtml();
     await updatePage();
     setState(() {});
   }
 
   Future<void> updatePage() async {
+    pause(setState);
+    currentIndex = 0;
     String html;
+    String name = "_index";
     if (entry == null) {
       html = dictHtml ?? "";
     } else {
-      html = (await entry.load()).html;
+      entry = await entry.load();
+      html = entry.html;
+      name = entry.entry;
     }
+    String path = SpUtil.getString("TEMP_PATH") + "/${name}.html";
+    File(path).createSync();
+    File(path).writeAsStringSync(html);
+    contents = (await UtilFunction.convertHtmlToText(path)).split("。");
     var uri = Uri.dataFromString(parseHtml(html), mimeType: 'text/html', encoding: Encoding.getByName('utf-8'));
     _controller.future.then((value) => value.loadUrl(uri.toString()));
   }
 
-  int playState = 0;
-  //底部导航栏
+///////////////////////////////////////////////////
+  ///底部导航栏
+///////////////////////////////////////////////////
   Future<void> showBottomSheetDialog() async {
     await showModalBottomSheet(
         context: context,
@@ -128,7 +147,6 @@ class _MdxViewerState extends State<MdxViewer> {
             return Container(
                 height: 40,
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                  // IconButton(icon: Icon(Icons.menu), onPressed: () => _scaffoldkey.currentState.openDrawer()),
                   IconButton(icon: Icon(Icons.share), onPressed: () => ShareExtend.share(sharePath, "file")),
                   Row(
                     mainAxisSize: MainAxisSize.min,
@@ -136,27 +154,8 @@ class _MdxViewerState extends State<MdxViewer> {
                     children: <Widget>[
                       // 播放音频
                       playState == 0 // 停止状态
-                          ? IconButton(
-                              icon: Icon(Icons.stop),
-                              onPressed: () async {
-                                flutterTts.speak(entry.text);
-                                playState = 1;
-                                flutterTts.setCompletionHandler(() {
-                                  playState = 0;
-                                  setDialogState(() {});
-                                });
-                                setDialogState(() {});
-                              },
-                            )
-                          : GestureDetector(
-                              child: IconButton(
-                                  icon: Icon(Icons.play_arrow),
-                                  onPressed: () {
-                                    flutterTts.stop();
-                                    playState = 0;
-                                    setDialogState(() {});
-                                  }),
-                            ),
+                          ? IconButton(icon: Icon(Icons.stop), onPressed: () => play(setDialogState))
+                          : GestureDetector(child: IconButton(icon: Icon(Icons.play_arrow), onPressed: () => pause(setDialogState))),
                       //home
                       IconButton(
                         icon: Icon(Icons.home),
@@ -173,6 +172,9 @@ class _MdxViewerState extends State<MdxViewer> {
         });
   }
 
+/////////////////////////////////////////////////////
+  ///webview
+/////////////////////////////////////////////////////
   WebView getWebView() {
     if (view != null) {
       return view;
@@ -204,55 +206,6 @@ class _MdxViewerState extends State<MdxViewer> {
     }
   }
 
-  Widget getFSearchBox() {
-    return Container(
-      height: 35,
-      alignment: Alignment(1, 0.15),
-      color: Color.fromARGB(30, 100, 100, 100),
-      child: TextFormField(
-        decoration: InputDecoration(
-          isDense: true,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide(color: Colors.black)),
-          contentPadding: EdgeInsets.all(0.0),
-          fillColor: Colors.transparent,
-          filled: true,
-          disabledBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          icon: Icon(Icons.search),
-        ),
-        onChanged: (v) {
-          searchText = v;
-          updateInfo();
-        },
-      ),
-    );
-  }
-
-  Drawer buildDrawer() {
-    var notificationTop = MediaQuery.of(context).padding.top;
-    return Drawer(
-        child: Padding(
-      padding: EdgeInsets.only(top: notificationTop + 5, left: 4, right: 0),
-      // child: Column(children: [
-      //   // getFSearchBox(),
-      //   //buildDataList(),
-      //   buidDataList1(),
-      // ]),
-      child: buildDataList1(),
-    ));
-  }
-
-  Future<void> onItemClick(MdxEntry e) async {
-    entry = await MdxEntry(id: e.id).load();
-    updatePage();
-    Navigator.of(context).pop();
-  }
-
-  Widget buildDataList1() {
-    return viewIndex;
-  }
-
   String parseHtml(String html) {
     if (html.startsWith("<html")) {
       return html;
@@ -263,5 +216,67 @@ class _MdxViewerState extends State<MdxViewer> {
           html.replaceAll("\n", " ") +
           """</body></html>""";
     }
+  }
+
+/////////////////////////////////////////////////////
+  ///drawer
+/////////////////////////////////////////////////////
+  Drawer buildDrawer() {
+    var notificationTop = MediaQuery.of(context).padding.top;
+    return Drawer(
+        child: Container(
+            color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
+            child: StatefulBuilder(builder: (context, setDrawerState) {
+              print("updated");
+              return Padding(
+                padding: EdgeInsets.only(top: notificationTop + 5, left: 4, right: 0),
+                child: MdxViewIndex(onItemClick, mdxPath),
+              );
+            })));
+  }
+
+  Future<void> onItemClick(MdxEntry e) async {
+    entry = await MdxEntry(id: e.id).load();
+    updatePage();
+    Navigator.of(context).pop();
+  }
+
+//////////////////////////////////////////////////
+  /// 音频
+//////////////////////////////////////////////////
+  int playState = 0;
+  int currentIndex = 0;
+  bool hasInitHandler = false;
+  void play(StateSetter setDialogState) {
+    if (!hasInitHandler) {
+      hasInitHandler = true;
+      flutterTts.setCompletionHandler(() {
+        if (contents.length <= currentIndex) {
+          pause(setDialogState);
+        } else {
+          play(setDialogState);
+        }
+      });
+    }
+
+    if (contents.length > currentIndex) {
+      flutterTts.speak(contents[currentIndex]);
+      playState = 1;
+      currentIndex = currentIndex + 1;
+      setDialogState(() {});
+    } else {
+      currentIndex = 0;
+      playState = 0;
+      setDialogState(() {});
+      flutterTts.stop();
+    }
+  }
+
+  void pause(StateSetter setDialogState) {
+    flutterTts.stop();
+    hasInitHandler = false;
+    playState = 0;
+    currentIndex = currentIndex == 0 ? 0 : currentIndex - 1;
+    setDialogState(() {});
   }
 }

@@ -9,6 +9,7 @@ import 'package:da_ka/views/openViews/openPdfPage.dart';
 import 'package:da_ka/views/viewBookPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:share_extend/share_extend.dart';
@@ -21,6 +22,12 @@ class ContentPageByTypes extends StatefulWidget {
 
 class _ContentPageByTypesState extends State<ContentPageByTypes> {
   List<FileSection> fileSection = [];
+
+  List<String> icons = [
+    "assets/icon/dict.svg",
+    "assets/icon/pdf.svg",
+    "assets/icon/word.svg",
+  ];
   @override
   void initState() {
     super.initState();
@@ -33,15 +40,15 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
     fileSection.add(FileSection()
       ..header = "字典文件"
       ..items = []
-      ..expanded = true);
+      ..expanded = false);
     fileSection.add(FileSection()
       ..header = "pdf 文件"
       ..items = []
-      ..expanded = true);
+      ..expanded = false);
     fileSection.add(FileSection()
       ..header = "word 文件"
       ..items = []
-      ..expanded = true);
+      ..expanded = false);
     var lst = await ContentFileInfoTable().queryAll();
     for (var i in lst) {
       if (i.filename.endsWith(".dict")) {
@@ -90,7 +97,12 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: createBody());
+    return Scaffold(
+      body: Container(
+        color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
+        child: createBody(),
+      ),
+    );
   }
 
   ExpandableListView createBody() {
@@ -105,7 +117,12 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
               actionExtentRatio: 0.25,
               child: Container(
                   child: ListTile(
-                leading: CircleAvatar(child: Text("")),
+                leading: SvgPicture.asset(
+                  icons[sectionIndex],
+                  width: 32,
+                  height: 32,
+                  color: Colors.grey,
+                ),
                 title: Text(item.filename),
                 onTap: () => openFile(item),
               )),
@@ -122,7 +139,7 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
     FileSection section = fileSection[sectionIndex];
     return InkWell(
         child: Container(
-            color: Colors.black12,
+            color: Colors.grey,
             height: 40,
             padding: EdgeInsets.only(left: 20),
             alignment: Alignment.centerLeft,

@@ -122,17 +122,19 @@ class _DocViewerState extends State<DocViewer> {
   @override
   Widget build(BuildContext context) {
     var docView = Scaffold(
-      appBar: PreferredSize(
-        child: AppBar(
-          title: Text(title),
-          actions: <Widget>[
-            IconButton(icon: Icon(Icons.menu), onPressed: () => showBottomSheetDialog(context)),
-          ],
+        appBar: PreferredSize(
+          child: AppBar(
+            title: Text(title),
+            actions: <Widget>[
+              IconButton(icon: Icon(Icons.menu), onPressed: () => showBottomSheetDialog(context)),
+            ],
+          ),
+          preferredSize: Size.fromHeight(APPBAR_HEIGHT),
         ),
-        preferredSize: Size.fromHeight(APPBAR_HEIGHT),
-      ),
-      body: getWebView(),
-    );
+        body: Container(
+          color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
+          child: getWebView(),
+        ));
     return docView;
   }
 

@@ -20,7 +20,7 @@ class _ContentPageState extends State<ContentPage> {
         child: AppBar(title: Text("文件列表")),
         preferredSize: Size.fromHeight(APPBAR_HEIGHT),
       ),
-      body: ContentPageByTypes(),
+      body: Container(color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black, child: ContentPageByTypes()),
     );
   }
 }

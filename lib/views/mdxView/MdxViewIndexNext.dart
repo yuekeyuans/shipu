@@ -20,12 +20,13 @@ class _MdxViewIndexState extends State<MdxViewIndex> {
   static List<MdxEntry> entries = [];
   static String viewPath = "";
   List<ListItem> mixedList = [];
+  String searchText = "";
 
   @override
   void initState() {
     super.initState();
-
     updateData();
+    print(searchText);
   }
 
   Future<void> initData() async {
@@ -40,8 +41,6 @@ class _MdxViewIndexState extends State<MdxViewIndex> {
 
   updateData() async {
     if (tags.length + entries.length == 0 || viewPath == null || viewPath == "" || viewPath != widget.viewPath) {
-      print("herere");
-      print(widget.viewPath);
       viewPath = widget.viewPath;
       tags.clear();
       entries.clear();
@@ -54,29 +53,70 @@ class _MdxViewIndexState extends State<MdxViewIndex> {
 
   @override
   Widget build(BuildContext context) {
-    return createList();
+    return Column(
+      children: [
+        getFSearchBox(),
+        Expanded(child: createList()),
+      ],
+    );
   }
 
   //将tags 和 entries 合并
   void mergeList(String tagId, int level) {
     tags.forEach((element) {
       if (element.parentId == tagId) {
-        mixedList.add(ListItem(type: 1, level: level, tag: element, isFold: element.fold));
-
-        if (!element.fold) {
+        bool willFold = searchText != "" ? false : element.fold;
+        mixedList.add(ListItem(type: 1, level: level, tag: element, isFold: willFold));
+        if (searchText != "") {
           mergeList(element.id, level + 1);
+        } else {
+          if (!element.fold) {
+            mergeList(element.id, level + 1);
+          }
         }
       }
     });
     entries.forEach((element) {
       if (element.tagId == tagId) {
-        mixedList.add(ListItem(type: 0, level: level, entry: element));
+        if (searchText != "") {
+          if (element.entry.contains(searchText)) {
+            mixedList.add(ListItem(type: 0, level: level, entry: element));
+          }
+        } else {
+          mixedList.add(ListItem(type: 0, level: level, entry: element));
+        }
       }
     });
   }
 
+  Widget getFSearchBox() {
+    return Container(
+      height: 35,
+      alignment: Alignment(1, 0.15),
+      color: Color.fromARGB(30, 100, 100, 100),
+      child: TextFormField(
+        decoration: InputDecoration(
+          isDense: true,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0), borderSide: BorderSide(color: Colors.black)),
+          contentPadding: EdgeInsets.all(0.0),
+          fillColor: Colors.transparent,
+          filled: true,
+          disabledBorder: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          icon: Icon(Icons.search),
+        ),
+        onChanged: (v) {
+          searchText = v;
+          updateData();
+        },
+      ),
+    );
+  }
+
   ListView createList() {
     return ListView.separated(
+      shrinkWrap: true,
       itemBuilder: (BuildContext context, int index) {
         var element = mixedList[index];
         if (element.type == 0) {
@@ -98,7 +138,7 @@ class _MdxViewIndexState extends State<MdxViewIndex> {
             title: Row(children: [
               SizedBox(width: element.level * 10.0),
               PreferredSize(child: PreferredSize(child: element.isFold ? Icon(Icons.arrow_right) : Icon(Icons.arrow_drop_down), preferredSize: Size.fromWidth(10)), preferredSize: Size.fromWidth(10)),
-              Expanded(child: Text("${element.tag.name} ${element.tag.size}", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold), textAlign: TextAlign.left)),
+              Expanded(child: Text("${element.tag.name} ${searchText == "" ? element.tag.size : ""}", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold), textAlign: TextAlign.left)),
             ]),
             dense: false,
             isThreeLine: false,

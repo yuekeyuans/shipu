@@ -90,6 +90,7 @@ class MdxEntry {
       var a = MdxEntry.fromSql(result.first);
       html = a.html ?? "";
       text = a.text ?? "";
+      entry = a.entry ?? "";
       return this;
     }
     return null;

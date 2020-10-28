@@ -29,11 +29,13 @@ class _CheckInPageState extends State<CheckInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(child: AppBar(title: Text("日常")), preferredSize: Size.fromHeight(APPBAR_HEIGHT)),
-      body: ListView(
-        children: getChildren(),
-      ),
-    );
+        appBar: PreferredSize(child: AppBar(title: Text("日常")), preferredSize: Size.fromHeight(APPBAR_HEIGHT)),
+        body: Container(
+          color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
+          child: ListView(
+            children: getChildren(),
+          ),
+        ));
   }
 
   List<Widget> getChildren() {
@@ -104,7 +106,6 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 
   //包装器
-  // ignore: avoid_types_as_parameter_names
   Widget wrapListTile(Widget widget, {bool isRead = false, Function onReaded}) {
     return Slidable(
       actionPane: SlidableDrawerActionPane(),

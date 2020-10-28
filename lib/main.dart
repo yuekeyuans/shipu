@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:da_ka/db/bible/bibleDb.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
 import 'package:da_ka/db/lifestudyDb/LifeStudyDb.dart';
+import 'package:da_ka/global.dart';
 import 'package:da_ka/main_navigator_page.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flustars/flustars.dart';
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
         child: DynamicTheme(
             defaultBrightness: Brightness.light,
             data: (_brightness) => ThemeData(
+                  backgroundColor: _brightness == Brightness.light ? backgroundGray : Colors.black,
                   brightness: _brightness,
                   primaryColor: _brightness == Brightness.light ? Colors.white : null,
                   accentColor: Colors.cyan[600],
@@ -98,6 +100,7 @@ Future<void> initVal() async {
     "ENCRYPTION_PATH": "$basePath/zhuhuifu/encryption",
     "DECRYPTION_PATH": "$basePath/zhuhuifu/decryption",
     "DB_PATH": "$basePath/zhuhuifu/database",
+    "ISILO_PDB_PATH": "$basePath/documents/iSilo",
     "ISILO_PATH": "$basePath/documents/iSilo/Settings",
     "ISILO_SETTING_PATH": "$basePath/documents/iSilo/Settings/_Reg_",
   };
