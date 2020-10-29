@@ -18,6 +18,8 @@ class _DescriptionFunctionState extends State<DescriptionFunction> {
   String info = """
 -  语音朗读
 -  一年一遍
+-  生命读经
+-  倪文集
 -  pdf, word文件
 -  自定义词典文件
 -  isilo, 快传,自身软件管理

@@ -11,13 +11,14 @@ class MainDb {
   static Database _db;
 
   final filename = "clock_in.db";
-  final dir = SpUtil.getString("DB_PATH");
 
   Future<Database> get db async {
+    var dir = SpUtil.getString("DB_PATH");
     var path = '$dir/$filename';
     if (_db == null) {
       if (!File(path).existsSync()) {
-        UtilFunction.copyFile(await rootBundle.load("assets/db/$filename"), '$dir/$filename');
+        var bytes = await rootBundle.load("assets/db/clock_in.zip");
+        UtilFunction.unzip(bytes.buffer.asUint8List(), dir);
       }
       _db = await openDatabase(path, version: 1);
     }

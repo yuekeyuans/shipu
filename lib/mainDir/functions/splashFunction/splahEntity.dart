@@ -11,10 +11,10 @@ class SplashEntity {
   SplashEntity();
 
   SplashEntity.fromSp() {
-    hasSplash = SpUtil.getBool("hasSplash");
-    splashTime = SpUtil.getInt("splashTime");
-    splashString = SpUtil.getString("splashString");
-    splashFontSize = SpUtil.getInt("splashFontSize");
+    hasSplash = SpUtil.getBool("hasSplash", defValue: true);
+    splashTime = SpUtil.getInt("splashTime", defValue: 10);
+    splashString = SpUtil.getString("splashString", defValue: "欢迎使用");
+    splashFontSize = SpUtil.getInt("splashFontSize", defValue: 20);
     splashStrings = SpUtil.getStringList("splashStrings");
   }
 

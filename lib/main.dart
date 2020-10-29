@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:isolate';
 import 'package:da_ka/db/bible/bibleDb.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
 import 'package:da_ka/db/lifestudyDb/LifeStudyDb.dart';
@@ -17,6 +17,7 @@ import 'package:nav_router/nav_router.dart';
 import 'package:sp_util/sp_util.dart';
 import 'package:wakelock/wakelock.dart';
 
+import 'db/neeDb/NeeDb.dart';
 import 'mainDir/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'mainDir/functions/splashFunction/SplashScreen.dart';
 import 'mainDir/functions/splashFunction/splahEntity.dart';
@@ -27,6 +28,13 @@ import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initialize();
+  await createPath();
+  await initVal().then((value) {
+    print(SpUtil.getString("MAIN_PATH"));
+    copyPf0File();
+  });
+  print("init db");
+  Isolate.spawn(initDb, "");
   runApp(MyApp());
 }
 
@@ -77,21 +85,16 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> initialize() async {
-  await SpUtil.getInstance();
-
   await [
     Permission.storage,
     Permission.camera,
-  ].request().then((value) async {
-    await initVal();
-    await initDb();
-    await Wakelock.enable();
-  });
-  copyPf0File();
+  ].request();
+
+  await Wakelock.enable();
 }
 
-Future<void> initVal() async {
-  //创建文件夹
+Future<void> createPath() async {
+  await SpUtil.getInstance();
   var basePath = (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
   Map<String, String> dirNames = {
     "GLOBAL_PATH": basePath,
@@ -105,12 +108,16 @@ Future<void> initVal() async {
     "ISILO_SETTING_PATH": "$basePath/documents/iSilo/Settings/_Reg_",
   };
 
-  dirNames.forEach((key, value) async {
-    if (Directory(value).existsSync() == false) {
-      await DirectoryUtil.createDir(value);
+  for (var key in dirNames.keys) {
+    if (!Directory(dirNames[key]).existsSync()) {
+      await DirectoryUtil.createDir(dirNames[key]);
     }
-    await SpUtil.putString(key, value);
-  });
+    await SpUtil.putString(key, dirNames[key]);
+  }
+}
+
+Future<void> initVal() async {
+  //创建文件夹
 
   //判断是否定义过变量
   if (!SpUtil.getBool("defined", defValue: false) || SpUtil.getString("MAIN_PATH", defValue: "") == "") {
@@ -126,10 +133,12 @@ Future<void> initVal() async {
   }
 }
 
-Future<void> initDb() async {
-  await MainDb().db;
-  await BibleDb().db;
-  await LifeStudyDb().db;
+/// 文件拷贝初始化异步执行，避免阻塞文件运行
+Future<void> initDb(String _) async {
+  MainDb().db;
+  BibleDb().db;
+  LifeStudyDb().db;
+  NeeDb().db;
 }
 
 // pf0 文件拷贝，这个文件设置isilo 文件位置

@@ -9,6 +9,8 @@ import 'package:pdf_text/pdf_text.dart';
 class UtilFunction {
   static MethodChannel encriptionChannel = MethodChannel("com.example.clock_in/encription");
   static MethodChannel convertChannel = MethodChannel("com.example.clock_in/converter");
+  static MethodChannel copyAppChannel = MethodChannel("com.example.clock_in/copyApp");
+  static MethodChannel installApkChannel = const MethodChannel("com.example.clock_in/app");
   static zip(Directory src, Directory dest) {
     // Zip a directory to out.zip using the zipDirectory convenience method
     // var encoder = ZipFileEncoder();
@@ -131,5 +133,21 @@ class UtilFunction {
     var b = color.blue.toRadixString(16).padLeft(2, "0");
     var c = a + r + g + b;
     return c;
+  }
+
+  static Future<void> backUpApk(Map<String, dynamic> value) async {
+    await copyAppChannel.invokeMethod("backupApk", value);
+  }
+
+  static Future<String> packageNames() {
+    return installApkChannel.invokeMethod("isInstalled");
+  }
+
+  static Future<String> installApp(Map<String, dynamic> value) {
+    return installApkChannel.invokeMethod("installIsilo", value);
+  }
+
+  static void invokeApp(Map<String, dynamic> package) {
+    installApkChannel.invokeMethod("startApp", package);
   }
 }

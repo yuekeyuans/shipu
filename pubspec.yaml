@@ -8,6 +8,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   flutter_localizations:
     sdk: flutter
   syncfusion_localizations: ^18.3.42
@@ -63,9 +64,10 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/db/clock_in.db
+    - assets/db/clock_in.zip
     - assets/db/bible.zip
     - assets/db/lifestudy.zip
+    - assets/db/nee.zip
     - assets/db/help.zip
     - assets/icon/icon.png
     - assets/icon/isilo.png

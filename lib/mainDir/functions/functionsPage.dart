@@ -14,6 +14,7 @@ import 'package:settings_ui/settings_ui.dart';
 import 'scanFileFunction/scanFile.dart';
 import 'splashFunction/splashFunction.dart';
 import 'storageFunction/storageFunctionPage.dart';
+import 'package:da_ka/views/nee/neePage.dart';
 
 class FunctionPage extends StatefulWidget {
   @override
@@ -95,6 +96,16 @@ class _FunctionPageState extends State<FunctionPage> {
               title: "信息",
               leading: Icon(Icons.link),
               onTap: () => routePush(DescriptionFunction()),
+            ),
+          ],
+        ),
+        SettingsSection(
+          title: "测试",
+          tiles: [
+            SettingsTile(
+              title: "nee",
+              leading: Icon(Icons.link),
+              onTap: () => routePush(NeePage(1, 1)),
             ),
           ],
         ),

@@ -1,6 +1,5 @@
 import 'package:da_ka/global.dart';
-import 'package:da_ka/views/openViews/smdjViewer.dart';
-import 'package:da_ka/views/smdj/smdjPage.dart';
+import 'package:da_ka/views/smdj/smdjViewer.dart';
 import 'package:flutter/material.dart';
 
 import 'package:da_ka/db/lifestudyDb/LifeStudyOutline.dart';

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:da_ka/global.dart';
 import 'package:da_ka/mainDir/functions/scanFileFunction/scanPdbFunction.dart';
 import 'package:da_ka/mainDir/functions/apkInstall/managePdbFunction.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
@@ -17,8 +16,6 @@ class ApkIsiloFunctionPage extends StatefulWidget {
 }
 
 class _ApkIsiloFunctionPageState extends State<ApkIsiloFunctionPage> {
-  MethodChannel copyAppChannel;
-  MethodChannel installApkChannel;
   var basePath = SpUtil.getString("TEMP_PATH");
   var isiloPackageName = "com.dcco.app.iSilo";
   var kuaichuanPackageName = "com.genonbeta.TrebleShot";
@@ -28,8 +25,6 @@ class _ApkIsiloFunctionPageState extends State<ApkIsiloFunctionPage> {
   @override
   void initState() {
     super.initState();
-    copyAppChannel = MethodChannel("com.example.clock_in/copyApp");
-    installApkChannel = const MethodChannel("com.example.clock_in/app");
     isInstalled();
   }
 
@@ -44,6 +39,7 @@ class _ApkIsiloFunctionPageState extends State<ApkIsiloFunctionPage> {
               tiles: [
                 SettingsTile(title: "islo 安装", enabled: !isIsiloInstalled, onTap: installIsilo),
                 SettingsTile(title: "isilo 启动", enabled: isIsiloInstalled, onTap: invokeIsilo),
+                SettingsTile(title: "分享isilo 软件", onTap: shareIsilo),
                 SettingsTile(title: "isilo 文件扫描", enabled: isIsiloInstalled, onTap: () => routePush(ScanPdbFunction())),
                 SettingsTile(title: "分享/管理已添加文件", enabled: isIsiloInstalled, onTap: () => routePush(ManagePdbFunction())),
               ],
@@ -52,53 +48,34 @@ class _ApkIsiloFunctionPageState extends State<ApkIsiloFunctionPage> {
         ));
   }
 
-  //copy clock_in
-  void copyClockInFromPhone() {
-    copyAppChannel.invokeMethod(
-      "backupApk",
-      {"packageName": packageName, "destPath": SpUtil.getString("TEMP_PATH")},
-    ).then((value) => setState(() {}));
-  }
-
-  // send clock_in
-  void shareClockIn(String path) {
-    var file = File(path);
-    if (file.existsSync()) {
-      ShareExtend.share(path, "file");
-    }
-  }
-
   //测试是否安装软件
   Future<void> isInstalled() async {
-    await installApkChannel.invokeMethod("isInstalled").then((value) {
-      isKuaichuanInstalled = value.toString().contains(kuaichuanPackageName);
+    UtilFunction.packageNames().then((value) {
       isIsiloInstalled = value.toString().contains(isiloPackageName);
       setState(() {});
     });
   }
 
+  var apk = "isilo.apk";
+  shareIsilo() async {
+    var dirName = SpUtil.getString("TEMP_PATH");
+    var path = "$dirName/$apk";
+
+    if (!File(path).existsSync()) {
+      UtilFunction.copyFile(await rootBundle.load("assets/apk/isilo.apk"), path);
+    }
+    ShareExtend.share(path, "file");
+  }
+
   // 安装 isilo
   installIsilo() async {
     var dirName = SpUtil.getString("TEMP_PATH");
-    UtilFunction.copyFile(await rootBundle.load("assets/apk/isilo.apk"), '$dirName/isilo.apk');
-    installApkChannel.invokeMethod("installIsilo", {"path": '$dirName/isilo.apk'}).then((value) => isInstalled());
+    UtilFunction.copyFile(await rootBundle.load("assets/apk/$apk"), '$dirName/$apk');
+    UtilFunction.installApp({"path": '$dirName/$apk'}).then((value) => isInstalled());
   }
 
   // 启动 isilo
   invokeIsilo() {
-    installApkChannel.invokeMethod("startApp", {"package": isiloPackageName});
-  }
-
-  // 安装 快传
-  installKuaichuan() async {
-    var apk = "fastTransport.apk";
-    var dirName = SpUtil.getString("TEMP_PATH");
-    UtilFunction.copyFile(await rootBundle.load("assets/apk/$apk"), '$dirName/$apk');
-    installApkChannel.invokeMethod("installIsilo", {"path": '$dirName/$apk'}).then((value) => isInstalled());
-  }
-
-// 启动 快传
-  invokeKuaichuan() {
-    installApkChannel.invokeMethod("startApp", {"package": kuaichuanPackageName});
+    UtilFunction.invokeApp({"package": isiloPackageName});
   }
 }
