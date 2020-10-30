@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:da_ka/db/mainDb/contentFileInfoTable.dart';
 import 'package:da_ka/global.dart';
 import 'package:da_ka/views/mdxView/mdxView.dart';
+import 'package:da_ka/views/nee/neeIndexPage.dart';
 import 'package:da_ka/views/openViews/openDocPage.dart';
 import 'package:da_ka/views/openViews/openImagePage.dart';
 import 'package:da_ka/views/openViews/openPdfPage.dart';
@@ -38,6 +39,7 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
   void queryData() async {
     await ContentFileInfoTable.scanMainDir();
     var smdjFile = ContentFileInfoTable(id: -1, filepath: "生命读经", filename: "生命读经");
+    var neeBook = ContentFileInfoTable(id: -2, filepath: "倪柝声文集", filename: "倪柝声文集");
 
     fileSection = [];
     fileSection.add(FileSection()
@@ -57,7 +59,7 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
       ..items = []
       ..expanded = true);
 
-    fileSection[3].items.add(smdjFile);
+    fileSection[3].items..add(smdjFile)..add(neeBook);
 
     var lst = await ContentFileInfoTable().queryAll();
     for (var i in lst) {
@@ -95,6 +97,8 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
     if (_file.id < 0) {
       if (_file.id == -1) {
         routePush(SmdjIndexPage());
+      } else if (_file.id == -2) {
+        routePush(NeeIndexPage());
       }
       return;
     }

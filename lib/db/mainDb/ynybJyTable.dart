@@ -1,20 +1,11 @@
 import 'dart:convert';
+
+import 'package:common_utils/common_utils.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'sqliteDb.dart';
-import 'package:common_utils/common_utils.dart';
 
-///旧约 一年一遍
 class YnybJyTable {
-  YnybJyTable();
-
-  YnybJyTable.fromJson(Map<String, dynamic> map) {
-    ids = map["ids"].split(",") as List<String>;
-    days = int.parse(map["days"] as String);
-    isComplete = (map["isComplete"].toString() == true.toString());
-    comments = json.decode(map["comments"] as String) as Map<String, String>;
-  }
-
   static const TABLENAME = "ynyb_jy";
 
   Map<String, String> comments = {};
@@ -22,21 +13,34 @@ class YnybJyTable {
   List<String> ids = [];
   bool isComplete = false;
 
-  Map<String, String> toJson() {
-    var map = <String, String>{};
-    map["ids"] = ids.join(",");
-    map["days"] = days.toString();
-    map["isComplete"] = isComplete.toString();
-    map["comments"] = json.encode(comments).toString();
-    return map;
+  YnybJyTable({
+    this.days,
+    this.ids,
+    this.isComplete,
+    this.comments,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {'days': days, 'ids': ids, 'isComplete': isComplete, 'comments': comments.toString()};
   }
+
+  factory YnybJyTable.fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return YnybJyTable(days: map['days'] as int, ids: (map['ids'] as String).split(","), isComplete: map['isComplete'] == "yes", comments: {});
+  }
+
+  String toJson() => json.encode(toMap());
+
+  @override
+  String toString() => 'YnybJyTable(days: $days, ids: $ids, isComplete: $isComplete)';
 
   Future<YnybJyTable> queryByDate(DateTime date) async {
     var db = await MainDb().db;
     var result = await db.query(TABLENAME, where: "days = ?", whereArgs: [getDaysOfDate(date)]);
     var record = YnybJyTable();
     result.forEach((element) {
-      record = YnybJyTable.fromJson(element);
+      record = YnybJyTable.fromMap(element);
     });
     return record;
   }

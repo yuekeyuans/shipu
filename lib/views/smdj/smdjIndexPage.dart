@@ -43,7 +43,11 @@ class _SmdjIndexPageState extends State<SmdjIndexPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("生命读经")),
-      body: Container(color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black, child: createListView()),
+      body: Container(
+        color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
+        child: createListView(),
+      ),
+      backgroundColor: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
     );
   }
 

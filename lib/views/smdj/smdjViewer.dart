@@ -24,7 +24,6 @@ class SmdjViewer extends StatefulWidget {
 
 class _SmdjViewerState extends State<SmdjViewer> {
   double baseScaleFactor = 1.0;
-
   AutoScrollController controller;
   FlutterTts flutterTts = FlutterTts();
   List<LifeStudyRecord> records = [];

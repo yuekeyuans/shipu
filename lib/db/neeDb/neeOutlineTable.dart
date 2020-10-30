@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'NeeDb.dart';
+
 class NeeOutlineTable {
   static const TABLE_NAME = "outline";
   int id;
@@ -8,7 +10,7 @@ class NeeOutlineTable {
   int chapter;
   int section;
   String flag;
-  String outline;
+  String content;
   String mark;
   NeeOutlineTable({
     this.id,
@@ -17,7 +19,7 @@ class NeeOutlineTable {
     this.chapter,
     this.section,
     this.flag,
-    this.outline,
+    this.content,
     this.mark,
   });
 
@@ -28,7 +30,7 @@ class NeeOutlineTable {
     int chapter,
     int section,
     String flag,
-    String outline,
+    String content,
     String mark,
   }) {
     return NeeOutlineTable(
@@ -38,7 +40,7 @@ class NeeOutlineTable {
       chapter: chapter ?? this.chapter,
       section: section ?? this.section,
       flag: flag ?? this.flag,
-      outline: outline ?? this.outline,
+      content: content ?? this.content,
       mark: mark ?? this.mark,
     );
   }
@@ -51,7 +53,7 @@ class NeeOutlineTable {
       'chapter': chapter,
       'section': section,
       'flag': flag,
-      'outline': outline,
+      'content': content,
       'mark': mark,
     };
   }
@@ -65,8 +67,8 @@ class NeeOutlineTable {
       bookIndex: map['book_index'] as int,
       chapter: map['chapter'] as int,
       section: map['section'] as int,
-      flag: map['flag'] as String,
-      outline: map['outline'] as String,
+      flag: map['flag'].toString(),
+      content: map['content'] as String,
       mark: map['mark'] as String,
     );
   }
@@ -77,18 +79,24 @@ class NeeOutlineTable {
 
   @override
   String toString() {
-    return 'NeeOutlineTable(id: $id, language: $language, bookIndex: $bookIndex, chapter: $chapter, section: $section, flag: $flag, outline: $outline, mark: $mark)';
+    return 'NeeContentTable(id: $id, language: $language, bookIndex: $bookIndex, chapter: $chapter, section: $section, flag: $flag, content: $content, mark: $mark)';
   }
 
   @override
   bool operator ==(Object o) {
     if (identical(this, o)) return true;
 
-    return o is NeeOutlineTable && o.id == id && o.language == language && o.bookIndex == bookIndex && o.chapter == chapter && o.section == section && o.flag == flag && o.outline == outline && o.mark == mark;
+    return o is NeeOutlineTable && o.id == id && o.language == language && o.bookIndex == bookIndex && o.chapter == chapter && o.section == section && o.flag == flag && o.content == content && o.mark == mark;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^ language.hashCode ^ bookIndex.hashCode ^ chapter.hashCode ^ section.hashCode ^ flag.hashCode ^ outline.hashCode ^ mark.hashCode;
+    return id.hashCode ^ language.hashCode ^ bookIndex.hashCode ^ chapter.hashCode ^ section.hashCode ^ flag.hashCode ^ content.hashCode ^ mark.hashCode;
+  }
+
+  static Future<List<NeeOutlineTable>> queryChapters() async {
+    var db = await NeeDb().db;
+    var result = await db.query(TABLE_NAME, where: "flag = ? or flag = ?", whereArgs: ["0", "z"]);
+    return result.map<NeeOutlineTable>((e) => NeeOutlineTable.fromMap(e)).toList();
   }
 }

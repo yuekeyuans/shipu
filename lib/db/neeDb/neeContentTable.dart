@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
+
 import 'NeeDb.dart';
 
 class NeeContentTable {
@@ -102,5 +104,13 @@ class NeeContentTable {
     var db = await NeeDb().db;
     var result = await db.rawQuery(sql, [bookIndex, chapter, bookIndex, chapter]);
     return result.map((e) => NeeContentTable.fromMap(e)).toList();
+  }
+
+  //标记
+  Future<void> setMarked(String info) async {
+    mark = info;
+    var db = await NeeDb().db;
+    var tableName = UtilFunction.isNumeric(flag) ? "outline" : "content";
+    await db.update(tableName, toMap(), where: "_id = ?", whereArgs: [id]);
   }
 }

@@ -1,7 +1,10 @@
 import 'dart:convert';
 
+import 'NeeDb.dart';
+
 class NeeBookNameTable {
   static const TABLE_NAME = "book_name";
+  bool isFold = true;
   int id;
   String language;
   int bookIndex;
@@ -78,5 +81,11 @@ class NeeBookNameTable {
   @override
   int get hashCode {
     return id.hashCode ^ language.hashCode ^ bookIndex.hashCode ^ bookNumber.hashCode ^ name.hashCode ^ mark.hashCode;
+  }
+
+  static Future<List<NeeBookNameTable>> queryBooks() async {
+    var db = await NeeDb().db;
+    var result = await db.query(TABLE_NAME);
+    return result.map<NeeBookNameTable>((e) => NeeBookNameTable.fromMap(e)).toList();
   }
 }
