@@ -25,6 +25,7 @@ import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
 
+
 class MainActivity : FlutterActivity() {
   private val ENCODE_TEXT = "encryption_type1"
   private val CHANNEL_CONVERTER = "com.example.clock_in/converter"
@@ -295,6 +296,13 @@ class MainActivity : FlutterActivity() {
     // 转换文件的 channel
     MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL_CONVERTER).setMethodCallHandler(MethodChannel.MethodCallHandler { call, result ->
       run {
+        fun textConvertToPunyCode(src:String?){
+          result.success(PunyCodeUtil.chinese2punycode(src))
+        }
+
+        fun punyCodeConvertToText(src:String?){
+          result.success(PunyCodeUtil.punycode2chinese(src));
+        }
 
         fun htmlConvertToText(src: String?) {
           var html = File(src).readText()
@@ -344,11 +352,12 @@ class MainActivity : FlutterActivity() {
           method.equals("htmlConvertToText") -> {
             htmlConvertToText(call.argument<String>("src"))
           }
-//          method.equals("pdfConvertToText")->{
-//            val fromPath = call.argument<String>("fromPath")
-//            val toPath = call.argument<String>("toPath")
-//            convertPdfToText(fromPath, toPath);
-//          }
+          method.equals("textConvertToPunyCode") -> {
+            textConvertToPunyCode(call.argument<String>("src"))
+          }
+          method.equals("punyCodeConvertToText") -> {
+            punyCodeConvertToText(call.argument<String>("src"))
+          }
           else -> {
             result.notImplemented()
           }

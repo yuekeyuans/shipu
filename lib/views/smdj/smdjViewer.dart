@@ -1,9 +1,9 @@
 import 'package:da_ka/db/lifestudyDb/lifestudyRecord.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyTable.dart';
 import 'package:da_ka/global.dart';
+import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
+import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
-import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';

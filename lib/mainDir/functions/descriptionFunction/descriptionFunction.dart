@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:da_ka/global.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
-import 'package:da_ka/views/mdxView/mdxView.dart';
+import 'package:da_ka/views/mdxView/mdxView_native.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

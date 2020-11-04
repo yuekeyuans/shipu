@@ -26,7 +26,7 @@ dependencies:
   share_extend: ^1.1.9
   photo_view: ^0.9.2
   flutter_webview_plugin: ^0.3.5
-  # webview_flutter: ^1.0.5
+  webview_flutter: ^1.0.5
   flutter_tts: ^1.3.0
   flutter_slidable: ^0.5.5
   flutter_picker: ^1.1.5
@@ -65,20 +65,22 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/db/clock_in.zip
-    - assets/db/bible.zip
-    - assets/db/lifestudy.zip
-    - assets/db/nee.zip
+    - assets/db/clock_in.db
+    - assets/db/bible.db
+    - assets/db/lifestudy.db
+    - assets/db/nee.db
     - assets/db/help.zip
     - assets/icon/icon.png
     - assets/icon/isilo.png
     - assets/icon/dict.svg
     - assets/icon/pdf.svg
+    - assets/icon/book_old.svg
+    - assets/icon/book_new.svg
+    - assets/icon/life_reading.svg
     - assets/icon/kuaichuan.svg
     - assets/icon/word.svg
     - assets/icon/bundle.svg
     - assets/apk/isilo.apk
-
     - assets/apk/fastTransport.apk
     - assets/pf0
 

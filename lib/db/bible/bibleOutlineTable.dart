@@ -1,4 +1,5 @@
 import 'package:da_ka/db/bible/bibleDb.dart';
+import 'package:da_ka/db/lifestudyDb/LifeStudyOutline.dart';
 import 'package:da_ka/db/mainDb/recitebibleTable.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
 
@@ -104,5 +105,20 @@ class BibleOutlineTable {
       return "";
     }
     return strs.join(",");
+  }
+
+  static Future<List<BibleOutlineTable>> queryByChaptersAndSections(int bookIndex, Map<int, List<int>> maps) async {
+    assert(maps.isNotEmpty);
+    //build sql
+    var sql = "select * from ${LifeStudyOutline.TABLE_NAME} where book_index = $bookIndex and (";
+    List<String> wheres = [];
+    maps.forEach((key, value) {
+      wheres.add("(chapter = $key and section in (${value.join(',')}))");
+    });
+    sql = sql + wheres.join(" or ") + ")";
+    print(sql);
+    var db = await BibleDb().db;
+    var result = await db.rawQuery(sql);
+    return result.map<BibleOutlineTable>((e) => BibleOutlineTable.fromJson(e)).toList();
   }
 }

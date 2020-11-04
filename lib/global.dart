@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 const subPath = [
+  "/快传",
   "/bluetooth",
   "/Download",
   "/Download/WeiXin",
@@ -15,6 +16,8 @@ const suffix = [".dict", ".pdf", ".doc", ".docx"];
 const PDB_SUFFIX = [".pdb"];
 
 const IMAGE_SUFFIX = [".jpg", ".png"];
+
+const FIRST_PAGE_NAME = ["首页", "目录", "index", "content", "default"];
 
 const MAIN_DIR = "/zhuhuifu";
 

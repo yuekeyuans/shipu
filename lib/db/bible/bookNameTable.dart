@@ -1,15 +1,15 @@
 import 'package:da_ka/db/bible/bibleDb.dart';
 
-class BookNameTable {
+class BibleBookNameTable {
   static const TABLENAME = "book_name";
   int id;
   int bookIndex;
   String name;
   String acronymName;
 
-  BookNameTable();
+  BibleBookNameTable();
 
-  BookNameTable.fromJson(Map<String, dynamic> json) {
+  BibleBookNameTable.fromJson(Map<String, dynamic> json) {
     id = json["_id"] as int;
     bookIndex = json["book_index"] as int;
     name = json["name"] as String;
@@ -30,7 +30,7 @@ class BookNameTable {
     var db = await BibleDb().db;
     var result = await db.query(TABLENAME, where: "name= ?", whereArgs: [name]);
     result.forEach((element) {
-      id = BookNameTable.fromJson(element).id;
+      id = BibleBookNameTable.fromJson(element).id;
     });
     return id;
   }
@@ -40,7 +40,7 @@ class BookNameTable {
     var db = await BibleDb().db;
     var result = await db.query(TABLENAME, where: "_id = ?", whereArgs: [id]);
     result.forEach((element) {
-      name = BookNameTable.fromJson(element).name;
+      name = BibleBookNameTable.fromJson(element).name;
     });
     return name;
   }
@@ -50,7 +50,7 @@ class BookNameTable {
     var db = await BibleDb().db;
     var result = await db.query(TABLENAME, where: "name = ?", whereArgs: [fullName]);
     result.forEach((element) {
-      name = BookNameTable.fromJson(element).acronymName;
+      name = BibleBookNameTable.fromJson(element).acronymName;
     });
     return name;
   }

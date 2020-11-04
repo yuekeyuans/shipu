@@ -44,7 +44,7 @@ class _DakaReciteBiblePageState extends State<DakaReciteBiblePage> {
       }).showDialog(context);
 
   getCurrentBook() async {
-    var books = await BookNameTable().queryBookNames();
+    var books = await BibleBookNameTable().queryBookNames();
     await Picker(
         adapter: PickerDataAdapter<String>(pickerdata: books),
         hideHeader: true,

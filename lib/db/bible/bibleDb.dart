@@ -9,24 +9,19 @@ class BibleDb {
   static final BibleDb _instance = BibleDb.internal();
   factory BibleDb() => _instance;
   static Database _db;
-  final filename = "bible.db";
 
   Future<Database> get db async {
-    _db ??= await initDb();
+    var dir = SpUtil.getString("DB_PATH");
+    String fileName = "bible.db";
+    var path = '$dir/$fileName';
+    if (_db == null) {
+      if (!File(path).existsSync()) {
+        UtilFunction.copyFile(await rootBundle.load("assets/db/$fileName"), '$dir/$fileName');
+      }
+      _db = await openDatabase(path, version: 1);
+    }
     return _db;
   }
 
   BibleDb.internal();
-
-  Future<Database> initDb() async {
-    String dir = SpUtil.getString("DB_PATH");
-    var path = '$dir/$filename';
-    if (!File(path).existsSync()) {
-      //await copyFile();
-      var bytes = await rootBundle.load("assets/db/bible.zip");
-      UtilFunction.unzip(bytes.buffer.asUint8List(), SpUtil.getString("DB_PATH"));
-    }
-    var ourDb = await openDatabase(path, version: 1);
-    return ourDb;
-  }
 }

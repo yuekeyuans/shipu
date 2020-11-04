@@ -26,7 +26,6 @@ class YnybJyTable {
 
   factory YnybJyTable.fromMap(Map<String, dynamic> map) {
     if (map == null) return null;
-
     return YnybJyTable(days: map['days'] as int, ids: (map['ids'] as String).split(","), isComplete: map['isComplete'] == "yes", comments: {});
   }
 

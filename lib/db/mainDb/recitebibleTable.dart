@@ -63,7 +63,7 @@ class ReciteBibleTable {
   //第一次生成数据
   Future<void> generateData() async {
     var entity = ReciteBibleEntity.fromSp();
-    var id = await BookNameTable().queryBookId(entity.currentBook);
+    var id = await BibleBookNameTable().queryBookId(entity.currentBook);
     var minMax = await BibleContentTable().queryMinMaxId(id);
     var count = minMax.last - minMax.first + 1;
     var length = entity.verseOfDay;
@@ -102,7 +102,7 @@ class ReciteBibleTable {
 
   Future<void> createDateRecord() async {
     var entity = ReciteBibleEntity.fromSp();
-    var id = await BookNameTable().queryBookId(entity.currentBook);
+    var id = await BibleBookNameTable().queryBookId(entity.currentBook);
     var minMax = await BibleContentTable().queryMinMaxId(id);
     var record = ReciteBibleTable();
 

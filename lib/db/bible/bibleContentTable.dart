@@ -10,8 +10,9 @@ class BibleContentTable {
   int section;
   int flag;
   String content;
+  String mark;
 
-  BibleContentTable({this.id, this.bookIndex, this.chapter, this.section, this.flag, this.content});
+  BibleContentTable({this.id, this.bookIndex, this.chapter, this.section, this.flag, this.content, this.mark});
 
   BibleContentTable.fromJson(Map<String, dynamic> json) {
     id = json['_id'] as int;
@@ -20,6 +21,7 @@ class BibleContentTable {
     section = json['section'] as int;
     flag = json['flag'] as int;
     content = json["content"] as String;
+    mark = json['mark'] as String;
   }
 
   BibleContentTable.fromSql(Map<String, dynamic> json) {
@@ -29,16 +31,18 @@ class BibleContentTable {
     section = json['section'] as int;
     flag = json['flag'] as int;
     content = json["content"] as String;
+    mark = json["mark"] as String;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  <String, dynamic>{};
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['_id'] = id;
     data['book_index'] = bookIndex;
     data['chapter'] = chapter;
     data['section'] = section;
     data['flag'] = flag;
     data['content'] = content;
+    data['mark'] = mark;
     return data;
   }
 
@@ -100,5 +104,17 @@ class BibleContentTable {
       return "";
     }
     return strs.join(",");
+  }
+
+  Future<void> setMarked(String info) async {
+    mark = info;
+    var db = await BibleDb().db;
+    await db.update(TABLENAME, toJson(), where: "_id = ?", whereArgs: [id]);
+  }
+
+  Future<List<BibleContentTable>> queryByBookAndChapter(int bookId, int chapter) async {
+    var db = await BibleDb().db;
+    var result = await db.query(TABLENAME, where: "book_index = ? and chapter = ?", whereArgs: [bookIndex, chapter]);
+    return result.map<BibleContentTable>((e) => BibleContentTable.fromJson(e)).toList();
   }
 }

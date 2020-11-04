@@ -2,9 +2,9 @@ import 'package:common_utils/common_utils.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyRecord.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyTable.dart';
 import 'package:da_ka/global.dart';
+import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
+import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
-import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
 import 'package:da_ka/views/smdj/smdjIndexPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,34 +25,47 @@ class _SmdjPageState extends State<SmdjPage> {
 
   AutoScrollController controller;
   DateTime date = DateTime.parse(DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
-  FlutterTts flutterTts = FlutterTts();
+  FlutterTts flutterTts;
   List<LifeStudyRecord> records = [];
 
   @override
   void initState() {
     super.initState();
     controller = AutoScrollController(viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom), axis: Axis.vertical, suggestedRowHeight: 200);
-    update();
+    updateSetting();
+    updateData();
   }
 
   @override
   void dispose() {
-    flutterTts.stop();
+    pause(setDialogState);
     super.dispose();
   }
 
-  Future<void> update() async {
+////////////////////////////////////////
+  ///数据加载
+////////////////////////////////////////
+  Future<void> updateSetting() async {
     //更新声音
+    flutterTts = FlutterTts();
     var e = DakaSettingsEntity.fromSp();
     await flutterTts.setLanguage("zh-hant");
     await flutterTts.setVolume(e.volumn);
     await flutterTts.setPitch(e.pitch);
     await flutterTts.setSpeechRate(e.speechRate);
-    records = await LifeStudyTable().queryArticleByDate(date);
+
     baseScaleFactor = DakaSettingsEntity.fromSp().baseFont;
     setState(() {});
   }
 
+  Future<void> updateData() async {
+    records = await LifeStudyTable().queryArticleByDate(date);
+    setState(() {});
+  }
+
+///////////////////////////////////////////
+  ///组件构成
+///////////////////////////////////////////
   Widget wrapScrollWidget(int index) {
     return AutoScrollTag(
       key: ValueKey(index),
@@ -107,6 +120,7 @@ class _SmdjPageState extends State<SmdjPage> {
                 title: Text("朗读"),
                 onTap: () {
                   pop();
+                  currentIndex = index;
                   play(setState);
                 })
           ]);
@@ -161,7 +175,7 @@ class _SmdjPageState extends State<SmdjPage> {
 
                       IconButton(icon: Icon(Icons.view_list_sharp), onPressed: () => routePush(SmdjIndexPage())),
                       //设置
-                      IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => update())),
+                      IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => updateSetting())),
                     ],
                   )
                 ]));
@@ -211,7 +225,7 @@ class _SmdjPageState extends State<SmdjPage> {
     print(record.mark);
     if (isMarked) {
       openColorDialog(
-          "Main Color picker",
+          "请选择颜色",
           MaterialColorPicker(
               allowShades: false,
               onMainColorChange: (color) => setState(
@@ -238,11 +252,11 @@ class _SmdjPageState extends State<SmdjPage> {
           content: content,
           actions: [
             FlatButton(
-              child: Text('CANCEL'),
+              child: Text('取消'),
               onPressed: Navigator.of(context).pop,
             ),
             FlatButton(
-              child: Text('SUBMIT'),
+              child: Text('确定'),
               onPressed: () {
                 submit();
                 Navigator.of(context).pop();
@@ -265,7 +279,7 @@ class _SmdjPageState extends State<SmdjPage> {
     pause(setDialogState);
     currentIndex = 0;
     date = curDate;
-    update();
+    updateData();
     setDialogState(() {});
   }
 
@@ -273,7 +287,7 @@ class _SmdjPageState extends State<SmdjPage> {
     pause(setDialogState);
     currentIndex = 0;
     date = date.add(Duration(days: -1));
-    update();
+    updateData();
     setDialogState(() {});
   }
 
@@ -281,7 +295,7 @@ class _SmdjPageState extends State<SmdjPage> {
     pause(setDialogState);
     currentIndex = 0;
     date = date.add(Duration(days: 1));
-    update();
+    updateData();
     setDialogState(() {});
   }
 
@@ -290,18 +304,16 @@ class _SmdjPageState extends State<SmdjPage> {
 //////////////////////////
   int playState = 0;
   int currentIndex = 0;
-  bool hasInitHandler = false;
+  StateSetter setDialogState;
   void play(StateSetter setDialogState) {
-    if (!hasInitHandler) {
-      hasInitHandler = true;
-      flutterTts.setCompletionHandler(() {
-        if (records.length <= currentIndex) {
-          pause(setDialogState);
-        } else {
-          play(setDialogState);
-        }
-      });
-    }
+    flutterTts.completionHandler ??= () {
+      if (records.length <= currentIndex) {
+        pause(setDialogState);
+        currentIndex = 0;
+      } else {
+        play(setDialogState);
+      }
+    };
 
     if (records.length > currentIndex) {
       flutterTts.speak(records[currentIndex].content);
@@ -319,10 +331,11 @@ class _SmdjPageState extends State<SmdjPage> {
 
   void pause(StateSetter setDialogState) {
     flutterTts.stop();
-    hasInitHandler = false;
     playState = 0;
     currentIndex = currentIndex == 0 ? 0 : currentIndex - 1;
-    setDialogState(() {});
+    if (setDialogState != null) {
+      setDialogState(() {});
+    }
   }
 
 //////////////////////////

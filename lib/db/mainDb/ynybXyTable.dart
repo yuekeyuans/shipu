@@ -17,10 +17,10 @@ class YnybXyTable {
 
   YnybXyTable.fromJson(Map<String, dynamic> map) {
     ids = map["ids"].split(",") as List<String>;
-    days = int.parse(map["days"] as String);
+    days = int.parse(map["days"].toString());
     isComplete = (map["isComplete"].toString() == true.toString());
     // ignore: unnecessary_cast
-    comments = json.decode(map['comments'] as String) as Map<String, String>;
+    // comments = json.decode(map['comments'] as String) as Map<String, String>;
   }
 
   Map<String, String> toJson() {

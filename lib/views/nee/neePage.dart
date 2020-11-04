@@ -1,7 +1,7 @@
 import 'package:da_ka/global.dart';
+import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
+import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
-import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
 import 'package:flutter/material.dart';
 import 'package:da_ka/db/neeDb/neeContentTable.dart';
 import 'package:flutter/services.dart';
@@ -204,10 +204,8 @@ class _NeePageState extends State<NeePage> {
   }
 
 ////////////////////////////////////
-  ///
+  ///底部导航栏
 ///////////////////////////////////
-
-  //底部导航栏
   Future<void> showBottomSheetDialog() async {
     await showModalBottomSheet(
         context: context,
@@ -309,16 +307,11 @@ class _NeePageState extends State<NeePage> {
 
   /// 这是一个大类 TODO: 需要在之后被重新拆分,但是现在由于代码比较混乱，就先不动
   Widget createWidget(int index) {
-    //缩进文本
-    String indent(String content, double size) {
-      return "                                                                                                    ".substring(0, (size * 4).toInt()) + content;
-    }
-
 //基本内容
     Widget createContent(int index) {
       return ListTile(
         title: Text(
-          indent(mixedList[index].content, 2),
+          UtilFunction.indentText(mixedList[index].content, 2),
           textScaleFactor: baseScaleFactor,
         ),
       );
@@ -328,7 +321,7 @@ class _NeePageState extends State<NeePage> {
     Widget createNote(int index) {
       return ListTile(
         title: Text(
-          indent(mixedList[index].content, 2),
+          UtilFunction.indentText(mixedList[index].content, 2),
           textScaleFactor: baseScaleFactor - 0.1,
           textAlign: TextAlign.right,
         ),
@@ -410,7 +403,7 @@ class _NeePageState extends State<NeePage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              indent(mixedList[index].content, 1),
+              UtilFunction.indentText(mixedList[index].content, 1),
               style: TextStyle(fontWeight: FontWeight.bold),
               textScaleFactor: baseScaleFactor + 0.1,
             ),
@@ -423,7 +416,7 @@ class _NeePageState extends State<NeePage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              indent(mixedList[index].content, 2),
+              UtilFunction.indentText(mixedList[index].content, 2),
               style: TextStyle(fontWeight: FontWeight.bold),
               textScaleFactor: baseScaleFactor + 0.05,
             ),
@@ -436,7 +429,7 @@ class _NeePageState extends State<NeePage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              indent(mixedList[index].content, 2.5),
+              UtilFunction.indentText(mixedList[index].content, 2.5),
               style: TextStyle(fontWeight: FontWeight.bold),
               textScaleFactor: baseScaleFactor + 0.05,
             ),
@@ -449,7 +442,7 @@ class _NeePageState extends State<NeePage> {
           decoration: BoxDecoration(color: Colors.transparent),
           child: ListTile(
             title: Text(
-              indent(mixedList[index].content, 3),
+              UtilFunction.indentText(mixedList[index].content, 3),
               style: TextStyle(fontWeight: FontWeight.normal),
               textScaleFactor: baseScaleFactor + 0.05,
             ),

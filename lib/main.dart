@@ -33,8 +33,7 @@ Future<void> main() async {
     print(SpUtil.getString("MAIN_PATH"));
     copyPf0File();
   });
-  print("init db");
-  Isolate.spawn(initDb, "");
+  initDb();
   runApp(MyApp());
 }
 
@@ -134,11 +133,35 @@ Future<void> initVal() async {
 }
 
 /// 文件拷贝初始化异步执行，避免阻塞文件运行
-Future<void> initDb(String _) async {
-  MainDb().db;
-  BibleDb().db;
-  LifeStudyDb().db;
-  NeeDb().db;
+Future<void> initDb() async {
+  await MainDb().db;
+  await BibleDb().db;
+  await LifeStudyDb().db;
+  await NeeDb().db;
+}
+
+// the entry point for the isolate
+echo(SendPort sendPort) async {
+  // Open the ReceivePort for incoming messages.
+  var port = ReceivePort();
+
+  // Notify any other isolates what port this isolate listens to.
+  sendPort.send(port.sendPort);
+
+  await for (var msg in port) {
+    var data = msg[0];
+    SendPort replyTo = msg[1] as SendPort;
+    replyTo.send(data);
+    if (data == "bar") port.close();
+  }
+}
+
+/// sends a message on a port, receives the response,
+/// and returns the message
+Future sendReceive(SendPort port, msg) {
+  ReceivePort response = ReceivePort();
+  port.send([msg, response.sendPort]);
+  return response.first;
 }
 
 // pf0 文件拷贝，这个文件设置isilo 文件位置

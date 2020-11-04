@@ -6,7 +6,6 @@ import 'package:nav_router/nav_router.dart';
 import 'package:da_ka/db/neeDb/neeBookNameTable.dart';
 import 'package:da_ka/db/neeDb/neeCatagoryTable.dart';
 import 'package:da_ka/db/neeDb/neeOutlineTable.dart';
-import 'package:da_ka/views/smdj/smdjViewer.dart';
 
 class NeeIndexPage extends StatefulWidget {
   @override

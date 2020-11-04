@@ -1,119 +1,38 @@
 import 'package:da_ka/global.dart';
-import 'package:da_ka/mainDir/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
-import 'package:da_ka/views/daka/bibleOneYearNewTestment/ynybXyPage.dart';
-import 'package:da_ka/views/daka/bibleOneYearOldTestment/ynybJyPage.dart';
-import 'package:da_ka/views/daka/reciteBible/ReciteBiblePage.dart';
+import 'package:da_ka/views/bibleView/ynybJyPage.dart';
+import 'package:da_ka/views/bibleView/ynybxyPage.dart';
 import 'package:da_ka/views/smdj/smdjPage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nav_router/nav_router.dart';
+import 'package:settings_ui/settings_ui.dart';
 
-class CheckInPage extends StatefulWidget {
+class DailyPage extends StatefulWidget {
   @override
-  _CheckInPageState createState() => _CheckInPageState();
+  _DailyPageState createState() => _DailyPageState();
 }
 
-class _CheckInPageState extends State<CheckInPage> {
-  DateTime date = DateTime.now();
-
-  @override
-  void initState() {
-    super.initState();
-    updatePage();
-  }
-
-  updatePage() async {
-    setState(() {});
-  }
-
+class _DailyPageState extends State<DailyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: PreferredSize(child: AppBar(title: Text("日常")), preferredSize: Size.fromHeight(APPBAR_HEIGHT)),
-        body: Container(
-          color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
-          child: ListView(
-            children: getChildren(),
+      appBar: PreferredSize(
+          child: AppBar(
+            title: Text("日常操练"),
           ),
-        ));
-  }
-
-  List<Widget> getChildren() {
-    var widgets = <Widget>[];
-
-    widgets.addAll(getBj());
-    widgets.addAll(getXy());
-    widgets.addAll(getJy());
-    widgets.addAll(getSmdj());
-
-    return widgets;
-  }
-
-  //返回背经
-  List<Widget> getBj() {
-    var lst = <Widget>[];
-    if (ReciteBibleEntity.fromSp().isOn) {
-      lst.add(wrapListTile(
-        ListTile(
-          title: Text("背经"),
-          onTap: () => routePush(ReciteBiblePage()).then((value) => updatePage()),
-        ),
-      ));
-      lst.add(Divider(height: 1.0));
-    }
-    return lst;
-  }
-
-  //返回新约
-  List<Widget> getXy() {
-    var lst = <Widget>[];
-    lst.add(wrapListTile(
-      ListTile(
-        title: Text("一年一遍-新约"),
-        onTap: () => routePush(YnybXyPage()).then((value) => updatePage()),
+          preferredSize: Size.fromHeight(APPBAR_HEIGHT)),
+      body: SettingsList(
+        sections: [
+          SettingsSection(
+            title: "一年一遍",
+            tiles: [
+              SettingsTile(title: "新约", leading: SvgPicture.asset("assets/icon/book_new.svg", width: 32, height: 32, color: Theme.of(context).disabledColor), onTap: () => routePush(YnybXyPage())),
+              SettingsTile(title: "旧约", leading: SvgPicture.asset("assets/icon/book_old.svg", width: 32, height: 32, color: Theme.of(context).disabledColor), onTap: () => routePush(YnybJyPage())),
+              SettingsTile(title: "生命读经", leading: SvgPicture.asset("assets/icon/life_reading.svg", width: 32, height: 32, color: Theme.of(context).disabledColor), onTap: () => routePush(SmdjPage())),
+            ],
+          )
+        ],
       ),
-    ));
-    lst.add(Divider(height: 1.0));
-    return lst;
-  }
-
-  //返回旧约
-  List<Widget> getJy() {
-    var lst = <Widget>[];
-    lst.add(wrapListTile(
-      ListTile(
-        title: Text("一年一遍-旧约"),
-        onTap: () => routePush(YnybJyPage()).then((value) => updatePage()),
-      ),
-    ));
-
-    lst.add(Divider(height: 1.0));
-    return lst;
-  }
-
-  //返回生命读经
-  List<Widget> getSmdj() {
-    var lst = <Widget>[];
-    lst.add(wrapListTile(
-      ListTile(
-        title: Text("每日生命读经"),
-        onTap: () => routePush(SmdjPage()).then((value) => updatePage()),
-      ),
-    ));
-
-    lst.add(Divider(height: 1.0));
-    return lst;
-  }
-
-  //包装器
-  Widget wrapListTile(Widget widget, {bool isRead = false, Function onReaded}) {
-    return Slidable(
-      actionPane: SlidableDrawerActionPane(),
-      actionExtentRatio: 0.25,
-      child: Container(decoration: BoxDecoration(color: isRead ? Colors.black12 : null), child: widget),
-      secondaryActions: <Widget>[
-        IconSlideAction(caption: isRead ? '取消打卡' : '打卡', color: Colors.blue, icon: isRead ? Icons.blur_off : Icons.blur_on, onTap: () => onReaded()),
-      ],
     );
   }
 }

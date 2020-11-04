@@ -1,3 +1,5 @@
+import 'package:da_ka/global.dart';
+
 import 'mdxSqlite.dart';
 
 class MdxEntry {
@@ -222,5 +224,17 @@ class MdxEntry {
   @override
   int get hashCode {
     return id.hashCode ^ sortId.hashCode ^ tagId.hashCode ^ entry.hashCode ^ text.hashCode ^ mkdown.hashCode ^ html.hashCode ^ visiable.hashCode ^ createdate.hashCode ^ lastUpdateDate.hashCode ^ lastViewDate.hashCode;
+  }
+
+  // 获取首页的entry
+  static Future<List<MdxEntry>> queryFirstPageEntry() async {
+    var db = await MdxDb().db;
+    // var res = await db.query(TABLENAME, where: "entry in (?) and tagId = ?", whereArgs: ["'" + FIRST_PAGE_NAME.join("', '") + "'", MdxTag.TAG_ID_PARENT]);
+    var res = await db.rawQuery("select * from entry where entry in ('首页', '目录', 'index', 'content', 'default') and tagId = 0");
+    var list = res.map<MdxEntry>((e) => MdxEntry.fromJson(e)).toList();
+    list.sort((e1, e2) {
+      return FIRST_PAGE_NAME.indexOf(e1.entry) - FIRST_PAGE_NAME.indexOf(e2.entry);
+    });
+    return list;
   }
 }

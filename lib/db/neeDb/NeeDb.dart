@@ -10,15 +10,13 @@ class NeeDb {
   factory NeeDb() => _instance;
   static Database _db;
 
-  final filename = "nee.db";
-
   Future<Database> get db async {
     var dir = SpUtil.getString("DB_PATH");
-    var path = '$dir/$filename';
+    String fileName = "nee.db";
+    var path = '$dir/$fileName';
     if (_db == null) {
       if (!File(path).existsSync()) {
-        var bytes = await rootBundle.load("assets/db/nee.zip");
-        UtilFunction.unzip(bytes.buffer.asUint8List(), dir);
+        UtilFunction.copyFile(await rootBundle.load("assets/db/$fileName"), '$dir/$fileName');
       }
       _db = await openDatabase(path, version: 1);
     }

@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:da_ka/db/mainDb/contentFileInfoTable.dart';
 import 'package:da_ka/global.dart';
-import 'package:da_ka/views/mdxView/mdxView.dart';
+// import 'package:da_ka/views/mdxView/mdxView_flutter.dart';
+
+import 'package:da_ka/views/mdxView/mdxView_native.dart';
 import 'package:da_ka/views/nee/neeIndexPage.dart';
 import 'package:da_ka/views/openViews/openDocPage.dart';
 import 'package:da_ka/views/openViews/openImagePage.dart';
@@ -137,7 +139,7 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
               child: Container(
                   child: ListTile(
                       leading: SvgPicture.asset(icons[sectionIndex], width: 32, height: 32, color: Theme.of(context).disabledColor),
-                      title: Text(item.filename ?? "顶顶顶顶顶"),
+                      title: Text(item.filename ?? ""),
                       onTap: () {
                         print(item);
                         openFile(item);

@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:da_ka/global.dart';
+import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
+import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
-import 'package:da_ka/views/daka/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/views/daka/dakaSettings/dakaSettingsEntity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:nav_router/nav_router.dart';

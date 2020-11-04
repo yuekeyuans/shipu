@@ -150,4 +150,27 @@ class UtilFunction {
   static void invokeApp(Map<String, dynamic> package) {
     installApkChannel.invokeMethod("startApp", package);
   }
+
+  //缩进文本
+  static String indentText(String content, double size) {
+    return "                                                                                                    ".substring(0, (size * 4).toInt()) + content;
+  }
+
+  //punycode 转 中文
+  static Future<String> punyCodeConvertToText(String src) async {
+    String res = "";
+    await convertChannel.invokeMethod("punyCodeConvertToText").then((value) {
+      res = value.toString();
+    });
+    return res;
+  }
+
+  //chinese to punycode
+  static Future<String> textConvertToPunyCode(String src) async {
+    String res = "";
+    await convertChannel.invokeMethod("textConvertToPunyCode").then((value) {
+      res = value.toString();
+    });
+    return res;
+  }
 }

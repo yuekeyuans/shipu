@@ -15,7 +15,7 @@ class _MainNavigatorState extends State<MainNavigator> {
   @override
   void initState() {
     super.initState();
-    pages..add(ContentPage())..add(CheckInPage())..add(FunctionPage());
+    pages..add(ContentPage())..add(DailyPage())..add(FunctionPage());
   }
 
   @override
