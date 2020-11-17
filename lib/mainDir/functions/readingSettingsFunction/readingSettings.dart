@@ -7,8 +7,9 @@ import 'package:settings_ui/settings_ui.dart';
 class ReadingSettings extends StatefulWidget {
   final bool showFontSize;
   final bool showSpeechControl;
+  final bool showBibleControl;
 
-  ReadingSettings(this.showFontSize, {this.showSpeechControl = false});
+  ReadingSettings(this.showFontSize, {this.showSpeechControl = false, this.showBibleControl = false});
 
   @override
   _ReadingSettingsState createState() => _ReadingSettingsState();
@@ -177,26 +178,54 @@ class _ReadingSettingsState extends State<ReadingSettings> {
   @override
   Widget build(BuildContext context) {
     var settingsSection = <SettingsSection>[];
-    //字体大小
+    var entity = ReadingSettingsEntity.fromSp();
+
+    ///字体大小
     if (widget.showFontSize) {
       settingsSection.add(SettingsSection(title: "文字设置", tiles: [
         SettingsTile(
           title: "放大倍数",
-          trailing: Text("${(ReadingSettingsEntity.fromSp().baseFont * 100).toInt()}%"),
+          trailing: Text("${(entity.baseFont * 100).toInt()}%"),
           onTap: fontSizeDialog,
         )
       ]));
-      //语音设置
-      if (widget.showSpeechControl) {
-        settingsSection.add(SettingsSection(
-          title: "语音设置",
-          tiles: [
-            SettingsTile(title: "音量", trailing: Text("${(ReadingSettingsEntity.fromSp().volumn * 100).toInt()}%"), onTap: volumn),
-            SettingsTile(title: "速度", trailing: Text("${(ReadingSettingsEntity.fromSp().speechRate * 100).toInt()}%"), onTap: speedRate),
-            SettingsTile(title: "音调", trailing: Text("${(ReadingSettingsEntity.fromSp().pitch * 100).toInt()}%"), onTap: pitch),
-          ],
-        ));
-      }
+    }
+
+    ///语音设置
+    if (widget.showSpeechControl) {
+      settingsSection.add(SettingsSection(
+        title: "语音设置",
+        tiles: [
+          SettingsTile(title: "音量", trailing: Text("${(entity.volumn * 100).toInt()}%"), onTap: volumn),
+          SettingsTile(title: "速度", trailing: Text("${(entity.speechRate * 100).toInt()}%"), onTap: speedRate),
+          SettingsTile(title: "音调", trailing: Text("${(entity.pitch * 100).toInt()}%"), onTap: pitch),
+        ],
+      ));
+    }
+
+    ///圣经设置
+    if (widget.showBibleControl) {
+      settingsSection.add(SettingsSection(
+        title: "读经设置",
+        tiles: [
+          SettingsTile.switchTile(
+              title: "显示注解",
+              onToggle: (v) {
+                entity.showFootNote = v;
+                entity.toSp();
+                setState(() {});
+              },
+              switchValue: entity.showFootNote),
+          SettingsTile.switchTile(
+              title: "显示纲目",
+              onToggle: (v) {
+                entity.showOutline = v;
+                entity.toSp();
+                setState(() {});
+              },
+              switchValue: entity.showOutline),
+        ],
+      ));
     }
 
     return Scaffold(

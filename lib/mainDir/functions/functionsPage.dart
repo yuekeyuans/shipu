@@ -76,7 +76,7 @@ class _FunctionPageState extends State<FunctionPage> {
             SettingsTile(
               title: "阅读设置",
               leading: Icon(Icons.remove_red_eye),
-              onTap: () => routePush(ReadingSettings(true, showSpeechControl: true)),
+              onTap: () => routePush(ReadingSettings(true, showSpeechControl: true, showBibleControl: true)),
             ),
           ],
         ),

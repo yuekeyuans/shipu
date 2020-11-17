@@ -41,6 +41,8 @@ class _YnybJyPageState extends State<YnybJyPage> {
   FlutterTts flutterTts;
 
   double baseFontScaler = 1.0;
+  bool showOutlines;
+  bool showFootnotes;
 
   @override
   void dispose() {
@@ -53,7 +55,6 @@ class _YnybJyPageState extends State<YnybJyPage> {
     super.initState();
     controller = AutoScrollController(viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom), axis: Axis.vertical);
     updateSetting();
-    updateData();
   }
 
   @override
@@ -74,15 +75,17 @@ class _YnybJyPageState extends State<YnybJyPage> {
   ///数据加载，更新和排列
 ////////////////////////////////
   Future<void> updateSetting() async {
+    var e = ReadingSettingsEntity.fromSp();
     //更新声音
     flutterTts = FlutterTts();
     flutterTts.setLanguage("zh-hant");
-    var e = ReadingSettingsEntity.fromSp();
     await flutterTts.setVolume(e.volumn);
     await flutterTts.setPitch(e.pitch);
     await flutterTts.setSpeechRate(e.speechRate);
-    baseFontScaler = ReadingSettingsEntity.fromSp().baseFont;
-    setState(() {});
+    baseFontScaler = e.baseFont;
+    showFootnotes = e.showFootNote;
+    showOutlines = e.showOutline;
+    updateData();
   }
 
   updateData() async {
@@ -103,7 +106,6 @@ class _YnybJyPageState extends State<YnybJyPage> {
       biblesIds[element.chapter].add(element.section); //bibleIds
     });
 
-    //大纲
     outlines = await BibleOutlineTable.queryByChaptersAndSections(bookIndex, biblesIds); //outlines
     outlines.forEach((element) {
       if (!outlinesIds.containsKey(element.chapter)) {
@@ -142,7 +144,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
     });
   }
 
-  //合并 所有内容
+  ///章节
   mergeList() {
     chapters.forEach((element) {
       mixedList.add(BibleItem(id: 0, chapter: element, content: "$bookName第${element.chapterId.toString()}章"));
@@ -150,15 +152,20 @@ class _YnybJyPageState extends State<YnybJyPage> {
     });
   }
 
+  ///圣经节
   void mergeBibleContent(BibleChapter chapter) {
     bibles.forEach((element) {
       if (element.chapter == chapter.chapterId) {
-        mergeOutline(element);
+        if (showOutlines) {
+          //显示outline 时,才添加outline
+          mergeOutline(element);
+        }
         mixedList.add(BibleItem(id: 1, bible: element, content: element.content));
       }
     });
   }
 
+  ///纲目
   void mergeOutline(BibleContentTable content) {
     if (outlinesIds.containsKey(content.chapter) && outlinesIds[content.chapter].contains(content.section)) {
       outlines.forEach((element) {
@@ -254,12 +261,10 @@ class _YnybJyPageState extends State<YnybJyPage> {
     }
   }
 
-  //创建带经文的内容
-  bool showFootnote = true;
+  ///创建带经文的内容
   Text createTextSpan(int index) {
     var section = mixedList[index].bible;
-    print(section.footNotes.length);
-    if (!showFootnote || section.footNotes.isEmpty) {
+    if (!showFootnotes || section.footNotes.isEmpty) {
       return Text(
         section.content,
         softWrap: true,
@@ -531,7 +536,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
                           icon: Icon(Icons.settings),
                           onPressed: () {
                             pause(setDialogState);
-                            routePush(ReadingSettings(true, showSpeechControl: true)).then((value) => updateSetting());
+                            routePush(ReadingSettings(true, showSpeechControl: true, showBibleControl: true)).then((value) => updateSetting());
                           })
                     ],
                   )
