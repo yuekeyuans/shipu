@@ -1,9 +1,12 @@
 import 'package:da_ka/db/bible/bibleDb.dart';
+import 'package:da_ka/db/bible/bibleFootnoteTable.dart';
 import 'package:da_ka/db/mainDb/recitebibleTable.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
 
 class BibleContentTable {
   static const String TABLENAME = "content";
+  List<BibleFotnoteTable> footNotes = [];
+
   int id;
   int bookIndex;
   int chapter;

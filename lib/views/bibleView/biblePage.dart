@@ -5,12 +5,12 @@ import 'package:da_ka/db/bible/bibleItem.dart';
 import 'package:da_ka/db/bible/bibleOutlineTable.dart';
 import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/global.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:flustars/flustars.dart';
 import "package:flutter/material.dart";
-import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
+import 'package:flutter_material_pickers/helpers/show_swatch_picker.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
@@ -77,11 +77,11 @@ class _BiblePageState extends State<BiblePage> {
     //更新声音
     flutterTts = FlutterTts();
     flutterTts.setLanguage("zh-hant");
-    var e = DakaSettingsEntity.fromSp();
+    var e = ReadingSettingsEntity.fromSp();
     await flutterTts.setVolume(e.volumn);
     await flutterTts.setPitch(e.pitch);
     await flutterTts.setSpeechRate(e.speechRate);
-    baseFontScaler = DakaSettingsEntity.fromSp().baseFont;
+    baseFontScaler = ReadingSettingsEntity.fromSp().baseFont;
     setState(() {});
   }
 
@@ -324,16 +324,17 @@ class _BiblePageState extends State<BiblePage> {
     var info = record.mark;
     bool isMarked = record.mark == "";
     if (isMarked) {
-      openColorDialog(
-          "Main Color picker",
-          MaterialColorPicker(
-              allowShades: false,
-              onMainColorChange: (color) => setState(
-                    () => info = UtilFunction.colorToString(color),
-                  )), submit: () async {
-        await record.setMarked(info);
-        setState(() {});
-      });
+      Color swatch = Colors.blue;
+      //颜色改变
+      showMaterialSwatchPicker(
+        context: context,
+        selectedColor: swatch,
+        onChanged: (color) => setState(() => info = UtilFunction.colorToString(color)),
+        onConfirmed: () async {
+          await record.setMarked(info);
+          setState(() {});
+        },
+      );
     } else {
       await record.setMarked("");
       setState(() {});
@@ -490,7 +491,9 @@ class _BiblePageState extends State<BiblePage> {
                           icon: Icon(Icons.settings),
                           onPressed: () {
                             pause(setDialogState);
-                            routePush(DakaSettings()).then((value) => updateSetting());
+                            routePush(ReadingSettings(true, showSpeechControl: true)).then((value) {
+                              updateSetting();
+                            });
                           })
                     ],
                   )

@@ -1,17 +1,19 @@
 import 'package:common_utils/common_utils.dart';
 import 'package:da_ka/db/bible/bibleChapter.dart';
 import 'package:da_ka/db/bible/bibleContentTable.dart';
+import 'package:da_ka/db/bible/bibleFootnoteTable.dart';
 import 'package:da_ka/db/bible/bibleItem.dart';
 import 'package:da_ka/db/bible/bibleOutlineTable.dart';
 import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/mainDb/YnybJyTable.dart';
 import 'package:da_ka/global.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:flustars/flustars.dart';
+import 'package:flutter/gestures.dart';
 import "package:flutter/material.dart";
-import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
+import 'package:flutter_material_pickers/helpers/show_swatch_picker.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
@@ -30,6 +32,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
   List<BibleChapter> chapters = [];
   List<BibleOutlineTable> outlines = [];
   List<BibleItem> mixedList = [];
+  List<BibleFotnoteTable> footNotes = [];
   Map<int, List<int>> biblesIds = {};
   Map<int, List<int>> outlinesIds = {};
   int bookIndex;
@@ -74,11 +77,11 @@ class _YnybJyPageState extends State<YnybJyPage> {
     //更新声音
     flutterTts = FlutterTts();
     flutterTts.setLanguage("zh-hant");
-    var e = DakaSettingsEntity.fromSp();
+    var e = ReadingSettingsEntity.fromSp();
     await flutterTts.setVolume(e.volumn);
     await flutterTts.setPitch(e.pitch);
     await flutterTts.setSpeechRate(e.speechRate);
-    baseFontScaler = DakaSettingsEntity.fromSp().baseFont;
+    baseFontScaler = ReadingSettingsEntity.fromSp().baseFont;
     setState(() {});
   }
 
@@ -87,6 +90,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
     outlinesIds = {};
     mixedList = [];
     chapters = [];
+    footNotes = [];
     var record = await YnybJyTable().queryByDate(date);
     bibles = await BibleContentTable().queryByIds(record.ids); //bible
     bookIndex = bibles.first.bookIndex;
@@ -98,12 +102,30 @@ class _YnybJyPageState extends State<YnybJyPage> {
       }
       biblesIds[element.chapter].add(element.section); //bibleIds
     });
+
+    //大纲
     outlines = await BibleOutlineTable.queryByChaptersAndSections(bookIndex, biblesIds); //outlines
     outlines.forEach((element) {
       if (!outlinesIds.containsKey(element.chapter)) {
         outlinesIds[element.chapter] = <int>[];
       }
       outlinesIds[element.chapter].add(element.section); //outlinesIds
+    });
+
+    //注解
+    footNotes = await BibleFotnoteTable.queryByChaptersAndSections(bookIndex, biblesIds);
+    footNotes.forEach((element) {
+      var chapter = element.chapter;
+      var section = element.section;
+      for (var i = 0; i < bibles.length; i++) {
+        if (bibles[i].chapter == chapter && bibles[i].section == section) {
+          bibles[i].footNotes.add(element);
+          if (element.note == "") {
+            element.note = footNotes[footNotes.indexOf(element) - 1].note;
+          }
+          break;
+        }
+      }
     });
 
     mergeList();
@@ -211,13 +233,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
                     textScaleFactor: baseFontScaler,
                   ),
                 ),
-                Expanded(
-                    child: Text(
-                  mixedList[index].content,
-                  softWrap: true,
-                  maxLines: 10,
-                  textScaleFactor: baseFontScaler,
-                )),
+                Expanded(child: createTextSpan(index)),
               ],
             ),
             SizedBox(height: 5),
@@ -236,6 +252,60 @@ class _YnybJyPageState extends State<YnybJyPage> {
             )),
       );
     }
+  }
+
+  //创建带经文的内容
+  bool showFootnote = true;
+  Text createTextSpan(int index) {
+    var section = mixedList[index].bible;
+    print(section.footNotes.length);
+    if (!showFootnote || section.footNotes.isEmpty) {
+      return Text(
+        section.content,
+        softWrap: true,
+        maxLines: 10,
+        textScaleFactor: baseFontScaler,
+      );
+    }
+    var remainText = section.content;
+    //倒叙方法
+    var textSpan = <TextSpan>[];
+    section.footNotes.reversed.forEach((e) {
+      var location = e.location;
+      var rightText = remainText.substring(location - 1);
+
+      textSpan.add(TextSpan(text: rightText));
+      textSpan.add(
+        TextSpan(
+          text: " ${UtilFunction.numberToSuperIndex(e.seq.toString())}",
+          style: TextStyle(color: Colors.red),
+          recognizer: TapGestureRecognizer()..onTap = () => showFootNoteAlert(e),
+        ),
+      );
+      remainText = remainText.substring(0, location - 1);
+    });
+    if (remainText.isNotEmpty) {
+      textSpan.add(TextSpan(text: remainText));
+    }
+
+    return Text.rich(
+      TextSpan(text: "", children: textSpan.reversed.toList()),
+      textScaleFactor: baseFontScaler,
+    );
+  }
+
+  Future<void> showFootNoteAlert(BibleFotnoteTable footNote) async {
+    String bookName = (await BibleBookNameTable.queryBookName(footNote.bookIndex)).toString();
+    String name = "$bookName${footNote.chapter.toString()}:${footNote.section.toString()}注${footNote.seq.toString()}";
+    showDialog(
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text(name),
+            contentPadding: EdgeInsets.all(24.0),
+            children: [Text(footNote.note, textScaleFactor: baseFontScaler)],
+          );
+        });
   }
 
 ////////////////////////////
@@ -321,47 +391,22 @@ class _YnybJyPageState extends State<YnybJyPage> {
     var info = record.mark;
     bool isMarked = record.mark == "";
     if (isMarked) {
-      openColorDialog(
-          "Main Color picker",
-          MaterialColorPicker(
-              allowShades: false,
-              onMainColorChange: (color) => setState(
-                    () => info = UtilFunction.colorToString(color),
-                  )), submit: () async {
-        await record.setMarked(info);
-        setState(() {});
-      });
+      Color swatch = Colors.blue;
+      //颜色改变
+      showMaterialSwatchPicker(
+        title: "选取背景色",
+        context: context,
+        selectedColor: swatch,
+        onChanged: (color) => setState(() => info = UtilFunction.colorToString(color)),
+        onConfirmed: () async {
+          await record.setMarked(info);
+          setState(() {});
+        },
+      );
     } else {
       await record.setMarked("");
       setState(() {});
     }
-  }
-
-  //颜色对话框
-  void openColorDialog(String title, Widget content, {Function submit}) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          contentPadding: const EdgeInsets.all(6.0),
-          title: Text(title),
-          content: content,
-          actions: [
-            FlatButton(
-              child: Text('CANCEL'),
-              onPressed: Navigator.of(context).pop,
-            ),
-            FlatButton(
-              child: Text('SUBMIT'),
-              onPressed: () {
-                submit();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
 //////////////////////////
@@ -481,13 +526,12 @@ class _YnybJyPageState extends State<YnybJyPage> {
                               icon: Icon(Icons.adjust),
                               onPressed: () => toToday(setDialogState),
                             ),
-
                       //设置
                       IconButton(
                           icon: Icon(Icons.settings),
                           onPressed: () {
                             pause(setDialogState);
-                            routePush(DakaSettings()).then((value) => updateSetting());
+                            routePush(ReadingSettings(true, showSpeechControl: true)).then((value) => updateSetting());
                           })
                     ],
                   )

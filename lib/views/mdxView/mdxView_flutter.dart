@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:da_ka/views/mdxView/MdxViewIndexNext.dart';
 import 'package:flustars/flustars.dart';
@@ -99,7 +99,7 @@ class _MdxViewerState extends State<MdxViewer> {
 
   Future<void> updateInfo() async {
     flutterTts = FlutterTts();
-    var e = DakaSettingsEntity.fromSp();
+    var e = ReadingSettingsEntity.fromSp();
     fontSize = 16.0 * e.baseFont;
     await flutterTts.setLanguage("zh-hant");
     await flutterTts.setVolume(e.volumn);
@@ -163,7 +163,7 @@ class _MdxViewerState extends State<MdxViewer> {
                   updatePage();
                 },
               ), //设置
-              IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => updateInfo())),
+              IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(ReadingSettings(true, showSpeechControl: true)).then((value) => updateInfo())),
             ],
           )
         ]));

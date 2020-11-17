@@ -2,13 +2,13 @@ import 'package:common_utils/common_utils.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyRecord.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyTable.dart';
 import 'package:da_ka/global.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:da_ka/views/smdj/smdjIndexPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
+import 'package:flutter_material_pickers/helpers/show_swatch_picker.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
@@ -38,7 +38,7 @@ class _SmdjPageState extends State<SmdjPage> {
 
   @override
   void dispose() {
-    pause(setDialogState);
+    flutterTts.stop();
     super.dispose();
   }
 
@@ -48,13 +48,13 @@ class _SmdjPageState extends State<SmdjPage> {
   Future<void> updateSetting() async {
     //更新声音
     flutterTts = FlutterTts();
-    var e = DakaSettingsEntity.fromSp();
+    var e = ReadingSettingsEntity.fromSp();
     await flutterTts.setLanguage("zh-hant");
     await flutterTts.setVolume(e.volumn);
     await flutterTts.setPitch(e.pitch);
     await flutterTts.setSpeechRate(e.speechRate);
 
-    baseScaleFactor = DakaSettingsEntity.fromSp().baseFont;
+    baseScaleFactor = ReadingSettingsEntity.fromSp().baseFont;
     setState(() {});
   }
 
@@ -175,7 +175,14 @@ class _SmdjPageState extends State<SmdjPage> {
 
                       IconButton(icon: Icon(Icons.view_list_sharp), onPressed: () => routePush(SmdjIndexPage())),
                       //设置
-                      IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => updateSetting())),
+                      IconButton(
+                          icon: Icon(Icons.settings),
+                          onPressed: () {
+                            pause(setDialogState);
+                            routePush(ReadingSettings(true, showSpeechControl: true)).then((value) {
+                              updateSetting();
+                            });
+                          })
                     ],
                   )
                 ]));
@@ -224,50 +231,23 @@ class _SmdjPageState extends State<SmdjPage> {
     bool isMarked = record.mark == "";
     print(record.mark);
     if (isMarked) {
-      openColorDialog(
-          "请选择颜色",
-          MaterialColorPicker(
-              allowShades: false,
-              onMainColorChange: (color) => setState(
-                    () => info = UtilFunction.colorToString(color),
-                  )), submit: () async {
-        print(info);
-        await record.setMarked(info);
-        setState(() {});
-      });
+      Color swatch = Colors.blue;
+      //颜色改变
+      showMaterialSwatchPicker(
+        title: "选取背景色",
+        context: context,
+        selectedColor: swatch,
+        onChanged: (color) => setState(() => info = UtilFunction.colorToString(color)),
+        onConfirmed: () async {
+          await record.setMarked(info);
+          setState(() {});
+        },
+      );
     } else {
       await record.setMarked("");
       setState(() {});
     }
   }
-
-  //颜色对话框
-  void openColorDialog(String title, Widget content, {Function submit}) {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          contentPadding: const EdgeInsets.all(6.0),
-          title: Text(title),
-          content: content,
-          actions: [
-            FlatButton(
-              child: Text('取消'),
-              onPressed: Navigator.of(context).pop,
-            ),
-            FlatButton(
-              child: Text('确定'),
-              onPressed: () {
-                submit();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
 //////////////////////////
   ///前进后退返回
 //////////////////////////

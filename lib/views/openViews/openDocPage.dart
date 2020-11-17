@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:da_ka/global.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -27,7 +27,7 @@ class _DocViewerState extends State<DocViewer> {
   String title;
   String content = "";
   List<String> contents;
-  FlutterTts flutterTts = FlutterTts();
+  FlutterTts flutterTts;
 
   _DocViewerState(this.docPath) {
     sharePath = docPath;
@@ -41,7 +41,7 @@ class _DocViewerState extends State<DocViewer> {
   void initState() {
     super.initState();
     preProcessFile();
-    updateInfo();
+    updateSetting();
   }
 
   @override
@@ -50,8 +50,9 @@ class _DocViewerState extends State<DocViewer> {
     super.dispose();
   }
 
-  Future<void> updateInfo() async {
-    var e = DakaSettingsEntity.fromSp();
+  Future<void> updateSetting() async {
+    flutterTts = FlutterTts();
+    var e = ReadingSettingsEntity.fromSp();
     await flutterTts.setLanguage("zh-hant");
     await flutterTts.setVolume(e.volumn);
     await flutterTts.setPitch(e.pitch);
@@ -170,7 +171,7 @@ class _DocViewerState extends State<DocViewer> {
   }
 
   void scalePage() {
-    var factor = DakaSettingsEntity.fromSp().baseFont;
+    var factor = ReadingSettingsEntity.fromSp().baseFont;
     _webViewController.evaluateJavascript("document.body.style.zoom=$factor");
   }
 
@@ -193,7 +194,17 @@ class _DocViewerState extends State<DocViewer> {
                       ? IconButton(icon: Icon(Icons.stop), onPressed: () => play(setDialogState))
                       : IconButton(icon: Icon(Icons.play_arrow), onPressed: () => pause(setDialogState)),
                   //设置
-                  IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => updateInfo())),
+                  IconButton(
+                      icon: Icon(Icons.settings),
+                      onPressed: () {
+                        pause(setDialogState);
+                        routePush(ReadingSettings(
+                          true,
+                          showSpeechControl: true,
+                        )).then((value) {
+                          updateSetting();
+                        });
+                      })
                 ],
               )
             ]));

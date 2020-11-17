@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -12,8 +14,6 @@ import 'package:da_ka/db/mdx/mdxDict.dart';
 import 'package:da_ka/db/mdx/mdxEntry.dart';
 import 'package:da_ka/db/mdx/mdxSqlite.dart';
 import 'package:da_ka/global.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:da_ka/views/mdxView/MdxViewIndexNext.dart';
 
@@ -266,7 +266,7 @@ class _MdxViewerState extends State<MdxViewer> {
   Future<void> updateSetting() async {
     //更新声音
     flutterTts = FlutterTts();
-    var e = DakaSettingsEntity.fromSp();
+    var e = ReadingSettingsEntity.fromSp();
     await flutterTts.getEngines;
     await flutterTts.setLanguage("zh-hant");
     await flutterTts.setVolume(e.volumn);
@@ -356,9 +356,9 @@ class _MdxViewerState extends State<MdxViewer> {
                     icon: Icon(Icons.settings),
                     onPressed: () {
                       hideWeb();
-                      routePush(DakaSettings()).then((value) {
+                      pause(setDialogState);
+                      routePush(ReadingSettings(true, showSpeechControl: true)).then((value) {
                         showWeb();
-                        pause(setDialogState);
                         updateSetting();
                       });
                     }),

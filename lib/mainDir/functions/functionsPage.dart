@@ -2,8 +2,8 @@ import 'package:da_ka/global.dart';
 import 'package:da_ka/mainDir/functions/apkInstall/apkClockInFunctionPage.dart';
 import 'package:da_ka/mainDir/functions/apkInstall/apkIsiloFunctionPage.dart';
 import 'package:da_ka/mainDir/functions/apkInstall/apkKuaichuanFunctionPage.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
 import 'package:da_ka/mainDir/functions/descriptionFunction/descriptionFunction.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,6 @@ import 'package:settings_ui/settings_ui.dart';
 import 'scanFileFunction/scanFile.dart';
 import 'splashFunction/splashFunction.dart';
 import 'storageFunction/storageFunctionPage.dart';
-import 'package:da_ka/views/nee/neePage.dart';
 
 class FunctionPage extends StatefulWidget {
   @override
@@ -77,7 +76,7 @@ class _FunctionPageState extends State<FunctionPage> {
             SettingsTile(
               title: "阅读设置",
               leading: Icon(Icons.remove_red_eye),
-              onTap: () => routePush(DakaSettings()),
+              onTap: () => routePush(ReadingSettings(true, showSpeechControl: true)),
             ),
           ],
         ),
@@ -96,16 +95,6 @@ class _FunctionPageState extends State<FunctionPage> {
               title: "信息",
               leading: Icon(Icons.link),
               onTap: () => routePush(DescriptionFunction()),
-            ),
-          ],
-        ),
-        SettingsSection(
-          title: "测试",
-          tiles: [
-            SettingsTile(
-              title: "nee",
-              leading: Icon(Icons.link),
-              onTap: () => routePush(NeePage(1, 1)),
             ),
           ],
         ),

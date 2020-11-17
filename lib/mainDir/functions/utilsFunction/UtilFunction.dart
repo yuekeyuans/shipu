@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf_text/pdf_text.dart';
 
+import 'charcode.dart';
+
 class UtilFunction {
   static MethodChannel encriptionChannel = MethodChannel("com.example.clock_in/encription");
   static MethodChannel convertChannel = MethodChannel("com.example.clock_in/converter");
@@ -172,5 +174,14 @@ class UtilFunction {
       res = value.toString();
     });
     return res;
+  }
+
+  //转换上标
+  static String numberToSuperIndex(String number) {
+    String index = "";
+    for (var i = 0; i < number.length; i++) {
+      index += unicode_map[number[i]].first;
+    }
+    return index;
   }
 }

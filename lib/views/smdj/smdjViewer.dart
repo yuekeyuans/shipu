@@ -1,12 +1,12 @@
 import 'package:da_ka/db/lifestudyDb/lifestudyRecord.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyTable.dart';
 import 'package:da_ka/global.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
+import 'package:flutter_material_pickers/helpers/show_swatch_picker.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
@@ -25,14 +25,14 @@ class SmdjViewer extends StatefulWidget {
 class _SmdjViewerState extends State<SmdjViewer> {
   double baseScaleFactor = 1.0;
   AutoScrollController controller;
-  FlutterTts flutterTts = FlutterTts();
+  FlutterTts flutterTts;
   List<LifeStudyRecord> records = [];
 
   @override
   void initState() {
     super.initState();
     controller = AutoScrollController(viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom), axis: Axis.vertical, suggestedRowHeight: 200);
-    update();
+    updateSetting();
   }
 
   @override
@@ -41,15 +41,16 @@ class _SmdjViewerState extends State<SmdjViewer> {
     super.dispose();
   }
 
-  Future<void> update() async {
+  Future<void> updateSetting() async {
     //更新声音
-    var e = DakaSettingsEntity.fromSp();
+    flutterTts = FlutterTts();
+    var e = ReadingSettingsEntity.fromSp();
     await flutterTts.setLanguage("zh-hant");
     await flutterTts.setVolume(e.volumn);
     await flutterTts.setPitch(e.pitch);
     await flutterTts.setSpeechRate(e.speechRate);
     records = await LifeStudyTable().queryChapter(bookIndex: widget.book, chapter: widget.chapter);
-    baseScaleFactor = DakaSettingsEntity.fromSp().baseFont;
+    baseScaleFactor = ReadingSettingsEntity.fromSp().baseFont;
     setState(() {});
   }
 
@@ -139,7 +140,14 @@ class _SmdjViewerState extends State<SmdjViewer> {
                               onPressed: () => pause(setDialogState),
                             ),
                       //设置
-                      IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => update())),
+                      IconButton(
+                          icon: Icon(Icons.settings),
+                          onPressed: () {
+                            pause(setDialogState);
+                            routePush(ReadingSettings(true, showSpeechControl: true)).then((value) {
+                              updateSetting();
+                            });
+                          })
                     ],
                   )
                 ]));
@@ -182,54 +190,27 @@ class _SmdjViewerState extends State<SmdjViewer> {
   }
 
   //标记
-
   Future<void> markIt(LifeStudyRecord record) async {
     var info = record.mark;
     bool isMarked = record.mark == "";
     print(record.mark);
     if (isMarked) {
-      openColorDialog(
-          "Main Color picker",
-          MaterialColorPicker(
-              allowShades: false,
-              onMainColorChange: (color) => setState(
-                    () => info = UtilFunction.colorToString(color),
-                  )), submit: () async {
-        print(info);
-        await record.setMarked(info);
-        setState(() {});
-      });
+      Color swatch = Colors.blue;
+      //颜色改变
+      showMaterialSwatchPicker(
+        title: "选取背景色",
+        context: context,
+        selectedColor: swatch,
+        onChanged: (color) => setState(() => info = UtilFunction.colorToString(color)),
+        onConfirmed: () async {
+          await record.setMarked(info);
+          setState(() {});
+        },
+      );
     } else {
       await record.setMarked("");
       setState(() {});
     }
-  }
-
-  //颜色对话框
-  void openColorDialog(String title, Widget content, {Function submit}) {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          contentPadding: const EdgeInsets.all(6.0),
-          title: Text(title),
-          content: content,
-          actions: [
-            FlatButton(
-              child: Text('CANCEL'),
-              onPressed: Navigator.of(context).pop,
-            ),
-            FlatButton(
-              child: Text('SUBMIT'),
-              onPressed: () {
-                submit();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
 //////////////////////////

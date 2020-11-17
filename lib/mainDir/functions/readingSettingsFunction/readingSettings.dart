@@ -1,15 +1,20 @@
-import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:settings_ui/settings_ui.dart';
 
-class DakaSettings extends StatefulWidget {
+class ReadingSettings extends StatefulWidget {
+  final bool showFontSize;
+  final bool showSpeechControl;
+
+  ReadingSettings(this.showFontSize, {this.showSpeechControl = false});
+
   @override
-  _DakaSettingsState createState() => _DakaSettingsState();
+  _ReadingSettingsState createState() => _ReadingSettingsState();
 }
 
-class _DakaSettingsState extends State<DakaSettings> {
+class _ReadingSettingsState extends State<ReadingSettings> {
   FlutterTts flutterTts;
 
   @override
@@ -26,7 +31,7 @@ class _DakaSettingsState extends State<DakaSettings> {
 
   //设置字体大小
   fontSizeDialog() {
-    var entity = DakaSettingsEntity.fromSp();
+    var entity = ReadingSettingsEntity.fromSp();
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -43,9 +48,9 @@ class _DakaSettingsState extends State<DakaSettings> {
                       child: Text("确定"))
                 ],
                 content: Wrap(children: <Widget>[
-                  Text("设置字体大小倍数为: ${(DakaSettingsEntity.fromSp().baseFont * 100).toInt()}%", textScaleFactor: DakaSettingsEntity.fromSp().baseFont),
+                  Text("设置字体大小倍数为: ${(ReadingSettingsEntity.fromSp().baseFont * 100).toInt()}%", textScaleFactor: ReadingSettingsEntity.fromSp().baseFont),
                   Slider(
-                      value: DakaSettingsEntity.fromSp().baseFont,
+                      value: ReadingSettingsEntity.fromSp().baseFont,
                       max: 3.5,
                       min: 0.5,
                       divisions: 300,
@@ -62,7 +67,7 @@ class _DakaSettingsState extends State<DakaSettings> {
 
   //设置声音速度
   speedRate() async {
-    var entity = DakaSettingsEntity.fromSp();
+    var entity = ReadingSettingsEntity.fromSp();
     var rateRange = await flutterTts.getSpeechRateValidRange;
     showDialog(
         barrierDismissible: false,
@@ -80,9 +85,9 @@ class _DakaSettingsState extends State<DakaSettings> {
                       child: Text("确定"))
                 ],
                 content: Wrap(children: <Widget>[
-                  Text("设置播放速度为: ${(DakaSettingsEntity.fromSp().speechRate * 100).toInt()}%"),
+                  Text("设置播放速度为: ${(ReadingSettingsEntity.fromSp().speechRate * 100).toInt()}%"),
                   Slider(
-                      value: DakaSettingsEntity.fromSp().speechRate,
+                      value: ReadingSettingsEntity.fromSp().speechRate,
                       max: rateRange.max,
                       min: rateRange.min,
                       divisions: 300,
@@ -99,7 +104,7 @@ class _DakaSettingsState extends State<DakaSettings> {
 
   //设置音量
   volumn() async {
-    var entity = DakaSettingsEntity.fromSp();
+    var entity = ReadingSettingsEntity.fromSp();
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -116,9 +121,9 @@ class _DakaSettingsState extends State<DakaSettings> {
                       child: Text("确定"))
                 ],
                 content: Wrap(children: <Widget>[
-                  Text("设置音量为: ${(DakaSettingsEntity.fromSp().volumn * 100).toInt()}%"),
+                  Text("设置音量为: ${(ReadingSettingsEntity.fromSp().volumn * 100).toInt()}%"),
                   Slider(
-                      value: DakaSettingsEntity.fromSp().volumn,
+                      value: ReadingSettingsEntity.fromSp().volumn,
                       max: 1.0,
                       min: 0.0,
                       divisions: 100,
@@ -135,7 +140,7 @@ class _DakaSettingsState extends State<DakaSettings> {
 
   //设置音调
   pitch() {
-    var entity = DakaSettingsEntity.fromSp();
+    var entity = ReadingSettingsEntity.fromSp();
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -152,9 +157,9 @@ class _DakaSettingsState extends State<DakaSettings> {
                       child: Text("确定"))
                 ],
                 content: Wrap(children: <Widget>[
-                  Text("设置音调为: ${(DakaSettingsEntity.fromSp().pitch * 100).toInt()}%"),
+                  Text("设置音调为: ${(ReadingSettingsEntity.fromSp().pitch * 100).toInt()}%"),
                   Slider(
-                      value: DakaSettingsEntity.fromSp().pitch,
+                      value: ReadingSettingsEntity.fromSp().pitch,
                       max: 2.0,
                       min: 0.5,
                       divisions: 150,
@@ -171,27 +176,32 @@ class _DakaSettingsState extends State<DakaSettings> {
 
   @override
   Widget build(BuildContext context) {
+    var settingsSection = <SettingsSection>[];
+    //字体大小
+    if (widget.showFontSize) {
+      settingsSection.add(SettingsSection(title: "文字设置", tiles: [
+        SettingsTile(
+          title: "放大倍数",
+          trailing: Text("${(ReadingSettingsEntity.fromSp().baseFont * 100).toInt()}%"),
+          onTap: fontSizeDialog,
+        )
+      ]));
+      //语音设置
+      if (widget.showSpeechControl) {
+        settingsSection.add(SettingsSection(
+          title: "语音设置",
+          tiles: [
+            SettingsTile(title: "音量", trailing: Text("${(ReadingSettingsEntity.fromSp().volumn * 100).toInt()}%"), onTap: volumn),
+            SettingsTile(title: "速度", trailing: Text("${(ReadingSettingsEntity.fromSp().speechRate * 100).toInt()}%"), onTap: speedRate),
+            SettingsTile(title: "音调", trailing: Text("${(ReadingSettingsEntity.fromSp().pitch * 100).toInt()}%"), onTap: pitch),
+          ],
+        ));
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text("设置")),
-      body: SettingsList(
-        sections: [
-          SettingsSection(title: "文字设置", tiles: [
-            SettingsTile(
-              title: "放大倍数",
-              trailing: Text("${(DakaSettingsEntity.fromSp().baseFont * 100).toInt()}%"),
-              onTap: fontSizeDialog,
-            )
-          ]),
-          SettingsSection(
-            title: "语音设置",
-            tiles: [
-              SettingsTile(title: "音量", trailing: Text("${(DakaSettingsEntity.fromSp().volumn * 100).toInt()}%"), onTap: volumn),
-              SettingsTile(title: "速度", trailing: Text("${(DakaSettingsEntity.fromSp().speechRate * 100).toInt()}%"), onTap: speedRate),
-              SettingsTile(title: "音调", trailing: Text("${(DakaSettingsEntity.fromSp().pitch * 100).toInt()}%"), onTap: pitch),
-            ],
-          )
-        ],
-      ),
+      body: SettingsList(sections: settingsSection),
     );
   }
 }

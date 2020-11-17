@@ -1,7 +1,7 @@
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 
-class DakaSettingsEntity {
+class ReadingSettingsEntity {
   //放大大小
   double baseFont = 1.0;
   //背景颜色
@@ -14,7 +14,7 @@ class DakaSettingsEntity {
   //音调
   double pitch = 1.0;
 
-  DakaSettingsEntity.fromSp() {
+  ReadingSettingsEntity.fromSp() {
     baseFont = SpUtil.getDouble("DakaSettingsEntity_baseFont", defValue: 1.0);
     speechRate = SpUtil.getDouble("DakaSettingsEntity_speechRate", defValue: 0.5);
     volumn = SpUtil.getDouble("DakaSettingsEntity_volumn", defValue: 1.0);

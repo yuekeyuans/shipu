@@ -1,7 +1,6 @@
 import 'dart:io';
-
-import 'package:da_ka/mainDir/functions/dakaSettings/DakaSettings.dart';
-import 'package:da_ka/mainDir/functions/dakaSettings/dakaSettingsEntity.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
+import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import "package:flutter/material.dart";
 import 'package:da_ka/global.dart';
@@ -23,7 +22,7 @@ class _PdfViewerState extends State<PdfViewer> {
   String sharePath;
   bool ready = false;
   String title;
-  FlutterTts flutterTts = FlutterTts();
+  FlutterTts flutterTts;
   String content = "";
   List<String> contents = [];
   String contentTextPath = "";
@@ -46,11 +45,12 @@ class _PdfViewerState extends State<PdfViewer> {
   void initState() {
     super.initState();
     prepare();
-    updateInfo();
+    updateSetting();
   }
 
-  Future<void> updateInfo() async {
-    var e = DakaSettingsEntity.fromSp();
+  Future<void> updateSetting() async {
+    flutterTts = FlutterTts();
+    var e = ReadingSettingsEntity.fromSp();
     await flutterTts.setLanguage("zh-hant");
     await flutterTts.setVolume(e.volumn);
     await flutterTts.setPitch(e.pitch);
@@ -121,7 +121,14 @@ class _PdfViewerState extends State<PdfViewer> {
                   //bookMark
                   IconButton(icon: Icon(Icons.bookmark), onPressed: () => _pdfViewerKey.currentState?.openBookmarkView()),
                   //设置
-                  IconButton(icon: Icon(Icons.settings), onPressed: () => routePush(DakaSettings()).then((value) => updateInfo())),
+                  IconButton(
+                      icon: Icon(Icons.settings),
+                      onPressed: () {
+                        pause(setDialogState);
+                        routePush(ReadingSettings(false, showSpeechControl: true)).then((value) {
+                          updateSetting();
+                        });
+                      }),
                 ],
               )
             ]));

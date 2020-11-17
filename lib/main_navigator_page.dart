@@ -10,7 +10,7 @@ class MainNavigator extends StatefulWidget {
 
 class _MainNavigatorState extends State<MainNavigator> {
   List<Widget> pages = <Widget>[];
-  int _currentIndex = 0;
+  int _currentIndex = 1;
 
   @override
   void initState() {
