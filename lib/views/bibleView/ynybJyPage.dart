@@ -7,6 +7,8 @@ import 'package:da_ka/db/bible/bibleOutlineTable.dart';
 import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/mainDb/YnybJyTable.dart';
 import 'package:da_ka/global.dart';
+import 'package:da_ka/mainDir/functions/markFunction/markEntity.dart';
+import 'package:da_ka/mainDir/functions/markFunction/markPartTextFunction.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
@@ -190,7 +192,11 @@ class _YnybJyPageState extends State<YnybJyPage> {
   }
 
   Widget wrapOperationWidget(int index) {
-    var color = (mixedList[index].id == 1 && mixedList[index].bible.mark != "") ? UtilFunction.stringToColor(mixedList[index].bible.mark) : Colors.transparent;
+    var color = Colors.transparent;
+    if (mixedList[index].id == 1) {
+      color = MarkEntity.fromJson(mixedList[index].bible.mark).bgColor;
+      color = color ?? Colors.transparent;
+    }
     return Container(
         color: color,
         child: Column(children: <Widget>[
@@ -264,12 +270,14 @@ class _YnybJyPageState extends State<YnybJyPage> {
   ///创建带经文的内容
   Text createTextSpan(int index) {
     var section = mixedList[index].bible;
+    var textColor = MarkEntity.fromJson(section.mark).textColor;
     if (!showFootnotes || section.footNotes.isEmpty) {
       return Text(
         section.content,
         softWrap: true,
         maxLines: 10,
         textScaleFactor: baseFontScaler,
+        style: TextStyle(color: textColor),
       );
     }
     var remainText = section.content;
@@ -279,7 +287,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
       var location = e.location;
       var rightText = remainText.substring(location - 1);
 
-      textSpan.add(TextSpan(text: rightText));
+      textSpan.add(TextSpan(text: rightText, style: TextStyle(color: textColor)));
       textSpan.add(
         TextSpan(
           text: " ${UtilFunction.numberToSuperIndex(e.seq.toString())}",
@@ -290,7 +298,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
       remainText = remainText.substring(0, location - 1);
     });
     if (remainText.isNotEmpty) {
-      textSpan.add(TextSpan(text: remainText));
+      textSpan.add(TextSpan(text: remainText, style: TextStyle(color: textColor)));
     }
 
     return Text.rich(
@@ -340,10 +348,28 @@ class _YnybJyPageState extends State<YnybJyPage> {
             mixedList[index].id == 1
                 ? ListTile(
                     dense: true,
-                    title: mixedList[index].bible.mark == "" ? Text("标记") : Text("取消标记"),
+                    title: MarkEntity.fromJson(mixedList[index].bible.mark).bgColor == null ? Text("标记背景色") : Text("取消标记背景色"),
                     onTap: () {
                       pop();
-                      markIt(mixedList[index].bible);
+                      markBgColor(mixedList[index].bible);
+                    })
+                : SizedBox(height: 0.0),
+            mixedList[index].id == 1
+                ? ListTile(
+                    dense: true,
+                    title: MarkEntity.fromJson(mixedList[index].bible.mark).textColor == null ? Text("标记文字颜色") : Text("取消标记文字颜色"),
+                    onTap: () {
+                      pop();
+                      markTextColor(mixedList[index].bible);
+                    })
+                : SizedBox(height: 0.0),
+            mixedList[index].id == 1
+                ? ListTile(
+                    dense: true,
+                    title: Text("标记重点"),
+                    onTap: () {
+                      pop();
+                      routePush(MarkPartTextFunction());
                     })
                 : SizedBox(height: 0.0),
             ListTile(
@@ -377,7 +403,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
     return widgets;
   }
 
-  // 纲目
+  /// 纲目
   void showOutline() {
     pop();
     showModalBottomSheet(
@@ -390,11 +416,10 @@ class _YnybJyPageState extends State<YnybJyPage> {
         context: context);
   }
 
-  //标记
-  //TODO: need fixed
-  Future<void> markIt(BibleContentTable record) async {
-    var info = record.mark;
-    bool isMarked = record.mark == "";
+  ///标记背景色
+  Future<void> markBgColor(BibleContentTable record) async {
+    var mark = MarkEntity.fromJson(record.mark);
+    bool isMarked = mark.bgColor == null;
     if (isMarked) {
       Color swatch = Colors.blue;
       //颜色改变
@@ -402,14 +427,42 @@ class _YnybJyPageState extends State<YnybJyPage> {
         title: "选取背景色",
         context: context,
         selectedColor: swatch,
-        onChanged: (color) => setState(() => info = UtilFunction.colorToString(color)),
+        onChanged: (color) => mark.bgColor = color,
         onConfirmed: () async {
-          await record.setMarked(info);
+          print(mark.toJson());
+          await record.setMarked(mark.toJson());
           setState(() {});
         },
       );
     } else {
-      await record.setMarked("");
+      mark.bgColor = null;
+      print(mark.toJson());
+      await record.setMarked(mark.toJson());
+      setState(() {});
+    }
+  }
+
+  ///标记文字颜色
+  Future<void> markTextColor(BibleContentTable record) async {
+    var mark = MarkEntity.fromJson(record.mark);
+    bool isMarked = mark.textColor == null;
+    if (isMarked) {
+      //颜色改变
+      showMaterialSwatchPicker(
+        title: "选取文字颜色",
+        context: context,
+        selectedColor: Colors.black,
+        onChanged: (color) => mark.textColor = color,
+        onConfirmed: () async {
+          print(mark.toJson());
+          await record.setMarked(mark.toJson());
+          setState(() {});
+        },
+      );
+    } else {
+      mark.textColor = null;
+      print(mark.toJson());
+      await record.setMarked(mark.toJson());
       setState(() {});
     }
   }

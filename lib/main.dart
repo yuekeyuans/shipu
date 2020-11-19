@@ -67,7 +67,7 @@ class MyApp extends StatelessWidget {
                     const Locale('zh'),
                   ],
                   locale: const Locale('zh'),
-                  title: '打卡',
+                  title: '食谱',
                   theme: theme,
                   debugShowCheckedModeBanner: false,
                   navigatorKey: navGK,

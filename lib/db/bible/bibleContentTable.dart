@@ -81,7 +81,6 @@ class BibleContentTable {
   Future<List<BibleContentTable>> queryByIds(List<String> ids) async {
     var lst = <BibleContentTable>[];
     var db = await BibleDb().db;
-
     var result = await db.query(TABLENAME, where: "_id in (${listToString(ids)})");
     result.forEach((element) {
       lst.add(BibleContentTable.fromJson(element));

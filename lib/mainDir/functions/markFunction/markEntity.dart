@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 
 class MarkEntity {
   /// 'bible', 'smdj', 'nee'
@@ -46,8 +47,8 @@ class MarkEntity {
   Map<String, dynamic> toMap() {
     return {
       'type': type,
-      'bgColor': bgColor == null ? bgColor.value : -1,
-      'textColor': textColor == null ? textColor.value : -1,
+      'bgColor': bgColor != null ? bgColor.value : -1,
+      'textColor': textColor != null ? textColor.value : -1,
       'notes': notes,
       'keyNote': keyNote,
     };
@@ -57,18 +58,26 @@ class MarkEntity {
     if (map == null) return null;
     var bg = map['bgColor'] as int;
     var text = map['textColor'] as int;
+    var _note = map['notes'];
+    var _keynote = map['keyNote'];
+
     return MarkEntity(
       type: map['type'] as String,
       bgColor: bg != -1 ? Color(bg) : null,
       textColor: text != -1 ? Color(text) : null,
-      notes: List<String>.from(map['notes'] as List),
-      keyNote: List<int>.from(map['keyNote'] as List),
+      notes: _note == null ? [] : List<String>.from(_note as List),
+      keyNote: _keynote == null ? [] : List<int>.from(map['keyNote'] as List),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory MarkEntity.fromJson(String source) => MarkEntity.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory MarkEntity.fromJson(String source) {
+    if (source == "" || source == null) {
+      return MarkEntity();
+    }
+    return MarkEntity.fromMap(json.decode(source) as Map<String, dynamic>);
+  }
 
   @override
   String toString() {

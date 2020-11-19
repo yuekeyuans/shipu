@@ -116,7 +116,6 @@ class BibleOutlineTable {
       wheres.add("(chapter = $key and section in (${value.join(',')}))");
     });
     sql = sql + wheres.join(" or ") + ")";
-    print(sql);
     var db = await BibleDb().db;
     var result = await db.rawQuery(sql);
     return result.map<BibleOutlineTable>((e) => BibleOutlineTable.fromJson(e)).toList();

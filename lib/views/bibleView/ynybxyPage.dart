@@ -7,6 +7,8 @@ import 'package:da_ka/db/bible/bibleOutlineTable.dart';
 import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/mainDb/ynybXyTable.dart';
 import 'package:da_ka/global.dart';
+import 'package:da_ka/mainDir/functions/markFunction/markEntity.dart';
+import 'package:da_ka/mainDir/functions/markFunction/markPartTextFunction.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
@@ -41,6 +43,8 @@ class _YnybXyPageState extends State<YnybXyPage> {
   FlutterTts flutterTts;
 
   double baseFontScaler = 1.0;
+  bool showOutlines;
+  bool showFootnotes;
 
   @override
   void dispose() {
@@ -53,7 +57,6 @@ class _YnybXyPageState extends State<YnybXyPage> {
     super.initState();
     controller = AutoScrollController(viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom), axis: Axis.vertical);
     updateSetting();
-    updateData();
   }
 
   @override
@@ -74,15 +77,17 @@ class _YnybXyPageState extends State<YnybXyPage> {
   ///数据加载，更新和排列
 ////////////////////////////////
   Future<void> updateSetting() async {
+    var e = ReadingSettingsEntity.fromSp();
     //更新声音
     flutterTts = FlutterTts();
     flutterTts.setLanguage("zh-hant");
-    var e = ReadingSettingsEntity.fromSp();
     await flutterTts.setVolume(e.volumn);
     await flutterTts.setPitch(e.pitch);
     await flutterTts.setSpeechRate(e.speechRate);
-    baseFontScaler = ReadingSettingsEntity.fromSp().baseFont;
-    setState(() {});
+    baseFontScaler = e.baseFont;
+    showFootnotes = e.showFootNote;
+    showOutlines = e.showOutline;
+    updateData();
   }
 
   updateData() async {
@@ -103,7 +108,6 @@ class _YnybXyPageState extends State<YnybXyPage> {
       biblesIds[element.chapter].add(element.section); //bibleIds
     });
 
-    //大纲
     outlines = await BibleOutlineTable.queryByChaptersAndSections(bookIndex, biblesIds); //outlines
     outlines.forEach((element) {
       if (!outlinesIds.containsKey(element.chapter)) {
@@ -142,7 +146,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
     });
   }
 
-  //合并 所有内容
+  ///章节
   mergeList() {
     chapters.forEach((element) {
       mixedList.add(BibleItem(id: 0, chapter: element, content: "$bookName第${element.chapterId.toString()}章"));
@@ -150,15 +154,20 @@ class _YnybXyPageState extends State<YnybXyPage> {
     });
   }
 
+  ///圣经节
   void mergeBibleContent(BibleChapter chapter) {
     bibles.forEach((element) {
       if (element.chapter == chapter.chapterId) {
-        mergeOutline(element);
+        if (showOutlines) {
+          //显示outline 时,才添加outline
+          mergeOutline(element);
+        }
         mixedList.add(BibleItem(id: 1, bible: element, content: element.content));
       }
     });
   }
 
+  ///纲目
   void mergeOutline(BibleContentTable content) {
     if (outlinesIds.containsKey(content.chapter) && outlinesIds[content.chapter].contains(content.section)) {
       outlines.forEach((element) {
@@ -183,7 +192,11 @@ class _YnybXyPageState extends State<YnybXyPage> {
   }
 
   Widget wrapOperationWidget(int index) {
-    var color = (mixedList[index].id == 1 && mixedList[index].bible.mark != "") ? UtilFunction.stringToColor(mixedList[index].bible.mark) : Colors.transparent;
+    var color = Colors.transparent;
+    if (mixedList[index].id == 1) {
+      color = MarkEntity.fromJson(mixedList[index].bible.mark).bgColor;
+      color = color ?? Colors.transparent;
+    }
     return Container(
         color: color,
         child: Column(children: <Widget>[
@@ -254,17 +267,17 @@ class _YnybXyPageState extends State<YnybXyPage> {
     }
   }
 
-  //创建带经文的内容
-  bool showFootnote = true;
+  ///创建带经文的内容
   Text createTextSpan(int index) {
     var section = mixedList[index].bible;
-    print(section.footNotes.length);
-    if (!showFootnote || section.footNotes.isEmpty) {
+    var textColor = MarkEntity.fromJson(section.mark).textColor;
+    if (!showFootnotes || section.footNotes.isEmpty) {
       return Text(
         section.content,
         softWrap: true,
         maxLines: 10,
         textScaleFactor: baseFontScaler,
+        style: TextStyle(color: textColor),
       );
     }
     var remainText = section.content;
@@ -274,7 +287,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
       var location = e.location;
       var rightText = remainText.substring(location - 1);
 
-      textSpan.add(TextSpan(text: rightText));
+      textSpan.add(TextSpan(text: rightText, style: TextStyle(color: textColor)));
       textSpan.add(
         TextSpan(
           text: " ${UtilFunction.numberToSuperIndex(e.seq.toString())}",
@@ -285,7 +298,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
       remainText = remainText.substring(0, location - 1);
     });
     if (remainText.isNotEmpty) {
-      textSpan.add(TextSpan(text: remainText));
+      textSpan.add(TextSpan(text: remainText, style: TextStyle(color: textColor)));
     }
 
     return Text.rich(
@@ -335,10 +348,28 @@ class _YnybXyPageState extends State<YnybXyPage> {
             mixedList[index].id == 1
                 ? ListTile(
                     dense: true,
-                    title: mixedList[index].bible.mark == "" ? Text("标记") : Text("取消标记"),
+                    title: MarkEntity.fromJson(mixedList[index].bible.mark).bgColor == null ? Text("标记背景色") : Text("取消标记背景色"),
                     onTap: () {
                       pop();
-                      markIt(mixedList[index].bible);
+                      markBgColor(mixedList[index].bible);
+                    })
+                : SizedBox(height: 0.0),
+            mixedList[index].id == 1
+                ? ListTile(
+                    dense: true,
+                    title: MarkEntity.fromJson(mixedList[index].bible.mark).textColor == null ? Text("标记文字颜色") : Text("取消标记文字颜色"),
+                    onTap: () {
+                      pop();
+                      markTextColor(mixedList[index].bible);
+                    })
+                : SizedBox(height: 0.0),
+            mixedList[index].id == 1
+                ? ListTile(
+                    dense: true,
+                    title: Text("标记重点"),
+                    onTap: () {
+                      pop();
+                      routePush(MarkPartTextFunction());
                     })
                 : SizedBox(height: 0.0),
             ListTile(
@@ -372,7 +403,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
     return widgets;
   }
 
-  // 纲目
+  /// 纲目
   void showOutline() {
     pop();
     showModalBottomSheet(
@@ -385,11 +416,10 @@ class _YnybXyPageState extends State<YnybXyPage> {
         context: context);
   }
 
-  //标记
-  //TODO: need fixed
-  Future<void> markIt(BibleContentTable record) async {
-    var info = record.mark;
-    bool isMarked = record.mark == "";
+  ///标记背景色
+  Future<void> markBgColor(BibleContentTable record) async {
+    var mark = MarkEntity.fromJson(record.mark);
+    bool isMarked = mark.bgColor == null;
     if (isMarked) {
       Color swatch = Colors.blue;
       //颜色改变
@@ -397,14 +427,42 @@ class _YnybXyPageState extends State<YnybXyPage> {
         title: "选取背景色",
         context: context,
         selectedColor: swatch,
-        onChanged: (color) => setState(() => info = UtilFunction.colorToString(color)),
+        onChanged: (color) => mark.bgColor = color,
         onConfirmed: () async {
-          await record.setMarked(info);
+          print(mark.toJson());
+          await record.setMarked(mark.toJson());
           setState(() {});
         },
       );
     } else {
-      await record.setMarked("");
+      mark.bgColor = null;
+      print(mark.toJson());
+      await record.setMarked(mark.toJson());
+      setState(() {});
+    }
+  }
+
+  ///标记文字颜色
+  Future<void> markTextColor(BibleContentTable record) async {
+    var mark = MarkEntity.fromJson(record.mark);
+    bool isMarked = mark.textColor == null;
+    if (isMarked) {
+      //颜色改变
+      showMaterialSwatchPicker(
+        title: "选取文字颜色",
+        context: context,
+        selectedColor: Colors.black,
+        onChanged: (color) => mark.textColor = color,
+        onConfirmed: () async {
+          print(mark.toJson());
+          await record.setMarked(mark.toJson());
+          setState(() {});
+        },
+      );
+    } else {
+      mark.textColor = null;
+      print(mark.toJson());
+      await record.setMarked(mark.toJson());
       setState(() {});
     }
   }
@@ -531,7 +589,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
                           icon: Icon(Icons.settings),
                           onPressed: () {
                             pause(setDialogState);
-                            routePush(ReadingSettings(true, showSpeechControl: true)).then((value) => updateSetting());
+                            routePush(ReadingSettings(true, showSpeechControl: true, showBibleControl: true)).then((value) => updateSetting());
                           })
                     ],
                   )
