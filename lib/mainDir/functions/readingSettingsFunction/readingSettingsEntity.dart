@@ -17,13 +17,19 @@ class ReadingSettingsEntity {
   ///音调
   double pitch = 1.0;
 
-  // 循环播放
+  /// 循环播放
   bool repeatPlay = false;
 
-  //显示注解
+  ///悬浮播放按钮
+  bool floatPlayButton = false;
+
+  ///主页播放按钮
+  bool mainPagePlayButton = false;
+
+  /// 显示注解
   bool showFootNote = true;
 
-  //显示纲目
+  /// 显示纲目
   bool showOutline = true;
 
   ReadingSettingsEntity.fromSp() {
@@ -34,6 +40,8 @@ class ReadingSettingsEntity {
     showFootNote = SpUtil.getBool("DakaSettingsEntity_showFootNote", defValue: true);
     showOutline = SpUtil.getBool("DakaSettingsEntity_showOutline", defValue: true);
     repeatPlay = SpUtil.getBool("DakaSettingsEntity_repeatPlay", defValue: false);
+    floatPlayButton = SpUtil.getBool("DakaSettingsEntity_floatPlayButton", defValue: false);
+    mainPagePlayButton = SpUtil.getBool("DakaSettingsEntity_mainPagePlayButton", defValue: false);
   }
 
   toSp() {
@@ -44,5 +52,7 @@ class ReadingSettingsEntity {
     SpUtil.putBool("DakaSettingsEntity_showFootNote", showFootNote);
     SpUtil.putBool("DakaSettingsEntity_showOutline", showOutline);
     SpUtil.putBool("DakaSettingsEntity_repeatPlay", repeatPlay);
+    SpUtil.putBool("DakaSettingsEntity_floatPlayButton", floatPlayButton);
+    SpUtil.putBool("DakaSettingsEntity_mainPagePlayButton", mainPagePlayButton);
   }
 }

@@ -8,6 +8,8 @@ import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/mainDb/ynybXyTable.dart';
 import 'package:da_ka/global.dart';
 import 'package:da_ka/mainDir/functions/markFunction/markEntity.dart';
+import 'package:da_ka/mainDir/functions/noteFunction/noteBibleFunction.dart';
+import 'package:da_ka/mainDir/functions/noteFunction/showFootNotesPage.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
@@ -47,7 +49,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
 
   @override
   void dispose() {
-    pause(setDialogState);
+    flutterTts.stop();
     super.dispose();
   }
 
@@ -69,6 +71,23 @@ class _YnybXyPageState extends State<YnybXyPage> {
         ),
       ),
       body: createChildren(),
+      floatingActionButton: ReadingSettingsEntity.fromSp().floatPlayButton
+          ? FloatingActionButton(
+              child: // 播放音频
+                  playState == 0
+                      ? IconButton(
+                          icon: Icon(Icons.stop),
+                          onPressed: () => play(null),
+                        )
+                      : IconButton(
+                          icon: Icon(Icons.play_arrow),
+                          onPressed: () => pause(null),
+                        ),
+              onPressed: () {
+                // play(setState);
+              },
+            )
+          : null,
     );
   }
 
@@ -231,6 +250,11 @@ class _YnybXyPageState extends State<YnybXyPage> {
         style: TextStyle(color: Colors.lightBlue),
       ));
     } else if (type == 1) {
+      var haseMessage = false;
+      if (mixedList[index].bible.mark != "") {
+        var mark = MarkEntity.fromJson(mixedList[index].bible.mark);
+        haseMessage = mark.notes.isNotEmpty;
+      }
       return Container(
           padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
           child: Column(children: [
@@ -246,6 +270,12 @@ class _YnybXyPageState extends State<YnybXyPage> {
                   ),
                 ),
                 Expanded(child: createTextSpan(index)),
+                haseMessage
+                    ? IconButton(
+                        icon: Icon(Icons.message),
+                        onPressed: () => routePush(ShowAllFootNotesPage(mixedList[index].bible)).then((value) => updateData()),
+                      )
+                    : SizedBox(width: 1),
               ],
             ),
             SizedBox(height: 5),
@@ -365,10 +395,10 @@ class _YnybXyPageState extends State<YnybXyPage> {
             mixedList[index].id == 1
                 ? ListTile(
                     dense: true,
-                    title: Text("增加笔记"),
+                    title: Text("添加笔记"),
                     onTap: () {
                       pop();
-                      // routePush(MarkPartTextFunction(""));
+                      routePush(NoteBibleFunction(mixedList[index].bible)).then((value) => updateData());
                     })
                 : SizedBox(height: 0.0),
             ListTile(
@@ -475,8 +505,13 @@ class _YnybXyPageState extends State<YnybXyPage> {
   void play(StateSetter setDialogState) {
     flutterTts.completionHandler ??= () {
       if (mixedList.length <= currentIndex) {
-        pause(setDialogState);
-        currentIndex = 0;
+        if (ReadingSettingsEntity.fromSp().repeatPlay) {
+          currentIndex = 0;
+          play(setDialogState);
+        } else {
+          pause(setDialogState);
+          currentIndex = 0;
+        }
       } else {
         play(setDialogState);
       }
@@ -487,22 +522,30 @@ class _YnybXyPageState extends State<YnybXyPage> {
       controller.scrollToIndex(currentIndex, preferPosition: AutoScrollPosition.begin);
       playState = 1;
       currentIndex = currentIndex + 1;
-      setDialogState(() {});
+      if (setDialogState != null) {
+        setDialogState(() {});
+      }
+      setState(() {});
     } else {
       currentIndex = 0;
       playState = 0;
-      setDialogState(() {});
+      if (setDialogState != null) {
+        setDialogState(() {});
+      }
+      setState(() {});
       flutterTts.stop();
     }
   }
 
   void pause(StateSetter setDialogState) {
+    setDialogState ??= setState;
     flutterTts.stop();
     playState = 0;
     currentIndex = currentIndex == 0 ? 0 : currentIndex - 1;
     if (setDialogState != null) {
       setDialogState(() {});
     }
+    setState(() {});
   }
 
 //////////////////////////
@@ -588,7 +631,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
                           icon: Icon(Icons.settings),
                           onPressed: () {
                             pause(setDialogState);
-                            routePush(ReadingSettings(true, showSpeechControl: true, showBibleControl: true)).then((value) => updateSetting());
+                            routePush(ReadingSettings(true, showSpeechControl: true, showBibleControl: true, showPlayButtons: true)).then((value) => updateSetting());
                           })
                     ],
                   )

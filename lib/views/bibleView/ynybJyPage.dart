@@ -10,7 +10,6 @@ import 'package:da_ka/global.dart';
 import 'package:da_ka/mainDir/functions/markFunction/markEntity.dart';
 import 'package:da_ka/mainDir/functions/noteFunction/noteBibleFunction.dart';
 import 'package:da_ka/mainDir/functions/noteFunction/showFootNotesPage.dart';
-// import 'package:da_ka/mainDir/functions/markFunction/markPartTextFunction.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
@@ -50,7 +49,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
 
   @override
   void dispose() {
-    pause(setDialogState);
+    flutterTts.stop();
     super.dispose();
   }
 
@@ -72,6 +71,23 @@ class _YnybJyPageState extends State<YnybJyPage> {
         ),
       ),
       body: createChildren(),
+      floatingActionButton: ReadingSettingsEntity.fromSp().floatPlayButton
+          ? FloatingActionButton(
+              child: // 播放音频
+                  playState == 0
+                      ? IconButton(
+                          icon: Icon(Icons.stop),
+                          onPressed: () => play(null),
+                        )
+                      : IconButton(
+                          icon: Icon(Icons.play_arrow),
+                          onPressed: () => pause(null),
+                        ),
+              onPressed: () {
+                // play(setState);
+              },
+            )
+          : null,
     );
   }
 
@@ -489,8 +505,13 @@ class _YnybJyPageState extends State<YnybJyPage> {
   void play(StateSetter setDialogState) {
     flutterTts.completionHandler ??= () {
       if (mixedList.length <= currentIndex) {
-        pause(setDialogState);
-        currentIndex = 0;
+        if (ReadingSettingsEntity.fromSp().repeatPlay) {
+          currentIndex = 0;
+          play(setDialogState);
+        } else {
+          pause(setDialogState);
+          currentIndex = 0;
+        }
       } else {
         play(setDialogState);
       }
@@ -501,22 +522,30 @@ class _YnybJyPageState extends State<YnybJyPage> {
       controller.scrollToIndex(currentIndex, preferPosition: AutoScrollPosition.begin);
       playState = 1;
       currentIndex = currentIndex + 1;
-      setDialogState(() {});
+      if (setDialogState != null) {
+        setDialogState(() {});
+      }
+      setState(() {});
     } else {
       currentIndex = 0;
       playState = 0;
-      setDialogState(() {});
+      if (setDialogState != null) {
+        setDialogState(() {});
+      }
+      setState(() {});
       flutterTts.stop();
     }
   }
 
   void pause(StateSetter setDialogState) {
+    setDialogState ??= setState;
     flutterTts.stop();
     playState = 0;
     currentIndex = currentIndex == 0 ? 0 : currentIndex - 1;
     if (setDialogState != null) {
       setDialogState(() {});
     }
+    setState(() {});
   }
 
 //////////////////////////
@@ -602,7 +631,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
                           icon: Icon(Icons.settings),
                           onPressed: () {
                             pause(setDialogState);
-                            routePush(ReadingSettings(true, showSpeechControl: true, showBibleControl: true)).then((value) => updateSetting());
+                            routePush(ReadingSettings(true, showSpeechControl: true, showBibleControl: true, showPlayButtons: true)).then((value) => updateSetting());
                           })
                     ],
                   )

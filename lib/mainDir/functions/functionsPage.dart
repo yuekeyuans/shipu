@@ -80,7 +80,7 @@ class _FunctionPageState extends State<FunctionPage> {
                 true,
                 showSpeechControl: true,
                 showBibleControl: true,
-                // showPlayButtons: true,
+                showPlayButtons: true,
               )),
             ),
           ],

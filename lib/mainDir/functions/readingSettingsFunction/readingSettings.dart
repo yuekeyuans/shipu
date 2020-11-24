@@ -2,6 +2,7 @@ import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsE
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:nav_router/nav_router.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class ReadingSettings extends StatefulWidget {
@@ -140,40 +141,22 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         });
   }
 
+  ///设置悬浮播放按钮
+  floatPlayButton(bool res) {
+    showToast("已${res ? "开启" : "关闭"}悬浮播放按钮");
+    var entity = ReadingSettingsEntity.fromSp();
+    entity.floatPlayButton = res;
+    entity.toSp();
+    setState(() {});
+  }
+
   ///设置循环播放
   repeatPlay(bool res) {
-    showDialog(
-        barrierDismissible: false, // 表示点击灰色背景的时候是否消失弹出框
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("提示信息"),
-            content: Text("是否改变循环朗读模式?"),
-            actions: <Widget>[
-              FlatButton(
-                child: Text("取消"),
-                onPressed: () {
-                  print("取消");
-                  Navigator.of(context).pop("Cancel");
-                },
-              ),
-              FlatButton(
-                child: Text("确定"),
-                onPressed: () {
-                  print("确定");
-                  Navigator.of(context).pop("Ok");
-                },
-              )
-            ],
-          );
-        }).then((value) async {
-      if (value == "Ok") {
-        var entity = ReadingSettingsEntity.fromSp();
-        entity.repeatPlay = res;
-        entity.toSp();
-        setState(() {});
-      }
-    });
+    showToast("已${res ? "开启" : "关闭"}循环朗读");
+    var entity = ReadingSettingsEntity.fromSp();
+    entity.repeatPlay = res;
+    entity.toSp();
+    setState(() {});
   }
 
   //设置音调
@@ -271,7 +254,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
       settingsSection.add(SettingsSection(
         title: "播放按钮",
         tiles: [
-          SettingsTile.switchTile(title: "文字页显示大号播放按钮", onToggle: null, switchValue: null),
+          SettingsTile.switchTile(title: "文字页悬浮播放按钮", onToggle: floatPlayButton, switchValue: entity.floatPlayButton),
         ],
       ));
     }
