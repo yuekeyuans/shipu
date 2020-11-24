@@ -8,7 +8,9 @@ import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/mainDb/YnybJyTable.dart';
 import 'package:da_ka/global.dart';
 import 'package:da_ka/mainDir/functions/markFunction/markEntity.dart';
-import 'package:da_ka/mainDir/functions/markFunction/markPartTextFunction.dart';
+import 'package:da_ka/mainDir/functions/noteFunction/noteBibleFunction.dart';
+import 'package:da_ka/mainDir/functions/noteFunction/showFootNotesPage.dart';
+// import 'package:da_ka/mainDir/functions/markFunction/markPartTextFunction.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
@@ -232,6 +234,11 @@ class _YnybJyPageState extends State<YnybJyPage> {
         style: TextStyle(color: Colors.lightBlue),
       ));
     } else if (type == 1) {
+      var haseMessage = false;
+      if (mixedList[index].bible.mark != "") {
+        var mark = MarkEntity.fromJson(mixedList[index].bible.mark);
+        haseMessage = mark.notes.isNotEmpty;
+      }
       return Container(
           padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
           child: Column(children: [
@@ -247,6 +254,12 @@ class _YnybJyPageState extends State<YnybJyPage> {
                   ),
                 ),
                 Expanded(child: createTextSpan(index)),
+                haseMessage
+                    ? IconButton(
+                        icon: Icon(Icons.message),
+                        onPressed: () => routePush(ShowAllFootNotesPage(mixedList[index].bible)).then((value) => updateData()),
+                      )
+                    : SizedBox(width: 1),
               ],
             ),
             SizedBox(height: 5),
@@ -366,10 +379,10 @@ class _YnybJyPageState extends State<YnybJyPage> {
             mixedList[index].id == 1
                 ? ListTile(
                     dense: true,
-                    title: Text("标记重点"),
+                    title: Text("添加笔记"),
                     onTap: () {
                       pop();
-                      routePush(MarkPartTextFunction());
+                      routePush(NoteBibleFunction(mixedList[index].bible)).then((value) => updateData());
                     })
                 : SizedBox(height: 0.0),
             ListTile(

@@ -1,9 +1,14 @@
+import 'package:da_ka/db/bible/bibleContentTable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_pickers/helpers/show_swatch_picker.dart';
 
+/**
+ * 这一个的功能先不实现，有点搞不定，到时机好的时候再搞一下吧。
+ */
 ///对于文本,划线选择
 class MarkPartTextFunction extends StatefulWidget {
-  final String words = "车是顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶大大大大大大大大大大的委屈恶气";
+  final BibleContentTable bible;
+  MarkPartTextFunction(this.bible);
   @override
   _MarkPartTextFunctionState createState() => _MarkPartTextFunctionState();
 }
@@ -18,7 +23,7 @@ class _MarkPartTextFunctionState extends State<MarkPartTextFunction> {
   @override
   void initState() {
     super.initState();
-    marked = List.generate(widget.words.length, (index) => 0);
+    marked = List.generate(widget.bible.content.length, (index) => 0);
   }
 
   @override
@@ -63,43 +68,47 @@ class _MarkPartTextFunctionState extends State<MarkPartTextFunction> {
   Widget createMarkArea() {
     return Container(
       padding: EdgeInsets.all(20),
-      child: Wrap(
-        children: List.generate(widget.words.length, (index) => createBox(index)),
+      child: SingleChildScrollView(
+        child: Wrap(
+          children: List.generate(widget.bible.content.length, (index) => createBox(index)),
+        ),
       ),
     );
   }
 
   Widget createBox(int index) {
     return Container(
-      width: 30,
-      height: 30,
+      width: 45,
+      height: 45,
       padding: EdgeInsets.all(5),
       margin: EdgeInsets.all(5),
       decoration: BoxDecoration(
         border: Border.all(color: Color(0xbbbbbbbb), width: 0.5),
       ),
       child: Listener(
-          child: Text(widget.words[index],
+          child: Text(widget.bible.content[index],
               style: marked[index] == 1
                   ? TextStyle(
                       decoration: TextDecoration.underline,
                       decorationColor: currentColor,
                       decorationThickness: 4.0,
+                      fontSize: 20,
                     )
-                  : null),
-          // onPointerMove: (event) {
-          //   if (marked[index] == 0) {
-          //     setState(() {
-          //       marked[index] = 1;
-          //     });
-          //   }
-          // },
+                  : TextStyle(
+                      fontSize: 20,
+                    )),
+          onPointerMove: (event) {
+            print(event);
+          },
+          onPointerSignal: (e) {
+            print(e.buttons);
+          },
           onPointerHover: (event) {
-            if (marked[index] == 0) {
-              setState(() {
-                marked[index] = 1;
-              });
-            }
+            // if (marked[index] == 0) {
+            //   setState(() {
+            //     marked[index] = 1;
+            //   });
+            // }
           }),
     );
   }

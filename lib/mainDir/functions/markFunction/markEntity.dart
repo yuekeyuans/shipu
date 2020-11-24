@@ -26,7 +26,10 @@ class MarkEntity {
     this.textColor,
     this.notes,
     this.keyNote,
-  });
+  }) {
+    notes ??= [];
+    keyNote ??= <int>[];
+  }
 
   MarkEntity copyWith({
     String type,

@@ -8,7 +8,6 @@ import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/mainDb/ynybXyTable.dart';
 import 'package:da_ka/global.dart';
 import 'package:da_ka/mainDir/functions/markFunction/markEntity.dart';
-import 'package:da_ka/mainDir/functions/markFunction/markPartTextFunction.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
@@ -366,10 +365,10 @@ class _YnybXyPageState extends State<YnybXyPage> {
             mixedList[index].id == 1
                 ? ListTile(
                     dense: true,
-                    title: Text("标记重点"),
+                    title: Text("增加笔记"),
                     onTap: () {
                       pop();
-                      routePush(MarkPartTextFunction());
+                      // routePush(MarkPartTextFunction(""));
                     })
                 : SizedBox(height: 0.0),
             ListTile(

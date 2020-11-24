@@ -134,7 +134,7 @@ class _ContentPageByTypesState extends State<ContentPageByTypes> {
           itemBuilder: (context, sectionIndex, itemIndex, index) {
             ContentFileInfoTable item = fileSection[sectionIndex].items[itemIndex];
             return Slidable(
-              actionPane: SlidableBehindActionPane(),
+              actionPane: SlidableScrollActionPane(),
               actionExtentRatio: 0.25,
               child: Container(
                   child: ListTile(

@@ -17,6 +17,9 @@ class ReadingSettingsEntity {
   ///音调
   double pitch = 1.0;
 
+  // 循环播放
+  bool repeatPlay = false;
+
   //显示注解
   bool showFootNote = true;
 
@@ -30,6 +33,7 @@ class ReadingSettingsEntity {
     pitch = SpUtil.getDouble("DakaSettingsEntity_pitch", defValue: 1.0);
     showFootNote = SpUtil.getBool("DakaSettingsEntity_showFootNote", defValue: true);
     showOutline = SpUtil.getBool("DakaSettingsEntity_showOutline", defValue: true);
+    repeatPlay = SpUtil.getBool("DakaSettingsEntity_repeatPlay", defValue: false);
   }
 
   toSp() {
@@ -39,5 +43,6 @@ class ReadingSettingsEntity {
     SpUtil.putDouble("DakaSettingsEntity_pitch", pitch);
     SpUtil.putBool("DakaSettingsEntity_showFootNote", showFootNote);
     SpUtil.putBool("DakaSettingsEntity_showOutline", showOutline);
+    SpUtil.putBool("DakaSettingsEntity_repeatPlay", repeatPlay);
   }
 }

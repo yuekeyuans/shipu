@@ -8,8 +8,9 @@ class ReadingSettings extends StatefulWidget {
   final bool showFontSize;
   final bool showSpeechControl;
   final bool showBibleControl;
+  final bool showPlayButtons;
 
-  ReadingSettings(this.showFontSize, {this.showSpeechControl = false, this.showBibleControl = false});
+  ReadingSettings(this.showFontSize, {this.showPlayButtons = false, this.showSpeechControl = false, this.showBibleControl = false});
 
   @override
   _ReadingSettingsState createState() => _ReadingSettingsState();
@@ -139,6 +140,42 @@ class _ReadingSettingsState extends State<ReadingSettings> {
         });
   }
 
+  ///设置循环播放
+  repeatPlay(bool res) {
+    showDialog(
+        barrierDismissible: false, // 表示点击灰色背景的时候是否消失弹出框
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("提示信息"),
+            content: Text("是否改变循环朗读模式?"),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("取消"),
+                onPressed: () {
+                  print("取消");
+                  Navigator.of(context).pop("Cancel");
+                },
+              ),
+              FlatButton(
+                child: Text("确定"),
+                onPressed: () {
+                  print("确定");
+                  Navigator.of(context).pop("Ok");
+                },
+              )
+            ],
+          );
+        }).then((value) async {
+      if (value == "Ok") {
+        var entity = ReadingSettingsEntity.fromSp();
+        entity.repeatPlay = res;
+        entity.toSp();
+        setState(() {});
+      }
+    });
+  }
+
   //设置音调
   pitch() {
     var entity = ReadingSettingsEntity.fromSp();
@@ -199,6 +236,7 @@ class _ReadingSettingsState extends State<ReadingSettings> {
           SettingsTile(title: "音量", trailing: Text("${(entity.volumn * 100).toInt()}%"), onTap: volumn),
           SettingsTile(title: "速度", trailing: Text("${(entity.speechRate * 100).toInt()}%"), onTap: speedRate),
           SettingsTile(title: "音调", trailing: Text("${(entity.pitch * 100).toInt()}%"), onTap: pitch),
+          SettingsTile.switchTile(title: "循环播放", onToggle: repeatPlay, switchValue: entity.repeatPlay),
         ],
       ));
     }
@@ -224,6 +262,16 @@ class _ReadingSettingsState extends State<ReadingSettings> {
                 setState(() {});
               },
               switchValue: entity.showOutline),
+        ],
+      ));
+    }
+
+    ///播放按钮
+    if (widget.showPlayButtons) {
+      settingsSection.add(SettingsSection(
+        title: "播放按钮",
+        tiles: [
+          SettingsTile.switchTile(title: "文字页显示大号播放按钮", onToggle: null, switchValue: null),
         ],
       ));
     }
