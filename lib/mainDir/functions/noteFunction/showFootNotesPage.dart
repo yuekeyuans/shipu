@@ -1,18 +1,21 @@
 import 'package:da_ka/db/bible/bibleContentTable.dart';
 import 'package:da_ka/db/bible/bookNameTable.dart';
+import 'package:da_ka/db/lifestudyDb/lifestudyRecord.dart';
 import 'package:da_ka/mainDir/functions/markFunction/markEntity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ShowAllFootNotesPage extends StatefulWidget {
   final BibleContentTable bible;
-  ShowAllFootNotesPage(this.bible);
+  final LifeStudyRecord lifeStudyRecord;
+  ShowAllFootNotesPage({this.bible, this.lifeStudyRecord});
   @override
   _ShowAllFootNotesPageState createState() => _ShowAllFootNotesPageState();
 }
 
 class _ShowAllFootNotesPageState extends State<ShowAllFootNotesPage> {
-  String bookName = "";
+  String name = "";
+  String content = "";
   MarkEntity mark = MarkEntity();
 
   @override
@@ -22,8 +25,15 @@ class _ShowAllFootNotesPageState extends State<ShowAllFootNotesPage> {
   }
 
   Future<void> updateData() async {
-    bookName = await BibleBookNameTable.queryBookName(widget.bible.bookIndex);
-    mark = MarkEntity.fromJson(widget.bible.mark);
+    if (widget.bible != null) {
+      name = "${await BibleBookNameTable.queryBookName(widget.bible.bookIndex)} ${widget.bible.chapter}:${widget.bible.section}";
+      content = widget.bible.content;
+      mark = MarkEntity.fromJson(widget.bible.mark);
+    } else if (widget.lifeStudyRecord != null) {
+      name = "生命读经";
+      content = widget.lifeStudyRecord.content;
+      mark = MarkEntity.fromJson(widget.lifeStudyRecord.mark);
+    }
     setState(() {});
   }
 
@@ -38,8 +48,8 @@ class _ShowAllFootNotesPageState extends State<ShowAllFootNotesPage> {
   Widget createBody() {
     var children = <Widget>[
       ListTile(
-        title: Text(widget.bible.content),
-        subtitle: Text("$bookName ${widget.bible.chapter}:${widget.bible.section}"),
+        title: Text(content),
+        subtitle: Text(name),
       ),
       Divider(height: 5.0, thickness: 5.0),
     ];

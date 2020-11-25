@@ -2,6 +2,9 @@ import 'package:common_utils/common_utils.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyRecord.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyTable.dart';
 import 'package:da_ka/global.dart';
+import 'package:da_ka/mainDir/functions/markFunction/markEntity.dart';
+import 'package:da_ka/mainDir/functions/noteFunction/noteLifeStudyFunction.dart';
+import 'package:da_ka/mainDir/functions/noteFunction/showFootNotesPage.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/ReadingSettings.dart';
 import 'package:da_ka/mainDir/functions/readingSettingsFunction/readingSettingsEntity.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
@@ -77,17 +80,30 @@ class _SmdjPageState extends State<SmdjPage> {
   }
 
   Widget wrapOperationWidget(int index) {
+    var color = MarkEntity.fromJson(records[index].mark).bgColor;
+    color = color ?? Colors.transparent;
+    bool hasMessage = MarkEntity.fromJson(records[index].mark).notes.isNotEmpty;
     return Container(
-        color: (records[index].mark == "" || records[index].mark == null) ? Colors.transparent : UtilFunction.stringToColor(records[index].mark),
+        color: color,
         child: Column(children: <Widget>[
-          SizedBox(height: 5.0),
-          GestureDetector(child: createWidget(index), onLongPress: () => longPressParagraph(index)),
-          SizedBox(height: 5.0),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: GestureDetector(child: createWidget(index), onLongPress: () => longPressParagraph(index))),
+              hasMessage
+                  ? IconButton(
+                      icon: Icon(Icons.message),
+                      onPressed: () => routePush(ShowAllFootNotesPage(lifeStudyRecord: records[index])).then((value) => updateData()),
+                    )
+                  : SizedBox(width: 0.0),
+            ],
+          ),
         ]));
   }
 
   //长按效果
   void longPressParagraph(int index) {
+    bool isParagraph = !UtilFunction.isNumeric(records[index].flag);
     showDialog(
         context: context,
         builder: (context) {
@@ -108,16 +124,36 @@ class _SmdjPageState extends State<SmdjPage> {
                 ShareExtend.share(records[index].content, "text");
               },
             ),
+            isParagraph
+                ? ListTile(
+                    dense: true,
+                    title: MarkEntity.fromJson(records[index].mark).bgColor == null ? Text("标记背景色") : Text("取消标记背景色"),
+                    onTap: () {
+                      pop();
+                      markBgColor(records[index]);
+                    })
+                : SizedBox(height: 0.0),
+            isParagraph
+                ? ListTile(
+                    dense: true,
+                    title: MarkEntity.fromJson(records[index].mark).textColor == null ? Text("标记文字颜色") : Text("取消标记文字颜色"),
+                    onTap: () {
+                      pop();
+                      markTextColor(records[index]);
+                    })
+                : SizedBox(height: 0.0),
+            isParagraph
+                ? ListTile(
+                    dense: true,
+                    title: Text("添加笔记"),
+                    onTap: () {
+                      pop();
+                      routePush(NoteLifeStudyFunction(records[index])).then((value) => updateData());
+                    })
+                : SizedBox(height: 0.0),
             ListTile(
                 dense: true,
-                title: records[index].mark == "" ? Text("标记") : Text("取消标记"),
-                onTap: () {
-                  pop();
-                  markIt(records[index]);
-                }),
-            ListTile(
-                dense: true,
-                title: Text("朗读"),
+                title: Text("从此处朗读"),
                 onTap: () {
                   pop();
                   currentIndex = index;
@@ -173,13 +209,16 @@ class _SmdjPageState extends State<SmdjPage> {
                               onPressed: () => toToday(setDialogState),
                             ),
 
-                      IconButton(icon: Icon(Icons.view_list_sharp), onPressed: () => routePush(SmdjIndexPage())),
+                      IconButton(
+                        icon: Icon(Icons.view_list_sharp),
+                        onPressed: () => routePush(SmdjIndexPage()),
+                      ),
                       //设置
                       IconButton(
                           icon: Icon(Icons.settings),
                           onPressed: () {
                             pause(setDialogState);
-                            routePush(ReadingSettings(true, showSpeechControl: true)).then((value) {
+                            routePush(ReadingSettings(true, showSpeechControl: true, showPlayButtons: true)).then((value) {
                               updateSetting();
                             });
                           })
@@ -224,12 +263,10 @@ class _SmdjPageState extends State<SmdjPage> {
         context: context);
   }
 
-  //标记
-
-  Future<void> markIt(LifeStudyRecord record) async {
-    var info = record.mark;
-    bool isMarked = record.mark == "";
-    print(record.mark);
+  ///标记背景色
+  Future<void> markBgColor(LifeStudyRecord record) async {
+    var mark = MarkEntity.fromJson(record.mark);
+    bool isMarked = mark.bgColor == null;
     if (isMarked) {
       Color swatch = Colors.blue;
       //颜色改变
@@ -237,17 +274,46 @@ class _SmdjPageState extends State<SmdjPage> {
         title: "选取背景色",
         context: context,
         selectedColor: swatch,
-        onChanged: (color) => setState(() => info = UtilFunction.colorToString(color)),
+        onChanged: (color) => mark.bgColor = color,
         onConfirmed: () async {
-          await record.setMarked(info);
+          print(mark.toJson());
+          await record.setMarked(mark.toJson());
           setState(() {});
         },
       );
     } else {
-      await record.setMarked("");
+      mark.bgColor = null;
+      print(mark.toJson());
+      await record.setMarked(mark.toJson());
       setState(() {});
     }
   }
+
+  ///标记文字颜色
+  Future<void> markTextColor(LifeStudyRecord record) async {
+    var mark = MarkEntity.fromJson(record.mark);
+    bool isMarked = mark.textColor == null;
+    if (isMarked) {
+      //颜色改变
+      showMaterialSwatchPicker(
+        title: "选取文字颜色",
+        context: context,
+        selectedColor: Colors.black,
+        onChanged: (color) => mark.textColor = color,
+        onConfirmed: () async {
+          print(mark.toJson());
+          await record.setMarked(mark.toJson());
+          setState(() {});
+        },
+      );
+    } else {
+      mark.textColor = null;
+      print(mark.toJson());
+      await record.setMarked(mark.toJson());
+      setState(() {});
+    }
+  }
+
 //////////////////////////
   ///前进后退返回
 //////////////////////////
@@ -260,7 +326,10 @@ class _SmdjPageState extends State<SmdjPage> {
     currentIndex = 0;
     date = curDate;
     updateData();
-    setDialogState(() {});
+    if (setDialogState != null) {
+      setDialogState(() {});
+    }
+    setState(() {});
   }
 
   void prevDay(StateSetter setDialogState) {
@@ -268,7 +337,10 @@ class _SmdjPageState extends State<SmdjPage> {
     currentIndex = 0;
     date = date.add(Duration(days: -1));
     updateData();
-    setDialogState(() {});
+    if (setDialogState != null) {
+      setDialogState(() {});
+    }
+    setState(() {});
   }
 
   void nextDay(StateSetter setDialogState) {
@@ -276,7 +348,10 @@ class _SmdjPageState extends State<SmdjPage> {
     currentIndex = 0;
     date = date.add(Duration(days: 1));
     updateData();
-    setDialogState(() {});
+    if (setDialogState != null) {
+      setDialogState(() {});
+    }
+    setState(() {});
   }
 
 //////////////////////////
@@ -288,8 +363,13 @@ class _SmdjPageState extends State<SmdjPage> {
   void play(StateSetter setDialogState) {
     flutterTts.completionHandler ??= () {
       if (records.length <= currentIndex) {
-        pause(setDialogState);
-        currentIndex = 0;
+        if (ReadingSettingsEntity.fromSp().repeatPlay) {
+          currentIndex = 0;
+          play(setDialogState);
+        } else {
+          pause(setDialogState);
+          currentIndex = 0;
+        }
       } else {
         play(setDialogState);
       }
@@ -300,11 +380,17 @@ class _SmdjPageState extends State<SmdjPage> {
       controller.scrollToIndex(currentIndex, preferPosition: AutoScrollPosition.begin);
       playState = 1;
       currentIndex = currentIndex + 1;
-      setDialogState(() {});
+      if (setDialogState != null) {
+        setDialogState(() {});
+      }
+      setState(() {});
     } else {
       currentIndex = 0;
       playState = 0;
-      setDialogState(() {});
+      if (setDialogState != null) {
+        setDialogState(() {});
+      }
+      setState(() {});
       flutterTts.stop();
     }
   }
@@ -316,215 +402,88 @@ class _SmdjPageState extends State<SmdjPage> {
     if (setDialogState != null) {
       setDialogState(() {});
     }
+    setState(() {});
   }
 
 //////////////////////////
   /// 文本处理
 //////////////////////////
-  /// 这是一个大类 TODO: 需要在之后被重新拆分,但是现在由于代码比较混乱，就先不动
+  Widget createContent(int index) {
+    return ListTile(
+      contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 0.0, 10.0),
+      title: Text(
+        UtilFunction.indentText(records[index].content, 2),
+        textScaleFactor: baseScaleFactor,
+        style: TextStyle(color: MarkEntity.fromJson(records[index].mark).textColor),
+      ),
+    );
+  }
+
+  ///读经
+  Widget createReadingBible(int index) {
+    return ListTile(
+      title: Text(
+        records[index].content,
+        style: TextStyle(color: MarkEntity.fromJson(records[index].mark).textColor),
+        textScaleFactor: baseScaleFactor,
+      ),
+    );
+  }
+
+  ///:图表
+  Widget createMap(int index) {
+    return Icon(Icons.map);
+  }
+
+  ///: h1
+  Widget createH1(int index) {
+    return ListTile(
+      title: Text(
+        records[index].content,
+        textScaleFactor: baseScaleFactor,
+        style: TextStyle(color: MarkEntity.fromJson(records[index].mark).textColor),
+      ),
+    );
+  }
+
+  ///: h2
+  Widget createH2(int index) {
+    return ListTile(
+      title: Text(
+        records[index].content,
+        textScaleFactor: baseScaleFactor,
+        style: TextStyle(color: MarkEntity.fromJson(records[index].mark).textColor),
+      ),
+    );
+  }
+
+  ///: h3
+  Widget createH3(int index) {
+    return ListTile(
+      title: Text(
+        records[index].content,
+        textScaleFactor: baseScaleFactor,
+        style: TextStyle(color: MarkEntity.fromJson(records[index].mark).textColor),
+      ),
+    );
+  }
+
+  ///纲目内容
+  Widget createOutline(int index, int flag) {
+    return Container(
+      color: Colors.transparent,
+      child: Padding(
+          padding: EdgeInsets.only(left: index * 10.0),
+          child: ListTile(
+            title: Text(
+              records[index].content,
+              textScaleFactor: baseScaleFactor + (6 - index) * 0.1,
+            ),
+          )),
+    );
+  }
+
   Widget createWidget(int index) {
-    //缩进文本
-    String indent(String content, double size) {
-      return "                                                                                                    ".substring(0, (size * 4).toInt()) + content;
-    }
-
-//基本内容
-    Widget createContent(int index) {
-      return ListTile(
-        title: Text(
-          indent(records[index].content, 2),
-          textScaleFactor: baseScaleFactor,
-        ),
-      );
-    }
-
-//总标题
-    Widget createTitle(int index) {
-      return ListTile(
-          title: Text(
-        records[index].content ?? "",
-        style: TextStyle(fontWeight: FontWeight.bold),
-        textAlign: TextAlign.center,
-        textScaleFactor: baseScaleFactor + 0.2,
-      ));
-    }
-
-//TODO:读经
-    Widget createReadingBible(int index) {
-      return ListTile(
-        title: Text(
-          records[index].content,
-          style: TextStyle(color: Colors.blue),
-          textScaleFactor: baseScaleFactor,
-        ),
-      );
-    }
-
-//TODO:图表
-    Widget createMap(int index) {
-      return Icon(Icons.map);
-    }
-
-//TODO: h1
-    Widget createH1(int index) {
-      return ListTile(
-        title: Text(
-          records[index].content,
-          textScaleFactor: baseScaleFactor,
-        ),
-      );
-    }
-
-//TODO: h2
-    Widget createH2(int index) {
-      return ListTile(
-        title: Text(
-          records[index].content,
-          textScaleFactor: baseScaleFactor,
-        ),
-      );
-    }
-
-//TODO: h3
-    Widget createH3(int index) {
-      return ListTile(
-        title: Text(
-          records[index].content,
-          textScaleFactor: baseScaleFactor,
-        ),
-      );
-    }
-
-//1
-    Widget createHL1(int index) {
-      return Container(
-          // decoration: BoxDecoration(color: Colors.grey[200]),
-          child: ListTile(
-        title: Text(
-          records[index].content,
-          style: TextStyle(fontWeight: FontWeight.bold),
-          textScaleFactor: baseScaleFactor + 0.4,
-        ),
-      ));
-    }
-
-//2
-    Widget createHL2(int index) {
-      return Container(
-          decoration: BoxDecoration(color: Colors.transparent),
-          child: ListTile(
-            title: Text(
-              indent(records[index].content, 1),
-              style: TextStyle(fontWeight: FontWeight.bold),
-              textScaleFactor: baseScaleFactor + 0.1,
-            ),
-          ));
-    }
-
-//3
-    Widget createHL3(int index) {
-      return Container(
-          decoration: BoxDecoration(color: Colors.transparent),
-          child: ListTile(
-            title: Text(
-              indent(records[index].content, 2),
-              style: TextStyle(fontWeight: FontWeight.bold),
-              textScaleFactor: baseScaleFactor + 0.05,
-            ),
-          ));
-    }
-
-//4
-    Widget createHL4(int index) {
-      return Container(
-          decoration: BoxDecoration(color: Colors.transparent),
-          child: ListTile(
-            title: Text(
-              indent(records[index].content, 2.5),
-              style: TextStyle(fontWeight: FontWeight.bold),
-              textScaleFactor: baseScaleFactor + 0.05,
-            ),
-          ));
-    }
-
-//5
-    Widget createHL5(int index) {
-      return Container(
-          decoration: BoxDecoration(color: Colors.transparent),
-          child: ListTile(
-            title: Text(
-              indent(records[index].content, 3),
-              style: TextStyle(fontWeight: FontWeight.normal),
-              textScaleFactor: baseScaleFactor + 0.05,
-            ),
-          ));
-    }
-
-//6
-    Widget createHL6(int index) {
-      return Container(
-          decoration: BoxDecoration(color: Colors.transparent),
-          child: ListTile(
-            title: Text(
-              indent(records[index].content, 3.5),
-              style: TextStyle(fontWeight: FontWeight.normal),
-              textScaleFactor: baseScaleFactor,
-            ),
-          ));
-    }
-
-//7
-    Widget createHL7(int index) {
-      return Container(
-          decoration: BoxDecoration(color: Colors.transparent),
-          child: ListTile(
-            title: Text(
-              indent(records[index].content, 4),
-              style: TextStyle(fontWeight: FontWeight.normal),
-              textScaleFactor: baseScaleFactor - 0.05,
-            ),
-          ));
-    }
-
-//8
-    Widget createHL8(int index) {
-      return Container(
-          decoration: BoxDecoration(color: Colors.transparent),
-          child: ListTile(
-            title: Text(
-              indent(records[index].content, 4.5),
-              style: TextStyle(fontWeight: FontWeight.normal),
-              textScaleFactor: baseScaleFactor - 0.1,
-            ),
-          ));
-    }
-
-//9
-    Widget createHL9(int index) {
-      return Container(
-          decoration: BoxDecoration(color: Colors.transparent),
-          child: ListTile(
-            title: Text(
-              indent(records[index].content, 5),
-              style: TextStyle(fontWeight: FontWeight.normal),
-              textScaleFactor: baseScaleFactor - 0.1,
-            ),
-          ));
-    }
-
-//10
-    Widget createHL10(int index) {
-      return Container(
-          decoration: BoxDecoration(color: Colors.transparent),
-          child: ListTile(
-            title: Text(
-              indent(records[index].content, 5.5),
-              style: TextStyle(fontWeight: FontWeight.w200),
-              textScaleFactor: baseScaleFactor - 0.15,
-            ),
-          ));
-    }
-
     switch (records[index].flag) {
       case "c":
         return createContent(index);
@@ -538,47 +497,42 @@ class _SmdjPageState extends State<SmdjPage> {
         return createH2(index);
       case "h3":
         return createH3(index);
-      case "0":
-        return createTitle(index);
-      case '1':
-        return createHL1(index);
-      case '2':
-        return createHL2(index);
-      case '3':
-        return createHL3(index);
-      case '4':
-        return createHL4(index);
-      case '5':
-        return createHL5(index);
-      case '6':
-        return createHL6(index);
-      case '7':
-        return createHL7(index);
-      case '8':
-        return createHL8(index);
-      case '9':
-        return createHL9(index);
-      case '10':
-        return createHL10(index);
+      default:
+        return UtilFunction.isNumeric(records[index].flag) ? createOutline(index, int.parse(records[index].flag)) : SizedBox(height: 0.0);
     }
-    return Text("default");
   }
 
   @override
   Widget build(BuildContext context) {
     var time = DateUtil.formatDate(date, format: DateFormats.zh_mo_d);
     return Scaffold(
-        appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text("生命读经-$time"), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))])),
-        body: Scrollbar(
-          child: Container(
-            color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
-            child: ListView(
-              shrinkWrap: true,
-              controller: controller,
-              scrollDirection: Axis.vertical,
-              children: records.map((e) => wrapScrollWidget(records.indexOf(e))).toList(),
-            ),
+      appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text("生命读经-$time"), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))])),
+      body: Scrollbar(
+        child: Container(
+          color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
+          child: ListView(
+            shrinkWrap: true,
+            controller: controller,
+            scrollDirection: Axis.vertical,
+            children: records.map((e) => wrapScrollWidget(records.indexOf(e))).toList(),
           ),
-        ));
+        ),
+      ),
+      floatingActionButton: ReadingSettingsEntity.fromSp().floatPlayButton
+          ? FloatingActionButton(
+              child: // 播放音频
+                  playState == 0
+                      ? IconButton(
+                          icon: Icon(Icons.stop),
+                          onPressed: () => play(null),
+                        )
+                      : IconButton(
+                          icon: Icon(Icons.play_arrow),
+                          onPressed: () => pause(null),
+                        ),
+              onPressed: () {},
+            )
+          : null,
+    );
   }
 }

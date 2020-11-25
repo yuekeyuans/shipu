@@ -1,32 +1,26 @@
-import 'package:da_ka/db/bible/bibleContentTable.dart';
 import 'package:da_ka/db/bible/bookNameTable.dart';
+import 'package:da_ka/db/lifestudyDb/lifestudyRecord.dart';
 import 'package:da_ka/mainDir/functions/markFunction/markEntity.dart';
 import 'package:flutter/material.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
 import 'showFootNotesPage.dart';
 
-class NoteBibleFunction extends StatefulWidget {
-  final BibleContentTable bible;
+class NoteLifeStudyFunction extends StatefulWidget {
+  final LifeStudyRecord lifeStudyRecord;
 
-  NoteBibleFunction(this.bible);
+  NoteLifeStudyFunction(this.lifeStudyRecord);
   @override
-  _NoteBibleFunctionState createState() => _NoteBibleFunctionState();
+  _NoteLifeStudyFunctionState createState() => _NoteLifeStudyFunctionState();
 }
 
-class _NoteBibleFunctionState extends State<NoteBibleFunction> {
+class _NoteLifeStudyFunctionState extends State<NoteLifeStudyFunction> {
   String bookName = "";
   String content = "";
 
   @override
   void initState() {
     super.initState();
-    updateData();
-  }
-
-  Future<void> updateData() async {
-    bookName = await BibleBookNameTable.queryBookName(widget.bible.bookIndex);
-    setState(() {});
   }
 
   @override
@@ -51,10 +45,14 @@ class _NoteBibleFunctionState extends State<NoteBibleFunction> {
         child: Column(
           children: [
             ListTile(
-              title: Text(widget.bible.content),
-              subtitle: Text("$bookName ${widget.bible.chapter}:${widget.bible.section}"),
+              title: Text(widget.lifeStudyRecord.content),
+              subtitle: Text("生命读经"),
             ),
-            Divider(height: 5.0, thickness: 5.0),
+            Divider(height: 1.0),
+            Divider(height: 1.0),
+            Divider(height: 1.0),
+            Divider(height: 1.0),
+            Divider(height: 1.0),
             TextField(
               controller: TextEditingController(text: content),
               decoration: const InputDecoration(
@@ -86,17 +84,15 @@ class _NoteBibleFunctionState extends State<NoteBibleFunction> {
       showToast("请输入笔记内容后,点击添加按钮");
       return;
     }
-    var entity = MarkEntity.fromJson(widget.bible.mark);
+    var entity = MarkEntity.fromJson(widget.lifeStudyRecord.mark);
     entity.notes.add(content);
-    widget.bible.mark = entity.toJson();
-    print(widget.bible.mark);
-    widget.bible.setMarked(widget.bible.mark);
+    widget.lifeStudyRecord.setMarked(entity.toJson());
     showToast("添加成功");
     pop("finish");
   }
 
   /// 查看所有笔记
   showAllFootNote() {
-    routePush(ShowAllFootNotesPage(bible: widget.bible));
+    routePush(ShowAllFootNotesPage(lifeStudyRecord: widget.lifeStudyRecord));
   }
 }

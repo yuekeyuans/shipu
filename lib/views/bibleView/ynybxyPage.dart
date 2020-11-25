@@ -218,9 +218,7 @@ class _YnybXyPageState extends State<YnybXyPage> {
     return Container(
         color: color,
         child: Column(children: <Widget>[
-          SizedBox(height: 5.0),
           GestureDetector(child: createItem(index), onLongPress: () => longPressParagraph(index)),
-          SizedBox(height: 5.0),
         ]));
   }
 
@@ -243,12 +241,13 @@ class _YnybXyPageState extends State<YnybXyPage> {
     var type = mixedList[index].id;
     if (type == 0) {
       return ListTile(
+          contentPadding: EdgeInsets.all(5.0),
           title: Text(
-        mixedList[index].content,
-        textAlign: TextAlign.center,
-        textScaleFactor: baseFontScaler + 0.2,
-        style: TextStyle(color: Colors.lightBlue),
-      ));
+            mixedList[index].content,
+            textAlign: TextAlign.center,
+            textScaleFactor: baseFontScaler + 0.2,
+            style: TextStyle(color: Colors.lightBlue),
+          ));
     } else if (type == 1) {
       var haseMessage = false;
       if (mixedList[index].bible.mark != "") {
@@ -256,14 +255,13 @@ class _YnybXyPageState extends State<YnybXyPage> {
         haseMessage = mark.notes.isNotEmpty;
       }
       return Container(
-          padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
+          padding: EdgeInsets.fromLTRB(0, 15.0, 5.0, 10.0),
           child: Column(children: [
-            SizedBox(height: 5),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.fromLTRB(10, 2, 10, 0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
                     mixedList[index].bible.section.toString(),
                     textScaleFactor: baseFontScaler,
@@ -273,12 +271,11 @@ class _YnybXyPageState extends State<YnybXyPage> {
                 haseMessage
                     ? IconButton(
                         icon: Icon(Icons.message),
-                        onPressed: () => routePush(ShowAllFootNotesPage(mixedList[index].bible)).then((value) => updateData()),
+                        onPressed: () => routePush(ShowAllFootNotesPage(bible: mixedList[index].bible)).then((value) => updateData()),
                       )
-                    : SizedBox(width: 1),
+                    : SizedBox(width: 0.0),
               ],
             ),
-            SizedBox(height: 5),
           ]));
     } else {
       var outline = mixedList[index].outline;
