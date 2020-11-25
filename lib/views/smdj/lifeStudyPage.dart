@@ -1,4 +1,5 @@
 import 'package:common_utils/common_utils.dart';
+import 'package:da_ka/db/lifestudyDb/lifeStudyBookName.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyRecord.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyTable.dart';
 import 'package:da_ka/global.dart';
@@ -18,12 +19,17 @@ import 'package:oktoast/oktoast.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:share_extend/share_extend.dart';
 
-class SmdjPage extends StatefulWidget {
+// ignore: must_be_immutable
+class LifeStudyPage extends StatefulWidget {
+  int book = -1;
+  int chapter = -1;
+  LifeStudyPage({this.book = -1, this.chapter = -1});
+
   @override
-  _SmdjPageState createState() => _SmdjPageState();
+  _LifeStudyPageState createState() => _LifeStudyPageState();
 }
 
-class _SmdjPageState extends State<SmdjPage> {
+class _LifeStudyPageState extends State<LifeStudyPage> {
   double baseScaleFactor = 1.0;
 
   AutoScrollController controller;
@@ -31,11 +37,26 @@ class _SmdjPageState extends State<SmdjPage> {
   FlutterTts flutterTts;
   List<LifeStudyRecord> records = [];
 
+  /// 篇题名称
+  String pageName = "";
+
+  ///false 按篇计算, true 按日期计算
+  bool isDaily = true;
+
+  /// book and chapter
+  int book, chapter;
+
   @override
   void initState() {
     super.initState();
     controller = AutoScrollController(viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom), axis: Axis.vertical, suggestedRowHeight: 200);
     updateSetting();
+    //判读是否一年一遍加载进来
+    if (widget.book + widget.chapter != -2) {
+      isDaily = false;
+      book = widget.book;
+      chapter = widget.chapter;
+    }
     updateData();
   }
 
@@ -62,7 +83,15 @@ class _SmdjPageState extends State<SmdjPage> {
   }
 
   Future<void> updateData() async {
-    records = await LifeStudyTable().queryArticleByDate(date);
+    if (isDaily) {
+      var time = DateUtil.formatDate(date, format: DateFormats.zh_mo_d);
+      pageName = "生命读经-$time";
+      records = await LifeStudyTable().queryArticleByDate(date);
+    } else {
+      records = await LifeStudyTable().queryChapter(bookIndex: book, chapter: chapter);
+      pageName = await LifeStudyBookName.queryBookNameById(widget.book);
+      pageName += "生命读经";
+    }
     setState(() {});
   }
 
@@ -169,6 +198,70 @@ class _SmdjPageState extends State<SmdjPage> {
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, setDialogState) {
+            var children = <Widget>[
+              // 播放音频
+              playState == 0
+                  ? IconButton(icon: Icon(Icons.stop), onPressed: () => play(setDialogState))
+                  : IconButton(
+                      icon: Icon(Icons.play_arrow),
+                      onPressed: () => pause(setDialogState),
+                    ),
+            ];
+
+            if (isDaily) {
+              children.addAll([
+                //后退
+                todayDifference >= 0
+                    ? IconButton(
+                        icon: Icon(Icons.arrow_back),
+                        onPressed: () => prevDay(setDialogState),
+                      )
+                    : IconButton(
+                        icon: Icon(Icons.adjust),
+                        onPressed: () => toToday(setDialogState),
+                      ),
+                //前进
+                todayDifference <= 0
+                    ? IconButton(
+                        icon: Icon(Icons.arrow_forward),
+                        onPressed: () => nextDay(setDialogState),
+                      )
+                    : IconButton(
+                        icon: Icon(Icons.adjust),
+                        onPressed: () => toToday(setDialogState),
+                      ),
+                IconButton(
+                  icon: Icon(Icons.view_list_sharp),
+                  onPressed: () => routePush(
+                    SmdjIndexPage(),
+                  ),
+                ),
+              ]);
+            } else {
+              children.addAll([
+                //后退
+                IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () => prevPage(setDialogState),
+                ),
+                //前进
+                IconButton(
+                  icon: Icon(Icons.arrow_forward),
+                  onPressed: () => nextPage(setDialogState),
+                )
+              ]);
+            }
+
+            children.add(//设置
+                IconButton(
+                    icon: Icon(Icons.settings),
+                    onPressed: () {
+                      pause(setDialogState);
+                      routePush(ReadingSettings(true, showSpeechControl: true, showPlayButtons: true)).then((value) {
+                        updateSetting();
+                      });
+                    }));
+
             return Container(
                 height: 40,
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
@@ -177,52 +270,7 @@ class _SmdjPageState extends State<SmdjPage> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      // 播放音频
-                      playState == 0
-                          ? IconButton(
-                              icon: Icon(Icons.stop),
-                              onPressed: () => play(setDialogState),
-                            )
-                          : IconButton(
-                              icon: Icon(Icons.play_arrow),
-                              onPressed: () => pause(setDialogState),
-                            ),
-                      //后退
-                      todayDifference >= 0
-                          ? IconButton(
-                              icon: Icon(Icons.arrow_back),
-                              onPressed: () => prevDay(setDialogState),
-                            )
-                          : IconButton(
-                              icon: Icon(Icons.adjust),
-                              onPressed: () => toToday(setDialogState),
-                            ),
-                      //前进
-                      todayDifference <= 0
-                          ? IconButton(
-                              icon: Icon(Icons.arrow_forward),
-                              onPressed: () => nextDay(setDialogState),
-                            )
-                          : IconButton(
-                              icon: Icon(Icons.adjust),
-                              onPressed: () => toToday(setDialogState),
-                            ),
-
-                      IconButton(
-                        icon: Icon(Icons.view_list_sharp),
-                        onPressed: () => routePush(SmdjIndexPage()),
-                      ),
-                      //设置
-                      IconButton(
-                          icon: Icon(Icons.settings),
-                          onPressed: () {
-                            pause(setDialogState);
-                            routePush(ReadingSettings(true, showSpeechControl: true, showPlayButtons: true)).then((value) {
-                              updateSetting();
-                            });
-                          })
-                    ],
+                    children: children,
                   )
                 ]));
           });
@@ -321,6 +369,7 @@ class _SmdjPageState extends State<SmdjPage> {
   DateTime get curDate => DateTime.parse(DateUtil.formatDate(DateTime.now(), format: DateFormats.y_mo_d));
   int get todayDifference => curDate.difference(date).inDays;
 
+  //转到今天
   void toToday(StateSetter setDialogState) {
     pause(setDialogState);
     currentIndex = 0;
@@ -332,6 +381,7 @@ class _SmdjPageState extends State<SmdjPage> {
     setState(() {});
   }
 
+  //上一天
   void prevDay(StateSetter setDialogState) {
     pause(setDialogState);
     currentIndex = 0;
@@ -343,10 +393,47 @@ class _SmdjPageState extends State<SmdjPage> {
     setState(() {});
   }
 
+  //上一篇
+  void prevPage(StateSetter setDialogState) {
+    pause(setDialogState);
+    currentIndex = 0;
+    var value = LifeStudyTable.queryPrevPageByBookIndexAndChapter(book, chapter);
+    if (value.first == -1) {
+      showToast("已经是第一篇");
+      return;
+    }
+    book = value.first;
+    chapter = value.last;
+    updateData();
+    if (setDialogState != null) {
+      setDialogState(() {});
+    }
+    setState(() {});
+  }
+
+  //下一天
   void nextDay(StateSetter setDialogState) {
     pause(setDialogState);
     currentIndex = 0;
     date = date.add(Duration(days: 1));
+    updateData();
+    if (setDialogState != null) {
+      setDialogState(() {});
+    }
+    setState(() {});
+  }
+
+  //下一篇
+  void nextPage(StateSetter setDialogState) {
+    pause(setDialogState);
+    currentIndex = 0;
+    var value = LifeStudyTable.queryNextPageByBookIndexAndChapter(book, chapter);
+    if (value.first == -1) {
+      showToast("已经是最后一篇");
+      return;
+    }
+    book = value.first;
+    chapter = value.last;
     updateData();
     if (setDialogState != null) {
       setDialogState(() {});
@@ -473,11 +560,11 @@ class _SmdjPageState extends State<SmdjPage> {
     return Container(
       color: Colors.transparent,
       child: Padding(
-          padding: EdgeInsets.only(left: index * 10.0),
+          padding: EdgeInsets.only(left: flag * 10.0),
           child: ListTile(
             title: Text(
               records[index].content,
-              textScaleFactor: baseScaleFactor + (6 - index) * 0.1,
+              textScaleFactor: baseScaleFactor + (7 - flag) * 0.05,
             ),
           )),
     );
@@ -504,9 +591,8 @@ class _SmdjPageState extends State<SmdjPage> {
 
   @override
   Widget build(BuildContext context) {
-    var time = DateUtil.formatDate(date, format: DateFormats.zh_mo_d);
     return Scaffold(
-      appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text("生命读经-$time"), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))])),
+      appBar: PreferredSize(preferredSize: Size.fromHeight(APPBAR_HEIGHT), child: AppBar(title: Text(pageName), actions: <Widget>[Padding(padding: EdgeInsets.only(right: 10), child: IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog))])),
       body: Scrollbar(
         child: Container(
           color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,

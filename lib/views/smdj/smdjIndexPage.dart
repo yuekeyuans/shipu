@@ -1,5 +1,5 @@
 import 'package:da_ka/global.dart';
-import 'package:da_ka/views/smdj/smdjViewer.dart';
+import 'package:da_ka/views/smdj/lifeStudyPage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:da_ka/db/lifestudyDb/LifeStudyOutline.dart';
@@ -130,7 +130,7 @@ class _SmdjIndexPageState extends State<SmdjIndexPage> {
               isThreeLine: false,
               contentPadding: EdgeInsets.all(0),
             ),
-            onTap: () => routePush(SmdjViewer(element.outline.book_index, element.outline.chapter)));
+            onTap: () => routePush(LifeStudyPage(book: element.outline.book_index, chapter: element.outline.chapter)));
       },
       itemCount: mixedList.length,
       separatorBuilder: (BuildContext context, int index) {

@@ -1,4 +1,3 @@
-import 'package:da_ka/db/bible/bookNameTable.dart';
 import 'package:da_ka/db/lifestudyDb/lifestudyRecord.dart';
 import 'package:da_ka/mainDir/functions/markFunction/markEntity.dart';
 import 'package:flutter/material.dart';

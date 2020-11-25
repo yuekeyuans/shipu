@@ -4,7 +4,7 @@ import 'package:flustars/flustars.dart';
 
 class LifeStudyTable {
   //数据
-  Map<int, int> chapters = {
+  static const Map<int, int> chapters = {
     1: 120,
     2: 185,
     3: 64,
@@ -110,5 +110,29 @@ class LifeStudyTable {
       count += chapters[key];
     }
     return [1, 1];
+  }
+
+  ///下一篇
+  static List<int> queryNextPageByBookIndexAndChapter(int book, int chapter) {
+    var max = chapters[book];
+    if (chapter >= max) {
+      if (book == 66) {
+        return [-1, -1];
+      }
+      return [book + 1, 1];
+    }
+    return [book, chapter + 1];
+  }
+
+  /// 上一篇
+  static List<int> queryPrevPageByBookIndexAndChapter(int book, int chapter) {
+    if (chapter <= 1) {
+      if (book == 1) {
+        return [-1, -1];
+      }
+      var max = chapters[book - 1];
+      return [book - 1, max];
+    }
+    return [book, chapter - 1];
   }
 }

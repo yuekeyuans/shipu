@@ -82,4 +82,15 @@ class LifeStudyBookName {
     var result = await db.query(TABLE_NAME, orderBy: "book_index asc");
     return result.map<LifeStudyBookName>((e) => LifeStudyBookName.fromMap(e)).toList();
   }
+
+  static Future<String> queryBookNameById(int bookId) async {
+    var lst = await LifeStudyBookName.queryAllBookNames();
+    var name = "";
+    lst.forEach((element) {
+      if (element.bookIndex == bookId) {
+        name = element.name;
+      }
+    });
+    return name;
+  }
 }

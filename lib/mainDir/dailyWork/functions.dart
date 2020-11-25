@@ -1,7 +1,7 @@
 import 'package:da_ka/global.dart';
 import 'package:da_ka/views/bibleView/ynybJyPage.dart';
 import 'package:da_ka/views/bibleView/ynybxyPage.dart';
-import 'package:da_ka/views/smdj/smdjPage.dart';
+import 'package:da_ka/views/smdj/lifeStudyPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nav_router/nav_router.dart';
@@ -28,7 +28,7 @@ class _DailyPageState extends State<DailyPage> {
             tiles: [
               SettingsTile(title: "新约", leading: SvgPicture.asset("assets/icon/book_new.svg", width: 32, height: 32, color: Theme.of(context).disabledColor), onTap: () => routePush(YnybXyPage())),
               SettingsTile(title: "旧约", leading: SvgPicture.asset("assets/icon/book_old.svg", width: 32, height: 32, color: Theme.of(context).disabledColor), onTap: () => routePush(YnybJyPage())),
-              SettingsTile(title: "生命读经", leading: SvgPicture.asset("assets/icon/life_reading.svg", width: 32, height: 32, color: Theme.of(context).disabledColor), onTap: () => routePush(SmdjPage())),
+              SettingsTile(title: "生命读经", leading: SvgPicture.asset("assets/icon/life_reading.svg", width: 32, height: 32, color: Theme.of(context).disabledColor), onTap: () => routePush(LifeStudyPage())),
             ],
           )
         ],
