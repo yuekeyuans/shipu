@@ -47,14 +47,15 @@ class _DescriptionFunctionState extends State<DescriptionFunction> {
                   subtitle: Text("第一版"),
                 ),
                 Divider(height: 1.0),
-                ListTile(
-                  leading: Icon(Icons.email),
-                  title: Text("邮箱"),
-                  subtitle: Text("yuekeyuan@tom.com"),
-                  onTap: sendEmail,
-                  trailing: Icon(Icons.chevron_right),
-                ),
-                Divider(height: 1.0),
+                // ListTile(
+                //   enabled: false,
+                //   leading: Icon(Icons.email),
+                //   title: Text("邮箱"),
+                //   subtitle: Text("yuekeyuan@tom.com"),
+                //   onTap: sendEmail,
+                //   trailing: Icon(Icons.chevron_right),
+                // ),
+                // Divider(height: 1.0),
                 ListTile(
                   leading: Icon(Icons.help),
                   title: Text("帮助文档"),

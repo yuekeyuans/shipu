@@ -23,6 +23,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:flutter/services.dart';
 import 'package:share_extend/share_extend.dart';
+import 'package:vibration/vibration.dart';
 
 class YnybJyPage extends StatefulWidget {
   @override
@@ -223,8 +224,9 @@ class _YnybJyPageState extends State<YnybJyPage> {
   }
 
   ///
-  ListView createChildren() {
-    return ListView.separated(
+  Widget createChildren() {
+    return Scrollbar(
+        child: ListView.separated(
       controller: controller,
       shrinkWrap: true,
       itemBuilder: (context, index) {
@@ -234,7 +236,7 @@ class _YnybJyPageState extends State<YnybJyPage> {
         return Divider(height: 1.0);
       },
       itemCount: mixedList.length,
-    );
+    ));
   }
 
   Widget createItem(int index) {
@@ -500,13 +502,20 @@ class _YnybJyPageState extends State<YnybJyPage> {
   int currentIndex = 0;
   StateSetter setDialogState;
   void play(StateSetter setDialogState) {
-    flutterTts.completionHandler ??= () {
+    flutterTts.completionHandler ??= () async {
       if (mixedList.length <= currentIndex) {
         if (ReadingSettingsEntity.fromSp().repeatPlay) {
           currentIndex = 0;
           play(setDialogState);
         } else {
           pause(setDialogState);
+          if (await Vibration.hasCustomVibrationsSupport()) {
+            Vibration.vibrate(duration: 1000);
+          } else {
+            Vibration.vibrate();
+            await Future.delayed(Duration(milliseconds: 500));
+            Vibration.vibrate();
+          }
           currentIndex = 0;
         }
       } else {

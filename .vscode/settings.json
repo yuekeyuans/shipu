@@ -12,5 +12,9 @@
     "editor.multiCursorMergeOverlapping": false,
     "editor.wordWrapColumn": 200,
     "editor.wordWrap": "wordWrapColumn",
-    "prettier.printWidth": 800
+    "prettier.printWidth": 800,
+    "editor.detectIndentation": false,
+    "editor.tabSize": 4,
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
 }

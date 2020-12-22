@@ -71,15 +71,13 @@ class _SmdjIndexPageState extends State<SmdjIndexPage> {
           }
         }
       } else {
+        // 新约
         if (element.bookIndex >= 40) {
           mixedList.add(LifeStudyItem(type: 1, isFold: element.isFold, bookName: element));
           if (!element.isFold) {
             buildOutlines(element);
           }
         }
-      }
-      if (!element.isFold) {
-        buildOutlines(element);
       }
     });
   }

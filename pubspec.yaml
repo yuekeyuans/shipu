@@ -43,6 +43,7 @@ dependencies:
   flutter_svg: ^0.19.1
   pdf_text: ^0.3.1
   syncfusion_flutter_pdfviewer: ^18.3.42-beta
+  vibration: ^1.7.3
 
 dev_dependencies:
   flutter_test:

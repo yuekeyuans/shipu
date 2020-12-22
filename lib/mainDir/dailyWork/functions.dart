@@ -26,9 +26,21 @@ class _DailyPageState extends State<DailyPage> {
           SettingsSection(
             title: "一年一遍",
             tiles: [
-              SettingsTile(title: "新约", leading: SvgPicture.asset("assets/icon/book_new.svg", width: 32, height: 32, color: Theme.of(context).disabledColor), onTap: () => routePush(YnybXyPage())),
-              SettingsTile(title: "旧约", leading: SvgPicture.asset("assets/icon/book_old.svg", width: 32, height: 32, color: Theme.of(context).disabledColor), onTap: () => routePush(YnybJyPage())),
-              SettingsTile(title: "生命读经", leading: SvgPicture.asset("assets/icon/life_reading.svg", width: 32, height: 32, color: Theme.of(context).disabledColor), onTap: () => routePush(LifeStudyPage())),
+              SettingsTile(
+                title: "新约",
+                leading: SvgPicture.asset("assets/icon/book_new.svg", width: 32, height: 32, color: Theme.of(context).disabledColor),
+                onTap: () => routePush(YnybXyPage()),
+              ),
+              SettingsTile(
+                title: "旧约",
+                leading: SvgPicture.asset("assets/icon/book_old.svg", width: 32, height: 32, color: Theme.of(context).disabledColor),
+                onTap: () => routePush(YnybJyPage()),
+              ),
+              SettingsTile(
+                title: "生命读经",
+                leading: SvgPicture.asset("assets/icon/life_reading.svg", width: 32, height: 32, color: Theme.of(context).disabledColor),
+                onTap: () => routePush(LifeStudyPage()),
+              ),
             ],
           )
         ],
