@@ -1,4 +1,4 @@
-import 'package:da_ka/mainDir/dailyWork/functions.dart';
+import 'package:da_ka/mainDir/dailyWork/dailyPage.dart';
 import 'package:da_ka/mainDir/contentPage/contentPage.dart';
 import 'package:da_ka/mainDir/functions/functionsPage.dart';
 import 'package:flutter/material.dart';
