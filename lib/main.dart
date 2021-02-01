@@ -18,7 +18,6 @@ import 'package:sp_util/sp_util.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'db/neeDb/NeeDb.dart';
-import 'mainDir/functions/dakaFunction/recitebible/daka_recite_bible_entity.dart';
 import 'mainDir/functions/splashFunction/SplashScreen.dart';
 import 'mainDir/functions/splashFunction/splahEntity.dart';
 import 'mainDir/functions/utilsFunction/UtilFunction.dart';
@@ -124,8 +123,6 @@ Future<void> initVal() async {
     await SpUtil.putBool("Encryption", false);
     //splash
     await SplashEntity().toSp();
-    //背经
-    ReciteBibleEntity.instance().toSp();
     //扫描文件显示已添加文件
     await SpUtil.putBool("scanFile_show_add", true);
   }

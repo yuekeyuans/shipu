@@ -1,6 +1,5 @@
 import 'package:da_ka/db/bible/bibleDb.dart';
 import 'package:da_ka/db/bible/bibleFootnoteTable.dart';
-import 'package:da_ka/db/mainDb/recitebibleTable.dart';
 import 'package:da_ka/db/mainDb/sqliteDb.dart';
 
 class BibleContentTable {
@@ -58,14 +57,6 @@ class BibleContentTable {
       return contents.first;
     }
     return null;
-  }
-
-  List<BibleContentTable> queryByReciteBibleTableRecord(List<ReciteBibleTable> records) {
-    var lst = <BibleContentTable>[];
-    records.forEach((element) async {
-      lst.addAll((await queryByIds(element.ids)));
-    });
-    return lst;
   }
 
   Future<BibleContentTable> queryById(int id) async {

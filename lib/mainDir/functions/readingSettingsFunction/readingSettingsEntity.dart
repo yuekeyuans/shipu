@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 
 class ReadingSettingsEntity {
   ///放大大小
-  double baseFont = 1.0;
+  double baseFont = 1.5;
 
   ///背景颜色
   Color backGroundColor = Colors.white;
   ////////////////tts 设置
   ///速度
-  double speechRate = 1.0;
+  double speechRate = 1.2;
 
   ///音量
   double volumn = 1.0;
