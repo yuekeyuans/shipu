@@ -9,6 +9,7 @@ const subPath = [
   "/tencent/MicroMsg/WeiXin",
   "/tencent/QQFile_recv",
   "/Android/data/com.tencent.mm/MicroMsg/Download",
+  "/zapya/misc",
 ];
 
 const suffix = [".dict", ".pdf", ".doc", ".docx"];

@@ -30,7 +30,6 @@ Future<void> main() async {
   await initialize();
   await createPath();
   await initVal().then((value) {
-    print(SpUtil.getString("MAIN_PATH"));
     copyPf0File();
   });
   initDb();
@@ -67,7 +66,7 @@ class MyApp extends StatelessWidget {
                     const Locale('zh'),
                   ],
                   locale: const Locale('zh'),
-                  title: '食谱',
+                  title: '食谱V2',
                   theme: theme,
                   debugShowCheckedModeBanner: false,
                   navigatorKey: navGK,

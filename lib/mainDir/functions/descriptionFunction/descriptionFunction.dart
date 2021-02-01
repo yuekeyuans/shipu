@@ -7,7 +7,6 @@ import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nav_router/nav_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class DescriptionFunction extends StatefulWidget {
   @override
@@ -26,13 +25,7 @@ class _DescriptionFunctionState extends State<DescriptionFunction> {
 -  分享功能
 -  加密功能
 """;
-  String promiseInfo = """
--  晨兴
--  背经
--  笔记
--  epub, ppt, 等功能
--  更多音频功能
-""";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,15 +40,6 @@ class _DescriptionFunctionState extends State<DescriptionFunction> {
                   subtitle: Text("第一版"),
                 ),
                 Divider(height: 1.0),
-                // ListTile(
-                //   enabled: false,
-                //   leading: Icon(Icons.email),
-                //   title: Text("邮箱"),
-                //   subtitle: Text("yuekeyuan@tom.com"),
-                //   onTap: sendEmail,
-                //   trailing: Icon(Icons.chevron_right),
-                // ),
-                // Divider(height: 1.0),
                 ListTile(
                   leading: Icon(Icons.help),
                   title: Text("帮助文档"),
@@ -69,24 +53,8 @@ class _DescriptionFunctionState extends State<DescriptionFunction> {
                   title: Text("实现功能"),
                   subtitle: Text(info),
                 ),
-                Divider(height: 1.0),
-                ListTile(
-                  leading: Icon(Icons.lock_clock),
-                  title: Text("待实现功能"),
-                  subtitle: Text(promiseInfo),
-                ),
               ],
             )));
-  }
-
-  //发送邮件
-  void sendEmail() {
-    final Uri _emailLaunchUri = Uri(
-      scheme: 'mailto',
-      path: 'yuekeyuan@tom.com',
-      queryParameters: {'subject': '关于软件'},
-    );
-    launch(_emailLaunchUri.toString());
   }
 
   //打开帮助文档

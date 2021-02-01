@@ -1,6 +1,8 @@
 import 'package:da_ka/global.dart';
 import 'package:da_ka/views/bibleView/ynybJyPage.dart';
 import 'package:da_ka/views/bibleView/ynybxyPage.dart';
+import 'package:da_ka/views/mbView/MbPage.dart';
+import 'package:da_ka/views/mnView/MnPage.dart';
 import 'package:da_ka/views/smdj/lifeStudyPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -23,6 +25,13 @@ class _DailyPageState extends State<DailyPage> {
           preferredSize: Size.fromHeight(APPBAR_HEIGHT)),
       body: SettingsList(
         sections: [
+          SettingsSection(title: "晨兴", tiles: [
+            SettingsTile(
+              title: "晨兴",
+              leading: SvgPicture.asset("assets/icon/sun.svg", width: 40, height: 40, color: Theme.of(context).disabledColor),
+              onTap: () => routePush(MnPage()),
+            )
+          ]),
           SettingsSection(
             title: "一年一遍",
             tiles: [
@@ -40,6 +49,16 @@ class _DailyPageState extends State<DailyPage> {
                 title: "生命读经",
                 leading: SvgPicture.asset("assets/icon/life_reading.svg", width: 32, height: 32, color: Theme.of(context).disabledColor),
                 onTap: () => routePush(LifeStudyPage()),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: "每月一书",
+            tiles: [
+              SettingsTile(
+                title: "每月一书",
+                leading: SvgPicture.asset("assets/icon/book.svg", width: 24, height: 24, color: Theme.of(context).disabledColor),
+                onTap: () => routePush(MbPage()),
               ),
             ],
           )
