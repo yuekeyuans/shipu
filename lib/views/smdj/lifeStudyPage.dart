@@ -49,7 +49,11 @@ class _LifeStudyPageState extends State<LifeStudyPage> {
   @override
   void initState() {
     super.initState();
-    controller = AutoScrollController(viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom), axis: Axis.vertical, suggestedRowHeight: 200);
+    controller = AutoScrollController(
+      viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+      axis: Axis.vertical,
+      suggestedRowHeight: 200,
+    );
     updateSetting();
     //判读是否一年一遍加载进来
     if (widget.book + widget.chapter != -2) {
@@ -118,11 +122,20 @@ class _LifeStudyPageState extends State<LifeStudyPage> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: GestureDetector(child: createWidget(index), onLongPress: () => longPressParagraph(index))),
+              Expanded(
+                child: GestureDetector(
+                  child: createWidget(index),
+                  onLongPress: () => longPressParagraph(index),
+                ),
+              ),
               hasMessage
                   ? IconButton(
                       icon: Icon(Icons.message),
-                      onPressed: () => routePush(ShowAllFootNotesPage(lifeStudyRecord: records[index])).then((value) => updateData()),
+                      onPressed: () => routePush(
+                        ShowAllFootNotesPage(lifeStudyRecord: records[index]),
+                      ).then(
+                        (value) => updateData(),
+                      ),
                     )
                   : SizedBox(width: 0.0),
             ],
@@ -280,8 +293,6 @@ class _LifeStudyPageState extends State<LifeStudyPage> {
 //////////////////////////
   ///功能处理
 //////////////////////////
-  ///
-  ///
   List<Widget> get outline {
     var widgets = <Widget>[];
     records.forEach((element) {

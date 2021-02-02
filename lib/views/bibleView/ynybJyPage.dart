@@ -56,40 +56,10 @@ class _YnybJyPageState extends State<YnybJyPage> {
 
   @override
   void initState() {
-    super.initState();
+    date = DateTime.tryParse("20120101");
     controller = AutoScrollController(viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom), axis: Axis.vertical);
     updateSetting();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(APPBAR_HEIGHT),
-        child: AppBar(
-          title: Text("旧约 - ${DateUtil.formatDate(date, format: DateFormats.zh_mo_d)}"),
-          actions: <Widget>[IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog)],
-        ),
-      ),
-      body: createChildren(),
-      floatingActionButton: ReadingSettingsEntity.fromSp().floatPlayButton
-          ? FloatingActionButton(
-              child: // 播放音频
-                  playState == 0
-                      ? IconButton(
-                          icon: Icon(Icons.stop),
-                          onPressed: () => play(null),
-                        )
-                      : IconButton(
-                          icon: Icon(Icons.play_arrow),
-                          onPressed: () => pause(null),
-                        ),
-              onPressed: () {
-                // play(setState);
-              },
-            )
-          : null,
-    );
+    super.initState();
   }
 
 ////////////////////////////////
@@ -136,12 +106,14 @@ class _YnybJyPageState extends State<YnybJyPage> {
     });
 
     //注解
+
     footNotes = await BibleFotnoteTable.queryByChaptersAndSections(bookIndex, biblesIds);
     footNotes.forEach((element) {
       var chapter = element.chapter;
       var section = element.section;
+      var flag = element.flag;
       for (var i = 0; i < bibles.length; i++) {
-        if (bibles[i].chapter == chapter && bibles[i].section == section) {
+        if (bibles[i].chapter == chapter && bibles[i].section == section && bibles[i].flag == flag) {
           bibles[i].footNotes.add(element);
           if (element.note == "") {
             element.note = footNotes[footNotes.indexOf(element) - 1].note;
@@ -223,7 +195,6 @@ class _YnybJyPageState extends State<YnybJyPage> {
         ]));
   }
 
-  ///
   Widget createChildren() {
     return Scrollbar(
         child: ListView.separated(
@@ -644,5 +615,36 @@ class _YnybJyPageState extends State<YnybJyPage> {
                 ]));
           });
         });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(APPBAR_HEIGHT),
+        child: AppBar(
+          title: Text("旧约 - ${DateUtil.formatDate(date, format: DateFormats.zh_mo_d)}"),
+          actions: <Widget>[IconButton(icon: Icon(Icons.menu), onPressed: showBottomSheetDialog)],
+        ),
+      ),
+      body: createChildren(),
+      floatingActionButton: ReadingSettingsEntity.fromSp().floatPlayButton
+          ? FloatingActionButton(
+              child: // 播放音频
+                  playState == 0
+                      ? IconButton(
+                          icon: Icon(Icons.stop),
+                          onPressed: () => play(null),
+                        )
+                      : IconButton(
+                          icon: Icon(Icons.play_arrow),
+                          onPressed: () => pause(null),
+                        ),
+              onPressed: () {
+                // play(setState);
+              },
+            )
+          : null,
+    );
   }
 }

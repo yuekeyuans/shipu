@@ -95,12 +95,18 @@ class BibleFotnoteTable {
   }
 
   static Future<List<BibleFotnoteTable>> queryByChaptersAndSections(int bookIndex, Map<int, List<int>> maps) async {
-    assert(maps.isNotEmpty);
     //build sql
+    //这里有一节圣经分成多节的问题，所以需要特殊处理下
     var sql = "select * from ${TABLE_NAME} where book_index = $bookIndex and (";
     List<String> wheres = [];
     maps.forEach((key, value) {
-      wheres.add("(chapter = $key and section in (${value.join(',')}))");
+      List<int> _val = [];
+      value.forEach((e) {
+        if (!_val.contains(e)) {
+          _val.add(e);
+        }
+      });
+      wheres.add("(chapter = $key and section in (${_val.join(',')}))");
     });
     sql = sql + wheres.join(" or ") + ")";
     print(sql);
