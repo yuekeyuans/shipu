@@ -21,7 +21,7 @@ class ReadingSettingsEntity {
   bool repeatPlay = false;
 
   ///悬浮播放按钮
-  bool floatPlayButton = false;
+  bool floatPlayButton = true;
 
   ///主页播放按钮
   bool mainPagePlayButton = false;
@@ -33,14 +33,14 @@ class ReadingSettingsEntity {
   bool showOutline = true;
 
   ReadingSettingsEntity.fromSp() {
-    baseFont = SpUtil.getDouble("DakaSettingsEntity_baseFont", defValue: 1.0);
+    baseFont = SpUtil.getDouble("DakaSettingsEntity_baseFont", defValue: 1.5);
     speechRate = SpUtil.getDouble("DakaSettingsEntity_speechRate", defValue: 0.5);
     volumn = SpUtil.getDouble("DakaSettingsEntity_volumn", defValue: 1.0);
     pitch = SpUtil.getDouble("DakaSettingsEntity_pitch", defValue: 1.0);
     showFootNote = SpUtil.getBool("DakaSettingsEntity_showFootNote", defValue: true);
     showOutline = SpUtil.getBool("DakaSettingsEntity_showOutline", defValue: true);
     repeatPlay = SpUtil.getBool("DakaSettingsEntity_repeatPlay", defValue: false);
-    floatPlayButton = SpUtil.getBool("DakaSettingsEntity_floatPlayButton", defValue: false);
+    floatPlayButton = SpUtil.getBool("DakaSettingsEntity_floatPlayButton", defValue: true);
     mainPagePlayButton = SpUtil.getBool("DakaSettingsEntity_mainPagePlayButton", defValue: false);
   }
 

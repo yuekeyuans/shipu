@@ -44,6 +44,9 @@ dependencies:
   pdf_text: ^0.3.1
   syncfusion_flutter_pdfviewer: ^18.3.42-beta
   vibration: ^1.7.3
+  dart_extensions: ^1.0.2
+  loading_overlay: ^0.2.1
+  isolate_handler: ^0.3.1
 
 dev_dependencies:
   flutter_test:

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
-const subPath = [
+var subPath = [
+  // "/",
   "/快传",
   "/bluetooth",
   "/Download",
   "/Download/WeiXin",
   "/tencent/MicroMsg/Download",
   "/tencent/MicroMsg/WeiXin",
+  "/Android/data/com.tencent.mobileqq/Tencent/QQFile_recv",
   "/tencent/QQFile_recv",
   "/Android/data/com.tencent.mm/MicroMsg/Download",
   "/zapya/misc",

@@ -3,9 +3,12 @@ import 'package:da_ka/db/mainDb/contentFileInfoTable.dart';
 import 'package:da_ka/mainDir/functions/utilsFunction/UtilFunction.dart';
 import 'package:flustars/flustars.dart';
 import "package:flutter/material.dart";
+import 'package:loading_overlay/loading_overlay.dart';
 import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:da_ka/global.dart';
+import 'fileScanner.dart';
+import 'package:dart_extensions/dart_extensions.dart';
 
 class ScanFilesPage extends StatefulWidget {
   @override
@@ -15,121 +18,95 @@ class ScanFilesPage extends StatefulWidget {
 class _ScanFilesPageState extends State<ScanFilesPage> {
   var basePath = "";
   BuildContext ctx;
-  bool isAllFileSearch = false;
-  bool isLoading = true;
+  bool isSearchAll = false;
+  bool isLoading = false;
   List<ContentFileInfoTable> existFile = [];
   List<String> files = <String>[];
   List<bool> selected = <bool>[];
+  bool showHiddenFile = SpUtil.getBool("scanFile_show_add");
 
   @override
   void initState() {
-    loadData();
     super.initState();
+    scanFile();
+  }
+
+  Future<void> scanFile() async {
+    showHiddenFile = SpUtil.getBool("scanFile_show_add");
+    existFile = await ContentFileInfoTable().queryAll();
+    files = [];
+    FileScanner(
+      onProgress: scanProgress,
+      onFinish: scanFinish,
+      isSearchAll: isSearchAll,
+      suffix: suffix,
+    ).start();
+    setState(() {
+      isLoading = true;
+    });
+  }
+
+  void scanProgress(File file) {
+    if (isExistPath(file.path) && showHiddenFile) {
+      return;
+    }
+    setState(() {
+      files.add(file.path);
+    });
+  }
+
+  void scanFinish() {
+    setState(() {
+      isLoading = false;
+    });
+    print("finish");
   }
 
   Future<void> onBarSelected(int index) async {
     var hasSelected = false;
     if (index == 0) {
       pop("canceled");
-    } else if (index == 1) {
-      for (int i = 0; i < selected.length; i++) {
-        selected[i] = true;
-      }
-      setState(() {});
-    } else if (index == 2) {
-      for (int i = 0; i < selected.length; i++) {
-        selected[i] = !selected[i];
-      }
-      setState(() {});
-    } else if (index == 3) {
-      for (int i = 0; i < selected.length; i++) {
-        if (selected[i] && !isExistPath(files[i])) {
-          var filePath = "$basePath/zhuhuifu/" + files[i].split("/").last;
-          //判断文件是否加密
-          if (SpUtil.getBool("Encryption")) {
-            UtilFunction.encodeFile(files[i], filePath);
-          } else {
-            File(files[i]).copySync(filePath);
-            ContentFileInfoTable.fromPath(filePath).insert();
-            hasSelected = true;
-          }
+    } else {
+      if (index == 1) {
+        for (int i = 0; i < selected.length; i++) {
+          selected[i] = true;
         }
-      }
-      if (hasSelected) {
-        showToast("添加完成");
-      }
-      pop("finished");
-    }
-  }
-
-  Future<void> loadData() async {
-    existFile = await ContentFileInfoTable().queryAll();
-    files = <String>[];
-    isAllFileSearch ? loadGlobal(SpUtil.getString("GLOBAL_PATH")) : loadLocal();
-  }
-
-  int fileCount = 0;
-  int lastFileCount = 0;
-  String zhuhuifuPath = SpUtil.getString("MAIN_PATH");
-  void loadGlobal(String path) {
-    var directory = Directory(path);
-    bool shouldUpdate = false;
-    directory.list().forEach((e) {
-      if (e is File) {
-        for (var sfx in suffix) {
-          if (e.path.endsWith(sfx)) {
-            if (isExistPath(e.path) && SpUtil.getBool("scanFile_show_add")) {
-              continue;
-            }
-            files.add(e.path);
-            shouldUpdate = true;
-          }
-        }
-      } else if (e is Directory && !e.path.contains(zhuhuifuPath)) {
-        loadGlobal(e.path);
-      }
-    }).then((value) {
-      if (shouldUpdate) {
         setState(() {});
-      }
-    });
-  }
-
-  void loadLocal() {
-    basePath = SpUtil.getString("GLOBAL_PATH");
-    for (var sp in subPath) {
-      var directory = Directory(basePath + sp);
-      if (!directory.existsSync()) {
-        continue;
-      }
-      bool shouldUpdate = false;
-      directory.list().forEach((e) {
-        if (e is File) {
-          for (var sfx in suffix) {
-            if (e.path.endsWith(sfx)) {
-              if (isExistPath(e.path) && SpUtil.getBool("scanFile_show_add")) {
-                continue;
-              }
-              files.add(e.path);
-              shouldUpdate = true;
+      } else if (index == 2) {
+        for (int i = 0; i < selected.length; i++) {
+          selected[i] = !selected[i];
+        }
+        setState(() {});
+      } else if (index == 3) {
+        for (int i = 0; i < selected.length; i++) {
+          if (selected[i] && !isExistPath(files[i])) {
+            var filePath = "$basePath/zhuhuifu/" + files[i].split("/").last;
+            //判断文件是否加密
+            if (SpUtil.getBool("Encryption")) {
+              UtilFunction.encodeFile(files[i], filePath);
+            } else {
+              File(files[i]).copySync(filePath);
+              ContentFileInfoTable.fromPath(filePath).insert();
+              hasSelected = true;
             }
           }
         }
-      }).then((value) {
-        if (shouldUpdate) {
-          setState(() {});
+        if (hasSelected) {
+          showToast("添加完成");
         }
-      });
+        pop("finished");
+      }
     }
   }
 
-  Future<void> searchAllSelected(String index) async {
-    if (index == 'searchAll') {
-      isAllFileSearch = !isAllFileSearch;
-    } else if (index == "showAdded") {
-      await SpUtil.putBool("scanFile_show_add", !SpUtil.getBool("scanFile_show_add"));
-    }
-    loadData();
+  Future<void> onPopMenuClicked(String index) async {
+    if (index == 'searchAll')
+      isSearchAll = !isSearchAll;
+    else if (index == "showAdded")
+      await SpUtil.putBool(
+          "scanFile_show_add", !SpUtil.getBool("scanFile_show_add"));
+
+    scanFile();
   }
 
   bool isExistPath(String path) {
@@ -154,7 +131,7 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
         title: Row(children: [Text("扫描文件 (${files.length})")]),
         actions: [
           PopupMenuButton(
-            onSelected: searchAllSelected,
+            onSelected: onPopMenuClicked,
             offset: Offset(0, kMinInteractiveDimension),
             itemBuilder: (BuildContext context) {
               return <PopupMenuEntry<String>>[
@@ -162,7 +139,7 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
                   value: 'searchAll',
                   child: ListTile(
                     leading: Icon(Icons.all_inclusive),
-                    title: isAllFileSearch ? Text("扫描传输文件夹") : Text("全盘扫描"),
+                    title: isSearchAll ? Text("扫描传输文件夹") : Text("全盘扫描"),
                   ),
                 ),
                 PopupMenuDivider(height: 1.0),
@@ -176,31 +153,41 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
           )
         ],
       ),
-      body: Container(
-          color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
-          child: ListView.separated(
-              itemBuilder: (context, index) {
-                return CheckboxListTile(
-                  value: isExistPath(files[index]) ? true : selected[index],
-                  onChanged: isExistPath(files[index]) ? null : (isCheck) => setState(() => selected[index] = isCheck),
-                  activeColor: Colors.red,
-                  title: Text(files[index].split("/").last),
-                  subtitle: Text(files[index]),
-                  isThreeLine: false,
-                  dense: false,
-                  selected: isExistPath(files[index]) ? true : selected[index],
-                  controlAffinity: ListTileControlAffinity.platform,
-                );
-              },
-              separatorBuilder: (context, index) {
-                return Divider();
-              },
-              itemCount: files.length)),
+      body: LoadingOverlay(
+        isLoading: isLoading,
+        child: Container(
+            color: Theme.of(context).brightness == Brightness.light
+                ? backgroundGray
+                : Colors.black,
+            child: ListView.separated(
+                itemBuilder: (context, index) {
+                  return CheckboxListTile(
+                    value: isExistPath(files[index]) ? true : selected[index],
+                    onChanged: isExistPath(files[index])
+                        ? null
+                        : (isCheck) =>
+                            setState(() => selected[index] = isCheck),
+                    activeColor: Colors.red,
+                    title: Text(files[index].split("/").last),
+                    subtitle: Text(files[index]),
+                    isThreeLine: false,
+                    dense: false,
+                    selected:
+                        isExistPath(files[index]) ? true : selected[index],
+                    controlAffinity: ListTileControlAffinity.platform,
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return Divider();
+                },
+                itemCount: files.length)),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.cancel), label: '取消'),
           BottomNavigationBarItem(icon: Icon(Icons.select_all), label: '全选'),
-          BottomNavigationBarItem(icon: Icon(Icons.tab_unselected), label: '反选'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.tab_unselected), label: '反选'),
           BottomNavigationBarItem(icon: Icon(Icons.check), label: '确定'),
         ],
         currentIndex: 0,

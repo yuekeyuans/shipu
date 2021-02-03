@@ -140,8 +140,9 @@ class _YnybXyPageState extends State<YnybXyPage> {
     footNotes.forEach((element) {
       var chapter = element.chapter;
       var section = element.section;
+      var flag = element.flag;
       for (var i = 0; i < bibles.length; i++) {
-        if (bibles[i].chapter == chapter && bibles[i].section == section) {
+        if (bibles[i].chapter == chapter && bibles[i].section == section && bibles[i].flag == flag) {
           bibles[i].footNotes.add(element);
           if (element.note == "") {
             element.note = footNotes[footNotes.indexOf(element) - 1].note;
