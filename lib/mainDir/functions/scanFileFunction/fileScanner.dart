@@ -1,11 +1,7 @@
 import 'dart:io';
 
 import 'package:flustars/flustars.dart';
-import 'package:dart_extensions/dart_extensions.dart';
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import '../../../global.dart';
-import 'dart:isolate';
 import 'package:isolate_handler/isolate_handler.dart';
 
 

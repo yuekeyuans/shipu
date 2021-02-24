@@ -56,7 +56,6 @@ class _YnybJyPageState extends State<YnybJyPage> {
 
   @override
   void initState() {
-    date = DateTime.tryParse("20120101");
     controller = AutoScrollController(viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom), axis: Axis.vertical);
     updateSetting();
     super.initState();
