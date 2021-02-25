@@ -8,7 +8,6 @@ import 'package:nav_router/nav_router.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:da_ka/global.dart';
 import 'fileScanner.dart';
-import 'package:dart_extensions/dart_extensions.dart';
 
 class ScanFilesPage extends StatefulWidget {
   @override

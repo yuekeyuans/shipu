@@ -8,7 +8,7 @@ import 'package:sqflite/sqflite.dart';
 class MnDb {
   static final MnDb _instance = MnDb.internal();
   factory MnDb() => _instance;
-  static Database _db;
+static Database _db;
 
   Future<Database> get db async {
     var dir = SpUtil.getString("DB_PATH");

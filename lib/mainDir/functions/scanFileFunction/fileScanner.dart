@@ -1,9 +1,8 @@
 import 'dart:io';
 
 import 'package:flustars/flustars.dart';
-import '../../../global.dart';
+import 'package:da_ka/global.dart';
 import 'package:isolate_handler/isolate_handler.dart';
-
 
 int depth = 0;
 
@@ -11,7 +10,6 @@ void loadSpecificDir(Map<String, dynamic> context) {
   final messenger = HandledIsolate.initialize(context);
   messenger.listen((msg) async {
     var basePath = msg.toString();
-    print("message :"+ msg.toString());
     for (var sp in subPath) {
       var directory = Directory(basePath + sp);
       if (!directory.existsSync()) {
