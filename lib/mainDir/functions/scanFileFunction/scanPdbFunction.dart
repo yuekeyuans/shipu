@@ -1,5 +1,7 @@
+import 'package:da_ka/mainDir/functions/scanFileFunction/fileScanner.dart';
 import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_overlay/loading_overlay.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -13,62 +15,50 @@ class ScanPdbFunction extends StatefulWidget {
 class _ScanPdbFunctionState extends State<ScanPdbFunction> {
   var pdbs = <PDB>[];
   String basePath = SpUtil.getString("GLOBAL_PATH");
+  //全盘扫描
+  bool isAllFileSearch = false;
+  //是否加载过程
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
     deleteISiloFiles();
-    loadData();
+    scanFile();
   }
 
-  void loadData() {
+  Future<void> scanFile() async {
     pdbs = <PDB>[];
-    isAllFileSearch ? loadGlobal(basePath) : loadLocal();
-  }
-
-  void loadLocal() async {
-    for (var sp in subPath) {
-      var directory = Directory(basePath + sp);
-      if (!await directory.exists()) {
-        continue;
-      }
-
-      directory.list().forEach((e) {
-        if (e is File) {
-          if (e.path.endsWith(".pdb")) {
-            var pdb = PDB(e.path.split("/").last, e.path);
-            pdb.copyPath = basePath + ISILO_DIR + pdb.name;
-            pdb.exist = File(pdb.copyPath).existsSync();
-            pdbs.add(pdb);
-          }
-        }
-      });
-    }
-    setState(() {});
-  }
-
-  var isiloPdbPath = SpUtil.getString("ISILO_PDB_PATH");
-  void loadGlobal(String path) {
-    var directory = Directory(path);
-    directory.list().forEach((e) {
-      if (e is File) {
-        if (e.path.endsWith(".pdb")) {
-          if (!e.path.contains(isiloPdbPath)) {
-            var pdb = PDB(e.path.split("/").last, e.path);
-            pdb.copyPath = basePath + ISILO_DIR + pdb.name;
-            pdb.exist = File(pdb.copyPath).existsSync();
-            pdbs.add(pdb);
-            setState(() {});
-          }
-        }
-      } else if (e is Directory) {
-        loadGlobal(e.path);
-      }
+    FileScanner(
+            onProgress: scanProgress,
+            onFinish: scanFinish,
+            isSearchAll: isAllFileSearch,
+            suffixes: PDB_SUFFIX)
+        .start();
+    setState(() {
+      isLoading = true;
     });
   }
 
+  void scanProgress(String file) {
+    setState(() {
+      var pdb = PDB(file.split("/").last, file);
+      pdb.copyPath = basePath + ISILO_DIR + pdb.name;
+      pdb.exist = File(pdb.copyPath).existsSync();
+      pdbs.add(pdb);
+    });
+  }
+
+  void scanFinish() {
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  //删除安装isilo 文件产生的文件
   void deleteISiloFiles() async {
-    var basePath = (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
+    var basePath =
+        (await getExternalStorageDirectory()).parent.parent.parent.parent.path;
     for (var f in ISILO_DELETE_FILES) {
       var file = File(basePath + ISILO_DIR + f);
       if (await file.exists()) {
@@ -111,15 +101,14 @@ class _ScanPdbFunctionState extends State<ScanPdbFunction> {
     if (index == 'searchAll') {
       isAllFileSearch = !isAllFileSearch;
     }
-    loadData();
+    scanFile();
   }
 
-  bool isAllFileSearch = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("扫描 pdb 文件"),
+          title: Text("扫描 pdb 文件(${pdbs.length})"),
           actions: [
             PopupMenuButton(
               onSelected: searchAllSelected,
@@ -138,24 +127,28 @@ class _ScanPdbFunctionState extends State<ScanPdbFunction> {
             )
           ],
         ),
-        body: Container(
-          color: Theme.of(context).brightness == Brightness.light ? backgroundGray : Colors.black,
-          child: ListView.separated(
-            itemCount: pdbs.length,
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                leading: Icon(Icons.book),
-                title: Text(pdbs[index].name),
-                subtitle: Text(pdbs[index].path),
-                enabled: !pdbs[index].exist,
-                onTap: () => copy(index),
-              );
-            },
-            separatorBuilder: (BuildContext context, int index) {
-              return Divider();
-            },
-          ),
-        ));
+        body: LoadingOverlay(
+            isLoading: isLoading,
+            child: Container(
+              color: Theme.of(context).brightness == Brightness.light
+                  ? backgroundGray
+                  : Colors.black,
+              child: ListView.separated(
+                itemCount: pdbs.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    leading: Icon(Icons.book),
+                    title: Text(pdbs[index].name),
+                    subtitle: Text(pdbs[index].path),
+                    enabled: !pdbs[index].exist,
+                    onTap: () => copy(index),
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return Divider();
+                },
+              ),
+            )));
   }
 }
 

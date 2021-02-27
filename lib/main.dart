@@ -136,30 +136,6 @@ Future<void> initDb() async {
   await NeeDb().db;
 }
 
-// the entry point for the isolate
-echo(SendPort sendPort) async {
-  // Open the ReceivePort for incoming messages.
-  var port = ReceivePort();
-
-  // Notify any other isolates what port this isolate listens to.
-  sendPort.send(port.sendPort);
-
-  await for (var msg in port) {
-    var data = msg[0];
-    SendPort replyTo = msg[1] as SendPort;
-    replyTo.send(data);
-    if (data == "bar") port.close();
-  }
-}
-
-/// sends a message on a port, receives the response,
-/// and returns the message
-Future sendReceive(SendPort port, msg) {
-  ReceivePort response = ReceivePort();
-  port.send([msg, response.sendPort]);
-  return response.first;
-}
-
 // pf0 文件拷贝，这个文件设置isilo 文件位置
 // 这是isilo 的文件夹位置，每次使用都拷贝一次
 Future<void> copyPf0File() async {

@@ -38,19 +38,19 @@ class _ScanFilesPageState extends State<ScanFilesPage> {
       onProgress: scanProgress,
       onFinish: scanFinish,
       isSearchAll: isSearchAll,
-      suffix: suffix,
+      suffixes: suffix,
     ).start();
     setState(() {
       isLoading = true;
     });
   }
 
-  void scanProgress(File file) {
-    if (isExistPath(file.path) && showHiddenFile) {
+  void scanProgress(String file) {
+    if (isExistPath(file) && showHiddenFile) {
       return;
     }
     setState(() {
-      files.add(file.path);
+      files.add(file);
     });
   }
 

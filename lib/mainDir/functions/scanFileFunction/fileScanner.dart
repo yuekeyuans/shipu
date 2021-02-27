@@ -9,7 +9,9 @@ int depth = 0;
 void loadSpecificDir(Map<String, dynamic> context) {
   final messenger = HandledIsolate.initialize(context);
   messenger.listen((msg) async {
-    var basePath = msg.toString();
+    var args = msg.toString().split("%%");
+    var basePath = args[0];
+    var suffixes = stringToList(args[1]);
     for (var sp in subPath) {
       var directory = Directory(basePath + sp);
       if (!directory.existsSync()) {
@@ -17,7 +19,7 @@ void loadSpecificDir(Map<String, dynamic> context) {
       }
       directory.list().forEach((e) {
         if (e is File) {
-          for (var sfx in suffix) {
+          for (var sfx in suffixes) {
             if (e.path.endsWith(sfx)) {
               messenger.send(e.path);
             }
@@ -34,43 +36,57 @@ void loadAllDir(Map<String, dynamic> context) {
   final messenger = HandledIsolate.initialize(context);
   depth = 0;
   messenger.listen((msg) async {
-    var basePath = msg.toString();
-    print("message :"+ msg.toString());
-      loadAllDirRecurse(basePath, messenger);
-    }
-  );
+    var args = msg.toString().split("%%");
+    var basePath = args[0];
+    var suffixes = stringToList(args[1]);
+    loadAllDirRecurse(basePath, messenger, suffixes);
+  });
 }
 
-void loadAllDirRecurse(String path, HandledIsolateMessenger messenger){
-  depth ++;
+void loadAllDirRecurse(
+    String path, HandledIsolateMessenger messenger, List<String> suffixes) {
+  depth++;
   var directory = Directory(path);
   directory.list().forEach((e) async {
     if (e is File) {
-      if (suffix.isEmpty) {
+      if (suffixes.isEmpty) {
         messenger.send(e.path);
       } else {
-        for (var sfx in suffix) {
+        for (var sfx in suffixes) {
           if (e.path.endsWith(sfx)) {
             messenger.send(e.path);
           }
         }
       }
     } else {
-      await loadAllDirRecurse(e.path, messenger);
+      await loadAllDirRecurse(e.path, messenger, suffixes);
     }
   }).then((value) {
     depth--;
-    print(depth);
     if (depth == 0) {
       messenger.send(null);
     }
   });
 }
 
+String listToString(List<String> list) {
+  if (list == null) {
+    return "";
+  }
+  String result;
+  list.forEach((string) =>
+      {if (result == null) result = string else result = '$result,$string'});
+  return result.toString();
+}
+
+List<String> stringToList(String list) {
+  return list.split(',');
+}
+
 class FileScanner {
-  void Function(File message) onProgress;
+  void Function(String file) onProgress;
   void Function() onFinish;
-  List<String> suffix;
+  List<String> suffixes;
   List<File> selectedPath = [];
   bool isSearchAll = false;
   String path;
@@ -79,24 +95,22 @@ class FileScanner {
   final isolates = IsolateHandler();
 
   FileScanner(
-      {void Function(File message) onProgress,
+      {void Function(String file) onProgress,
       void Function() onFinish,
-      List<String> suffix = const [],
+      List<String> suffixes = const [],
       bool isSearchAll = false,
       String path = ""}) {
     this.onProgress = onProgress;
     this.onFinish = onFinish;
-    this.suffix = suffix;
+    this.suffixes = suffixes;
     this.isSearchAll = isSearchAll;
     this.path = path;
   }
 
-  void receiveFile(String f){
-    print(f);
-    if(f != null){
-      var file = File(f);
-      onProgress(file);
-    }else{
+  void receiveFile(String f) {
+    if (f != null) {
+      onProgress(f);
+    } else {
       onFinish();
       isolates.kill('path');
     }
@@ -104,22 +118,23 @@ class FileScanner {
 
   Future<void> start() async {
     var basePath = SpUtil.getString("GLOBAL_PATH");
+    var sendPath = basePath + "%%" + listToString(suffixes);
     depth = 0;
     if (!isSearchAll) {
-      print("search specific");
+      // search defined address
       isolates.spawn<String>(
         loadSpecificDir,
         name: "loadSpecific",
         onReceive: this.receiveFile,
-        onInitialized: () => isolates.send(basePath, to: 'loadSpecific'),
+        onInitialized: () => isolates.send(sendPath, to: 'loadSpecific'),
       );
-    }else{
-      print("search all");
+    } else {
+      // print("search all");
       isolates.spawn<String>(
         loadAllDir,
         name: "loadAll",
         onReceive: this.receiveFile,
-        onInitialized: () => isolates.send(basePath, to: 'loadAll'),
+        onInitialized: () => isolates.send(sendPath, to: 'loadAll'),
       );
     }
   }
